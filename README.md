@@ -6,3 +6,7 @@
 ```sh
 $ brew install supabase/tap/supabase
 ```
+- Run supabase
+```sh
+$ supabase start
+```
