@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "prisma:up": "prisma db push",
+    "prisma:build": "prisma generate"
+  },
   "devDependencies": {
-    "prisma": "^3.6.0"
+    "prisma": "3.6.0"
+  },
+  "dependencies": {
+    "@prisma/client": "3.6.0"
   }
 }
