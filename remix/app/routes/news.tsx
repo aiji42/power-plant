@@ -18,7 +18,7 @@ const IMAGE_HOST = 'https://image.mgstage.com'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const params = new URL(request.url).searchParams
-  const page = params.get('page') ?? 1
+  const page = Number(params.get('page') ?? 1)
   const res = await fetch(
     HOST + `/api/n/search/index.php?sort=new&page=${page}`,
     {
