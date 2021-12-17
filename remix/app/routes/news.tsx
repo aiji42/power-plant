@@ -1,36 +1,26 @@
 import { LoaderFunction, useLoaderData } from 'remix'
 import { VFC } from 'react'
-import { parse } from 'node-html-parser'
 
 type Data = {
-  url: string
-  title: string
-  image: string
-  sample: string
-  actor: string
+  pid: string
+  sku: string
+  image_path: string
+  name: string
+  sample_movie_path: string
+  suggest_actor: string
 }[]
 
+const HOST = 'https://sp.mgstage.com'
+const IMAGE_HOST = 'https://image.mgstage.com'
+
 export const loader: LoaderFunction = async () => {
-  const res = await fetch(
-    'https://www.mgstage.com/search/cSearch.php?sort=new',
-    {
-      headers: {
-        Cookie: 'adc=1'
-      }
+  const res = await fetch(HOST + '/api/n/search/index.php?sort=new', {
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Mobile Safari/537.36'
     }
-  )
-  const text = await res.text()
-  const root = parse(text)
-
-  const lists = root.querySelectorAll('.rank_list li')
-
-  return lists.map<Data[number]>((node) => ({
-    url: node.querySelector('a')?.getAttribute('href') ?? '',
-    title: node.querySelector('.title')?.innerText ?? '',
-    image: node.querySelector('img')?.getAttribute('src') ?? '',
-    sample: node.querySelector('.button_sample')?.getAttribute('href') ?? '',
-    actor: node.querySelector('.name a')?.innerText ?? ''
-  }))
+  })
+  return JSON.parse(await res.text()).search_result
 }
 
 const News: VFC = () => {
@@ -38,15 +28,32 @@ const News: VFC = () => {
 
   return (
     <>
-      {data.map(({ url, title, image }) => (
-        <a href={url} key={url}>
-          <p>{title}</p>
-          <img
-            loading="lazy"
-            src={image.replace('pf_t1', 'pf_e')}
-            width="50%"
+      {data.map(({ sku, image_path, name, sample_movie_path }) => (
+        <div className="w-full flex mb-2" key={sku}>
+          <a
+            href={HOST + `/product/product_detail/${sku}`}
+            className="h-48 w-36 flex-none bg-contain bg-no-repeat text-center overflow-hidden"
+            style={{
+              backgroundImage: `url("${IMAGE_HOST + image_path}")`
+            }}
           />
-        </a>
+          <div className="flex flex-col justify-between leading-normal">
+            <div className="mb-8">
+              <a
+                href={HOST + `/product/product_detail/${sku}`}
+                className="text-gray-200 block text-sm mb-2"
+              >
+                {name.slice(0, 70)}
+              </a>
+              <a
+                className="text-gray-200 py-2 px-4 border border-gray-200 rounded"
+                href={sample_movie_path}
+              >
+                Sample
+              </a>
+            </div>
+          </div>
+        </div>
       ))}
     </>
   )
