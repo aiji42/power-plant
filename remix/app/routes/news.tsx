@@ -1,26 +1,34 @@
-import { LoaderFunction, useLoaderData } from 'remix'
+import { Link, LoaderFunction, useLoaderData } from 'remix'
 import { VFC } from 'react'
 
 type Data = {
-  pid: string
-  sku: string
-  image_path: string
-  name: string
-  sample_movie_path: string
-  suggest_actor: string
-}[]
+  items: {
+    pid: string
+    sku: string
+    image_path: string
+    name: string
+    sample_movie_path: string
+    suggest_actor: string
+  }[]
+  page: number
+}
 
 const HOST = 'https://sp.mgstage.com'
 const IMAGE_HOST = 'https://image.mgstage.com'
 
-export const loader: LoaderFunction = async () => {
-  const res = await fetch(HOST + '/api/n/search/index.php?sort=new', {
-    headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Mobile Safari/537.36'
+export const loader: LoaderFunction = async ({ request }) => {
+  const params = new URL(request.url).searchParams
+  const page = params.get('page') ?? 1
+  const res = await fetch(
+    HOST + `/api/n/search/index.php?sort=new&page=${page}`,
+    {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Mobile Safari/537.36'
+      }
     }
-  })
-  return JSON.parse(await res.text()).search_result
+  )
+  return { items: JSON.parse(await res.text()).search_result, page }
 }
 
 const News: VFC = () => {
@@ -28,7 +36,7 @@ const News: VFC = () => {
 
   return (
     <>
-      {data.map(({ sku, image_path, name, sample_movie_path }) => (
+      {data.items.map(({ sku, image_path, name, sample_movie_path }) => (
         <div className="w-full flex mb-2" key={sku}>
           <a
             href={HOST + `/product/product_detail/${sku}`}
@@ -55,6 +63,22 @@ const News: VFC = () => {
           </div>
         </div>
       ))}
+      <div className="px-4 py-3 flex items-center justify-between border-t border-gray-300">
+        <div className="flex-1 flex justify-between">
+          <Link
+            to={`/news?page=${Math.max(data.page - 1, 1)}`}
+            className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-200"
+          >
+            Previous
+          </Link>
+          <Link
+            to={`/news?page=${data.page + 1}`}
+            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-200"
+          >
+            Next
+          </Link>
+        </div>
+      </div>
     </>
   )
 }
