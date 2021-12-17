@@ -10,6 +10,7 @@ import {
 } from 'remix'
 import type { LinksFunction } from 'remix'
 import style from '~/tailwind.css'
+import { useReducer } from 'react'
 
 // https://remix.run/api/app#links
 export let links: LinksFunction = () => {
@@ -92,11 +93,11 @@ function Document({
   title?: string
 }) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        {title ? <title>{title}</title> : null}
+        {title ?? <title>{title}</title>}
         <Meta />
         <Links />
       </head>
@@ -111,36 +112,54 @@ function Document({
 }
 
 function Layout({ children }: { children: React.ReactNode }) {
+  const [open, toggle] = useReducer((s) => !s, false)
   return (
-    <div className="remix-app">
-      <header className="remix-app__header">
-        <div className="container remix-app__header-content">
-          <Link to="/" title="Remix" className="remix-app__header-home-link">
-            <RemixLogo />
-          </Link>
-          <nav aria-label="Main navigation" className="remix-app__header-nav">
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <a href="https://remix.run/docs">Remix Docs</a>
-              </li>
-              <li>
-                <a href="https://github.com/remix-run/remix">GitHub</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
+    <div className="bg-gray-900">
+      <header className="mb-2">
+        <nav className="flex items-center justify-between flex-wrap p-4 border-b border-gray-500">
+          <div className="flex items-center flex-shrink-0 text-white mr-6" />
+          <div className="block lg:hidden">
+            <button
+              onClick={toggle}
+              className="flex items-center px-3 py-2 border rounded text-gray-200 border-gray-400 hover:text-white hover:border-white"
+            >
+              <svg
+                className="fill-current h-3 w-3"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <title>Menu</title>
+                <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
+              </svg>
+            </button>
+          </div>
+          {open && (
+            <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
+              <div className="text-sm lg:flex-grow">
+                <Link
+                  to="/news"
+                  className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
+                >
+                  news
+                </Link>
+                <Link
+                  to="#responsive-header"
+                  className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
+                >
+                  Examples
+                </Link>
+                <Link
+                  to="#responsive-header"
+                  className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white"
+                >
+                  Blog
+                </Link>
+              </div>
+            </div>
+          )}
+        </nav>
       </header>
-      <div className="remix-app__main">
-        <div className="container remix-app__main-content">{children}</div>
-      </div>
-      <footer className="remix-app__footer">
-        <div className="container remix-app__footer-content">
-          <p>&copy; You!</p>
-        </div>
-      </footer>
+      <div className="p-1">{children}</div>
     </div>
   )
 }
