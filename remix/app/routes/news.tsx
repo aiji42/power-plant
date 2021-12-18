@@ -24,11 +24,12 @@ export const loader: LoaderFunction = async ({ request }) => {
     {
       headers: {
         'User-Agent':
-          'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Mobile Safari/537.36'
+          'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Mobile Safari/537.36',
+        'Content-Type': 'application/json'
       }
     }
   )
-  return { items: JSON.parse(await res.text()).search_result, page }
+  return { items: (await res.json()).search_result, page }
 }
 
 const News: VFC = () => {
@@ -56,6 +57,8 @@ const News: VFC = () => {
               <a
                 className="text-gray-200 py-2 px-4 border border-gray-200 rounded"
                 href={sample_movie_path}
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 Sample
               </a>
