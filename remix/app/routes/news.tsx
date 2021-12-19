@@ -39,8 +39,8 @@ const News: VFC = () => {
     <>
       {data.items.map(({ sku, image_path, name, sample_movie_path }) => (
         <div className="w-full flex mb-2" key={sku}>
-          <a
-            href={HOST + `/product/product_detail/${sku}`}
+          <Link
+            to={`/product/${sku}`}
             className="h-48 w-36 flex-none bg-contain bg-no-repeat text-center overflow-hidden"
             style={{
               backgroundImage: `url("${IMAGE_HOST + image_path}")`
@@ -48,12 +48,12 @@ const News: VFC = () => {
           />
           <div className="flex flex-col justify-between leading-normal">
             <div className="mb-8">
-              <a
-                href={HOST + `/product/product_detail/${sku}`}
+              <Link
+                to={`/product/${sku}`}
                 className="text-gray-200 block text-sm mb-2"
               >
                 {name.slice(0, 70)}
-              </a>
+              </Link>
               <a
                 className="text-gray-200 py-2 px-4 border border-gray-200 rounded"
                 href={sample_movie_path}
