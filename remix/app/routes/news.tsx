@@ -54,14 +54,6 @@ const News: VFC = () => {
               >
                 {name.slice(0, 70)}
               </Link>
-              <a
-                className="text-gray-200 py-2 px-4 border border-gray-200 rounded"
-                href={sample_movie_path}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Sample
-              </a>
             </div>
           </div>
         </div>
