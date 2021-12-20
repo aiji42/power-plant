@@ -86,22 +86,26 @@ const Product = () => {
       )}
       {fetcher.data && (
         <dl className="text-gray-200 mb-4">
-          {fetcher.data.data.map(({ title, link, completed }, index) => (
-            <div
-              key={index}
-              className={`${
-                index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
-              }  px-4 py-5 grid grid-cols-3 gap-4`}
-            >
-              <dt className="text-sm font-medium text-gray-200">
-                <a href={link}>Download</a>
-              </dt>
-              <dd className="text-sm text-gray-200 mt-0 col-span-2">
-                <p>{title}</p>
-                <p>completed: {completed}</p>
-              </dd>
-            </div>
-          ))}
+          {fetcher.data.data.map(
+            ({ title, link, completed, size, registeredAt }, index) => (
+              <div
+                key={index}
+                className={`${
+                  index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
+                }  px-4 py-5 grid grid-cols-3 gap-4`}
+              >
+                <dt className="text-sm font-medium text-gray-200">
+                  <a href={link}>Download</a>
+                </dt>
+                <dd className="text-sm text-gray-200 mt-0 col-span-2">
+                  <p>{title}</p>
+                  <p>completed: {completed}</p>
+                  <p>size: {size}</p>
+                  <p>registered: {registeredAt}</p>
+                </dd>
+              </div>
+            )
+          )}
         </dl>
       )}
 
