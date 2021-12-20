@@ -10,6 +10,8 @@ datasource db {
 model Product {
   id           String        @id @default(uuid())
   code         String        @unique
+  isDownloaded Boolean       @default(false)
+  isLiked      Boolean       @default(false)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   title        String
@@ -23,25 +25,4 @@ model Product {
   mainImageUrl String?
   subImageUrls String[]
   releasedAt   DateTime?
-  interactions Interaction[]
-}
-
-model Interaction {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  productId String?
-  userId    String?
-  isLiked   Boolean  @default(false)
-  playCount Int
-  product   Product? @relation(fields: [productId], references: [id])
-  user      User?    @relation(fields: [userId], references: [id])
-}
-
-model User {
-  id           String        @id @default(uuid())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  email        String        @unique
-  interactions Interaction[]
 }
