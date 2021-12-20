@@ -1,6 +1,8 @@
-import { LoaderFunction, useLoaderData } from 'remix'
+import { LoaderFunction, useFetcher, useLoaderData } from 'remix'
 import parse, { HTMLElement } from 'node-html-parser'
 import chunk from 'chunk'
+import { useEffect } from 'react'
+import { Data as FetcherData } from './$sku/torrent'
 
 const HOST = 'https://sp.mgstage.com'
 
@@ -55,6 +57,12 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
 
 const Product = () => {
   const { title, images, sample, ...data } = useLoaderData<Data>()
+  const fetcher = useFetcher<{ data: FetcherData }>()
+
+  useEffect(() => {
+    fetcher.load(`/product/${data['品番']}/torrent`)
+  }, [fetcher.load])
+
   return (
     <>
       <h1 className="text-gray-200 mb-4">{title}</h1>
@@ -73,7 +81,31 @@ const Product = () => {
           </div>
         ))}
       </dl>
-      {sample && <video src={sample} />}
+      {fetcher.state === 'loading' && (
+        <div className="text-gray-200 text-center mb-4">Loading</div>
+      )}
+      {fetcher.data && (
+        <dl className="text-gray-200 mb-4">
+          {fetcher.data.data.map(({ title, link, completed }, index) => (
+            <div
+              key={index}
+              className={`${
+                index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
+              }  px-4 py-5 grid grid-cols-3 gap-4`}
+            >
+              <dt className="text-sm font-medium text-gray-200">
+                <a href={link}>Download</a>
+              </dt>
+              <dd className="text-sm text-gray-200 mt-0 col-span-2">
+                <p>{title}</p>
+                <p>completed: {completed}</p>
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {sample && <video src={sample} controls />}
 
       {images.map((src) => (
         <img src={src} loading="lazy" className="w-full mb-2" key={src} />
