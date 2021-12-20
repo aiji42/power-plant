@@ -1,4 +1,5 @@
 require('dotenv').config()
+const alias = require('esbuild-plugin-alias')
 const isProd = process.env.NODE_ENV === 'production'
 
 require('esbuild')
@@ -12,6 +13,11 @@ require('esbuild')
       'process.env.NODE_ENV': `"${process.env.NODE_ENV ?? 'development'}"`,
       'process.env.SUPABASE_URL': `"${process.env.SUPABASE_URL}"`,
       'process.env.SUPABASE_API_KEY': `"${process.env.SUPABASE_API_KEY}"`
-    }
+    },
+    plugins: [
+      alias({
+        'node-html-parser': require.resolve('node-html-parser')
+      })
+    ]
   })
   .catch(() => process.exit(1))
