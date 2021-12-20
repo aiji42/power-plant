@@ -14,42 +14,52 @@ export type Data = {
 const HOST = 'https://sukebei.nyaa.si'
 
 export const loader: LoaderFunction = async ({ params }) => {
-  const res = await fetch(
-    `${HOST}/?q=${params.sku?.replace(/^SP-/, '')}&f=0&c=0_0`
-  )
-  const html = await res.text()
-  const root = parse(html)
-  const trs = root.querySelectorAll('tr.default')
-  const data = trs
-    .map((tr) => {
-      return tr
-        .querySelectorAll('td')
-        .slice(1)
-        .map((td) => {
-          const a = td.querySelector('a')
-          if (a) {
-            const href = a.getAttribute('href')
-            if (!href?.startsWith('/download')) return a.innerText
-            return href
-          }
-          return td.innerText
-        })
-    })
-    .reduce<Data>(
-      (res, [title, link, size, registeredAt, seeder, leech, completed]) => [
-        ...res,
-        {
-          title,
-          link: `${HOST}${link}`,
-          size,
-          registeredAt,
-          seeder,
-          leech,
-          completed
-        }
-      ],
-      []
-    )
+  const code = params.sku?.replace(/^SP-/, '') ?? ''
+  const [, short1, short2] = code.match(/\d+([a-z]+)-(\d+)/i) ?? []
+  const shortCode = short1 && short2 ? `${short1}-${short2}` : null
+  const codes = [code, shortCode].filter((s): s is string => !!s)
 
-  return { data }
+  const dataList = await Promise.all(
+    codes.map(async (q) => {
+      const res = await fetch(`${HOST}/?q=${q}&f=0&c=0_0`)
+      const html = await res.text()
+      const root = parse(html)
+      const trs = root.querySelectorAll('tr.default')
+      return trs
+        .map((tr) => {
+          return tr
+            .querySelectorAll('td')
+            .slice(1)
+            .map((td) => {
+              const a = td.querySelector('a')
+              if (a) {
+                const href = a.getAttribute('href')
+                if (!href?.startsWith('/download')) return a.innerText
+                return href
+              }
+              return td.innerText
+            })
+        })
+        .reduce<Data>(
+          (
+            res,
+            [title, link, size, registeredAt, seeder, leech, completed]
+          ) => [
+            ...res,
+            {
+              title,
+              link: `${HOST}${link}`,
+              size,
+              registeredAt,
+              seeder,
+              leech,
+              completed
+            }
+          ],
+          []
+        )
+    })
+  )
+
+  return { data: dataList.flat() }
 }
