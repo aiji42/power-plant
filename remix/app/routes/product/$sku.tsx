@@ -14,6 +14,16 @@ type Data = {
   sample: string | undefined
 }
 
+const mapping: Record<string, string> = {
+  出演: 'actor',
+  シリーズ: 'series',
+  メーカー: 'maker',
+  ジャンル: 'genre',
+  配信開始日: 'releasedAt',
+  品番: 'code',
+  収録時間: 'length'
+}
+
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   const res = await fetch(HOST + `/product/product_detail/${sku}/`, {
     headers: {
@@ -33,7 +43,8 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
           !['dd', 'dt'].includes(node.rawTagName)
         )
           return res
-        if (node.rawTagName === 'dt') return [...res, node.innerText]
+        if (node.rawTagName === 'dt')
+          return [...res, mapping[node.innerText] ?? node.innerText]
         if (node.childNodes.length === 1)
           return [...res, node.childNodes[0].innerText]
         return [
@@ -60,7 +71,7 @@ const Product = () => {
   const fetcher = useFetcher<{ data: FetcherData }>()
 
   useEffect(() => {
-    fetcher.load(`/product/${data['品番']}/torrent`)
+    fetcher.load(`/product/${data.code}/torrent`)
   }, [fetcher.load])
 
   return (
