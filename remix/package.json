@@ -17,6 +17,7 @@
   "dependencies": {
     "@remix-run/cloudflare-workers": "^1.1.1",
     "@remix-run/react": "^1.1.1",
+    "@supabase/supabase-js": "^1.28.6",
     "chunk": "^0.0.3",
     "node-html-parser": "^5.1.0",
     "react": "^17.0.2",
