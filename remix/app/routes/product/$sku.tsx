@@ -1,8 +1,15 @@
-import { LoaderFunction, useFetcher, useLoaderData } from 'remix'
+import {
+  ActionFunction,
+  LoaderFunction,
+  useFetcher,
+  useLoaderData
+} from 'remix'
 import parse, { HTMLElement } from 'node-html-parser'
 import chunk from 'chunk'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { Data as FetcherData } from './$sku/torrent'
+import { createClient } from '@supabase/supabase-js'
+import { v4 as uuidv4 } from 'uuid'
 
 const HOST = 'https://sp.mgstage.com'
 
@@ -11,14 +18,22 @@ type Data = {
 } & {
   images: string[]
   title: string
-  sample: string | undefined
+  sample?: string | undefined
+  code: string
+  releasedAt: string
+  series?: string
+  maker?: string
+  actor?: string
+  length: string
+  genres?: string[]
+  stored: boolean
 }
 
 const mapping: Record<string, string> = {
   出演: 'actor',
   シリーズ: 'series',
   メーカー: 'maker',
-  ジャンル: 'genre',
+  ジャンル: 'genres',
   配信開始日: 'releasedAt',
   品番: 'code',
   収録時間: 'length'
@@ -63,12 +78,75 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
     .filter((src) => /\.jpg$/.test(src ?? ''))
   const sample = root.querySelector('#sample-movie')?.getAttribute('src')
 
-  return { ...info, title, images, sample }
+  const supabase = createClient(
+    process.env.SUPABASE_URL ?? '',
+    process.env.SUPABASE_API_KEY ?? '',
+    { fetch: (...args) => fetch(...args) }
+  )
+  const { data } = await supabase
+    .from('Product')
+    .select('id')
+    .match({ code: info.code })
+  return { ...info, title, images, sample, stored: (data?.length ?? 0) > 0 }
+}
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData()
+  const supabase = createClient(
+    process.env.SUPABASE_URL ?? '',
+    process.env.SUPABASE_API_KEY ?? '',
+    { fetch: (...args) => fetch(...args) }
+  )
+  const record = Array.from(formData).reduce<
+    Record<string, null | string | string[]>
+  >(
+    (res, [name, value]) =>
+      typeof value === 'string'
+        ? {
+            ...res,
+            [name]:
+              value === ''
+                ? null
+                : /^\[.+]$/.test(value)
+                ? JSON.parse(value)
+                : /^\d+$/.test(value)
+                ? Number(value)
+                : value
+          }
+        : res,
+    {}
+  )
+  const { data } = await supabase
+    .from('Product')
+    .select('id')
+    .match({ code: record.code })
+  if (data?.length)
+    await supabase.from('Product').delete().match({ code: record.code })
+  else await supabase.from('Product').insert([{ id: uuidv4(), ...record }])
+  return null
 }
 
 const Product = () => {
-  const { title, images, sample, ...data } = useLoaderData<Data>()
+  const { title, images, sample, stored, ...data } = useLoaderData<Data>()
   const fetcher = useFetcher<{ data: FetcherData }>()
+
+  const store = useCallback(() => {
+    fetcher.submit(
+      {
+        title,
+        code: data.code,
+        series: data.series ?? '',
+        releasedAt: data.releasedAt ?? '',
+        genres: JSON.stringify(data.genres ?? []),
+        maker: data.maker ?? '',
+        mainActor: data.actor ?? '',
+        mainImageUrl: images.slice(0, 1)[0] ?? '',
+        subImageUrls: JSON.stringify(images.slice(1) ?? []),
+        length: data.length.match(/\d+/)?.[0] ?? ''
+      },
+      { method: 'post' }
+    )
+  }, [])
 
   useEffect(() => {
     fetcher.load(`/product/${data.code}/torrent`)
@@ -76,7 +154,12 @@ const Product = () => {
 
   return (
     <>
-      <h1 className="text-gray-200 mb-4">{title}</h1>
+      <div className="grid grid-cols-8">
+        <h1 className="text-gray-200 mb-4  col-span-7">{title}</h1>
+        <button onClick={store} className="text-yellow-600 text-2xl">
+          {stored ? '★' : '☆'}
+        </button>
+      </div>
       <dl className="text-gray-200 mb-4">
         {Object.entries(data).map(([key, val], index) => (
           <div
