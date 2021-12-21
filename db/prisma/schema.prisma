@@ -13,7 +13,7 @@ model Product {
   isDownloaded Boolean       @default(false)
   isLiked      Boolean       @default(false)
   createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  updatedAt    DateTime      @default(now())
   title        String
   maker        String?
   series       String?
@@ -25,4 +25,5 @@ model Product {
   mainImageUrl String?
   subImageUrls String[]
   releasedAt   DateTime?
+  length       Int?
 }

@@ -21,7 +21,7 @@ export const loader: LoaderFunction = async ({ params }) => {
 
   const dataList = await Promise.all(
     codes.map(async (q) => {
-      const res = await fetch(`${HOST}/?q=${q}&f=0&c=0_0`)
+      const res = await fetch(`${HOST}s/?q=${q}&f=0&c=0_0`)
       const html = await res.text()
       const root = parse(html)
       const trs = root.querySelectorAll('tr.default')
