@@ -1,4 +1,6 @@
-require('dotenv').config()
+require('dotenv').config({
+  path: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env'
+})
 const alias = require('esbuild-plugin-alias')
 const isProd = process.env.NODE_ENV === 'production'
 

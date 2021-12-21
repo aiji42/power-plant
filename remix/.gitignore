@@ -6,6 +6,7 @@ node_modules
 /public/build
 
 .env
+.env.prod
 .mf
 
 /app/tailwind.css
