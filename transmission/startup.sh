@@ -1,6 +1,6 @@
 #!/bin/bash
 
-wget -P /watch $TARGET_URL
+wget -P /watch $@
 
 while [ ! -f /downloads/complete/completed ]
 do
