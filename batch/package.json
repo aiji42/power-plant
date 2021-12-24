@@ -3,10 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "prisma:build": "prisma generate --schema=../db/prisma/schema.prisma"
+  },
   "devDependencies": {
-    "@types/node": "^17.0.4"
+    "@types/node": "^17.0.4",
+    "prisma": "^3.7.0"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.45.0"
+    "@aws-sdk/client-s3": "^3.45.0",
+    "@prisma/client": "^3.7.0"
   }
 }

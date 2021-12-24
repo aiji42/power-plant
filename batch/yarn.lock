@@ -799,6 +799,23 @@
   dependencies:
     tslib "^2.3.0"
 
+"@prisma/client@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-3.7.0.tgz#9cafc105f12635c95e9b7e7b18e8fbf52cf3f18a"
+  integrity sha512-fUJMvBOX5C7JPc0e3CJD6Gbelbu4dMJB4ScYpiht8HMUnRShw20ULOipTopjNtl6ekHQJ4muI7pXlQxWS9nMbw==
+  dependencies:
+    "@prisma/engines-version" "3.7.0-31.8746e055198f517658c08a0c426c7eec87f5a85f"
+
+"@prisma/engines-version@3.7.0-31.8746e055198f517658c08a0c426c7eec87f5a85f":
+  version "3.7.0-31.8746e055198f517658c08a0c426c7eec87f5a85f"
+  resolved "https://registry.yarnpkg.com/@prisma/engines-version/-/engines-version-3.7.0-31.8746e055198f517658c08a0c426c7eec87f5a85f.tgz#055f36ac8b06c301332c14963cd0d6c795942c90"
+  integrity sha512-+qx2b+HK7BKF4VCa0LZ/t1QCXsu6SmvhUQyJkOD2aPpmOzket4fEnSKQZSB0i5tl7rwCDsvAiSeK8o7rf+yvwg==
+
+"@prisma/engines@3.7.0-31.8746e055198f517658c08a0c426c7eec87f5a85f":
+  version "3.7.0-31.8746e055198f517658c08a0c426c7eec87f5a85f"
+  resolved "https://registry.yarnpkg.com/@prisma/engines/-/engines-3.7.0-31.8746e055198f517658c08a0c426c7eec87f5a85f.tgz#12f28d5b78519fbd84c89a5bdff457ff5095e7a2"
+  integrity sha512-W549ub5NlgexNhR8EFstA/UwAWq3Zq0w9aNkraqsozVCt2CsX+lK4TK7IW5OZVSnxHwRjrgEAt3r9yPy8nZQRg==
+
 "@types/node@^17.0.4":
   version "17.0.4"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.4.tgz#fec0ce0526abb6062fd206d72a642811b887a111"
@@ -818,6 +835,13 @@ fast-xml-parser@3.19.0:
   version "3.19.0"
   resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-3.19.0.tgz#cb637ec3f3999f51406dd8ff0e6fc4d83e520d01"
   integrity sha512-4pXwmBplsCPv8FOY1WRakF970TjNGnGnfbOnLqjlYvMiF1SR3yOHyxMR/YCXpPTOspNF5gwudqktIP4VsWkvBg==
+
+prisma@^3.7.0:
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/prisma/-/prisma-3.7.0.tgz#9c73eeb2f16f767fdf523d0f4cc4c749734d62e2"
+  integrity sha512-pzgc95msPLcCHqOli7Hnabu/GRfSGSUWl5s2P6N13T/rgMB+NNeKbxCmzQiZT2yLOeLEPivV6YrW1oeQIwJxcg==
+  dependencies:
+    "@prisma/engines" "3.7.0-31.8746e055198f517658c08a0c426c7eec87f5a85f"
 
 tslib@^1.11.1:
   version "1.14.1"
