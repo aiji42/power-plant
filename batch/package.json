@@ -1,0 +1,12 @@
+{
+  "name": "batch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^17.0.4"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.45.0"
+  }
+}
