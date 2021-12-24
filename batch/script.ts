@@ -50,14 +50,21 @@ const upload = async (files: string[], code: string) =>
         Body: fs.readFileSync(filePath),
         ACL: 'public-read'
       })
-      return s3.send(command).then(() => filePath)
+      return s3
+        .send(command)
+        .then(
+          () =>
+            `https://${process.env.BUCKET}.s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${key}`
+        )
     })
   )
 
 const main = async () => {
   const id = process.argv[2]
+  const minSize = Number(process.argv[3] || '500')
 
   if (!id) throw new Error('pass product record id for args')
+  if (!(minSize > 0)) throw new Error('pass min file size number for args')
 
   const product = await prisma.product.findUnique({ where: { id } })
   if (!product) throw new Error(`No record id: ${id}`)
@@ -69,7 +76,7 @@ const main = async () => {
     await download(product.torrentUrl, '/downloads')
     const urls = await upload(
       listFiles('/downloads').filter(
-        (filePath) => fs.statSync(filePath).size > 500000000
+        (filePath) => fs.statSync(filePath).size > minSize * 1000000
       ),
       product.code
     )
