@@ -26,4 +26,6 @@ model Product {
   subImageUrls String[]
   releasedAt   DateTime?
   length       Int?
+  isProcessing Boolean       @default(false)
+  torrentUrl   String?
 }
