@@ -2,6 +2,8 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { spawn } from 'child_process'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
 const s3 = new S3Client({
   region: process.env.AWS_DEFAULT_REGION
@@ -45,23 +47,44 @@ const upload = async (files: string[], code: string) =>
       const command = new PutObjectCommand({
         Bucket: process.env.BUCKET,
         Key: key,
-        Body: fs.readFileSync(filePath)
+        Body: fs.readFileSync(filePath),
+        ACL: 'public-read'
       })
-      return s3.send(command)
+      return s3.send(command).then(() => filePath)
     })
   )
 
 const main = async () => {
-  const target = process.argv[2]
-  if (!target) throw new Error('pass torrent file link for args')
+  const id = process.argv[2]
 
-  await download(target, '/downloads')
-  await upload(
-    listFiles('/downloads').filter(
-      (filePath) => fs.statSync(filePath).size > 500000000
-    ),
-    'TEST-123'
-  )
+  if (!id) throw new Error('pass product record id for args')
+
+  const product = await prisma.product.findUnique({ where: { id } })
+  if (!product) throw new Error(`No record id: ${id}`)
+  if (!product.torrentUrl || product.isProcessing)
+    throw new Error(`The product is not ready for downloading`)
+  await prisma.product.update({ where: { id }, data: { isProcessing: true } })
+
+  try {
+    await download(product.torrentUrl, '/downloads')
+    const urls = await upload(
+      listFiles('/downloads').filter(
+        (filePath) => fs.statSync(filePath).size > 500000000
+      ),
+      product.code
+    )
+    await prisma.product.update({
+      where: { id },
+      data: { mediaUrls: urls, isDownloaded: true, isProcessing: false }
+    })
+  } catch (e) {
+    if (e instanceof Error) console.error(e.message)
+    await prisma.product.update({
+      where: { id },
+      data: { isProcessing: false }
+    })
+    throw e
+  }
 }
 
 main()
