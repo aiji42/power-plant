@@ -3,7 +3,9 @@ import * as path from 'path'
 import { spawn } from 'child_process'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 
-const s3 = new S3Client({})
+const s3 = new S3Client({
+  region: process.env.AWS_DEFAULT_REGION
+})
 
 const aria = async (target: string) =>
   new Promise((resolve, reject) => {
@@ -38,12 +40,12 @@ const upload = async (files: string[], code: string, sizeMin = 500000000) =>
     files
       .filter((filePath) => fs.statSync(filePath).size > sizeMin)
       .map((filePath, index) => {
-        const key = `/downloads/complete/001/${code}/${index + 1}${path.extname(
-          filePath
-        )}`
+        const key = `${process.env.KEY_PREFIX}/${code}/${
+          index + 1
+        }${path.extname(filePath)}`
         console.log('uploading: ', filePath, ' => ', key)
         const command = new PutObjectCommand({
-          Bucket: 'transmission-project',
+          Bucket: process.env.BUCKET,
           Key: key,
           Body: fs.readFileSync(filePath)
         })
