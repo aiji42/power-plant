@@ -60,7 +60,7 @@ const main = async () => {
   await aria(target)
   const files = listFiles('/downloads')
   const code = 'TEST-123'
-  await upload(files, code, 2000000)
+  await upload(files, code)
 }
 
 main()
