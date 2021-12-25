@@ -11,10 +11,16 @@ const s3 = new S3Client({
 
 const download = async (target: string, dir: string) =>
   new Promise((resolve, reject) => {
-    console.log(`> aria2c -d ${dir} --seed-time=0 ${target}`)
-    const aria2c = spawn('aria2c', [`-d ${dir} --seed-time=0 ${target}`], {
-      shell: true
-    })
+    console.log(
+      `> aria2c -d ${dir} --seed-time=0 --max-overall-upload-limit=1K ${target}`
+    )
+    const aria2c = spawn(
+      'aria2c',
+      [`-d ${dir} --seed-time=0 --max-overall-upload-limit=1K ${target}`],
+      {
+        shell: true
+      }
+    )
     aria2c.stdout.on('data', (data) => {
       console.log(data.toString())
     })
@@ -47,7 +53,7 @@ const upload = async (files: string[], code: string) =>
       const command = new PutObjectCommand({
         Bucket: process.env.BUCKET,
         Key: key,
-        Body: fs.readFileSync(filePath),
+        Body: fs.createReadStream(filePath),
         ACL: 'public-read'
       })
       return s3
