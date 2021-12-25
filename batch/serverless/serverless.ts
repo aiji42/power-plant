@@ -20,7 +20,8 @@ const serverlessConfiguration: AWS = {
     lambdaHashingVersion: '20201221',
     iam: {
       role: '${env:SEVERLESS_EXECUTE_ROLE}'
-    }
+    },
+    region: '${env:AWS_DEFAULT_REGION}' as AWS['provider']['region']
   },
   // import the function via paths
   functions: { product },
