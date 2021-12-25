@@ -57,3 +57,4 @@ jobs:
           AWS_DEFAULT_REGION: ap-northeast-1
           JOB_DEFINITION: ${{ secrets.JOB_DEFINITION }}
           JOB_QUEUE: ${{ secrets.JOB_QUEUE }}
+          SEVERLESS_EXECUTE_ROLE: ${{ SEVERLESS_EXECUTE_ROLE }}
