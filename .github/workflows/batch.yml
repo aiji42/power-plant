@@ -37,3 +37,23 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY --build-arg AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION --build-arg BUCKET=$BUCKET --build-arg KEY_PREFIX=$KEY_PREFIX --build-arg DATABASE_URL=$DATABASE_URL -f batch/Dockerfile .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+  serverless-deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 14.x ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn install && yarn serverless deploy --stage=production
+        working-directory: ./batch/serverless
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-1
+          JOB_DEFINITION: ${{ JOB_DEFINITION }}
+          JOB_QUEUE: ${{ JOB_QUEUE }}
