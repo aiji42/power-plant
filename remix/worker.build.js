@@ -14,7 +14,8 @@ require('esbuild')
     define: {
       'process.env.NODE_ENV': `"${process.env.NODE_ENV ?? 'development'}"`,
       'process.env.SUPABASE_URL': `"${process.env.SUPABASE_URL}"`,
-      'process.env.SUPABASE_API_KEY': `"${process.env.SUPABASE_API_KEY}"`
+      'process.env.SUPABASE_API_KEY': `"${process.env.SUPABASE_API_KEY}"`,
+      'process.env.BATCH_JOB_SLS_ENDPOINT': `"${process.env.BATCH_JOB_SLS_ENDPOINT}"`
     },
     plugins: [
       alias({

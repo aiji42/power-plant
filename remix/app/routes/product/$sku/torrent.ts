@@ -89,13 +89,15 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   console.log(new Date().toISOString())
 
-  await supabase
+  const { data } = await supabase
     .from('Product')
     .update({
       torrentUrl: formData.get('torrentUrl'),
       updatedAt: new Date().toISOString()
     })
     .match({ code: params.sku })
+  if (data?.[0].id && process.env.NODE_ENV === 'production')
+    await fetch(`${process.env.BATCH_JOB_SLS_ENDPOINT}${data?.[0].id}`)
 
   return null
 }
