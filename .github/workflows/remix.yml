@@ -8,16 +8,23 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 14.x ]
     timeout-minutes: 60
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn install
+        working-directory: './remix'
       - name: Publish Worker
         uses: cloudflare/wrangler-action@1.3.0
         with:
           workingDirectory: remix
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          preCommands: yarn
           postCommands: yarn deploy
         env:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
