@@ -143,10 +143,10 @@ function Layout({ children }: { children: React.ReactNode }) {
                   news
                 </Link>
                 <Link
-                  to="#responsive-header"
+                  to="/stocks"
                   className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
                 >
-                  Examples
+                  stocks
                 </Link>
                 <Link
                   to="#responsive-header"
