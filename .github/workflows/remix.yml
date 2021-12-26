@@ -18,7 +18,10 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn install && yarn deploy
+      - run: |
+          yarn install
+          yarn global add @cloudflare/wrangler
+          yarn deploy
         working-directory: './remix'
         env:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
