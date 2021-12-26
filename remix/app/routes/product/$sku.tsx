@@ -27,6 +27,10 @@ type Data = {
   length: string
   genres?: string[]
   stored: boolean
+  mediaUrls?: string[]
+  torrentUrl?: string
+  isDownloaded: boolean
+  isProcessing: boolean
 }
 
 const mapping: Record<string, string> = {
@@ -85,9 +89,16 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   )
   const { data } = await supabase
     .from('Product')
-    .select('id')
+    .select('mediaUrls, torrentUrl, isProcessing, isDownloaded')
     .match({ code: info.code })
-  return { ...info, title, images, sample, stored: (data?.length ?? 0) > 0 }
+  return {
+    ...info,
+    title,
+    images,
+    sample,
+    stored: (data?.length ?? 0) > 0,
+    ...data?.[0]
+  }
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -127,11 +138,23 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 const Product = () => {
-  const { title, images, sample, stored, ...data } = useLoaderData<Data>()
-  const fetcher = useFetcher<{ data: FetcherData }>()
+  const {
+    title,
+    images,
+    sample,
+    stored,
+    mediaUrls,
+    torrentUrl,
+    isDownloaded,
+    isProcessing,
+    ...data
+  } = useLoaderData<Data>()
+  const torrentsFetcher = useFetcher<{ data: FetcherData }>()
+  const stockFetcher = useFetcher()
+  const torrentUrlFetcher = useFetcher()
 
-  const store = useCallback(() => {
-    fetcher.submit(
+  const stock = useCallback(() => {
+    stockFetcher.submit(
       {
         title,
         code: data.code,
@@ -146,20 +169,44 @@ const Product = () => {
       },
       { method: 'post' }
     )
-  }, [])
+  }, [stockFetcher.submit])
+
+  const setTorrent = useCallback(
+    (url: string) => {
+      torrentUrlFetcher.submit(
+        { torrentUrl: url },
+        { method: 'post', action: `/product/${data.code}/torrent` }
+      )
+    },
+    [torrentUrlFetcher.submit, data.code]
+  )
 
   useEffect(() => {
-    fetcher.load(`/product/${data.code}/torrent`)
-  }, [fetcher.load])
+    torrentsFetcher.load(`/product/${data.code}/torrent`)
+  }, [torrentsFetcher.load])
 
   return (
     <>
       <div className="grid grid-cols-8">
         <h1 className="text-gray-200 mb-4  col-span-7">{title}</h1>
-        <button onClick={store} className="text-yellow-600 text-2xl">
+        <button onClick={stock} className="text-yellow-600 text-2xl">
           {stored ? '★' : '☆'}
         </button>
       </div>
+      <dl className="text-gray-200 mb-4">
+        <div className="bg-gray-800 px-4 py-5 grid grid-cols-3 gap-4">
+          <dt className="text-sm font-medium text-gray-200">isProcessing</dt>
+          <dd className="text-sm text-yellow-600 mt-0 col-span-2">
+            {isProcessing && '●'}
+          </dd>
+        </div>
+        <div className="bg-gray-700 px-4 py-5 grid grid-cols-3 gap-4">
+          <dt className="text-sm font-medium text-gray-200">isDownloaded</dt>
+          <dd className="text-sm text-green-500 mt-0 col-span-2">
+            {isDownloaded && '●'}
+          </dd>
+        </div>
+      </dl>
       <dl className="text-gray-200 mb-4">
         {Object.entries(data).map(([key, val], index) => (
           <div
@@ -175,12 +222,17 @@ const Product = () => {
           </div>
         ))}
       </dl>
-      {fetcher.state === 'loading' && (
+
+      {mediaUrls?.map((src) => (
+        <video src={src} controls key={src} className="mb-4" />
+      ))}
+
+      {torrentsFetcher.state === 'loading' && (
         <div className="text-gray-200 text-center mb-4">Loading</div>
       )}
-      {fetcher.data && (
+      {torrentsFetcher.data && (
         <dl className="text-gray-200 mb-4">
-          {fetcher.data.data.map(
+          {torrentsFetcher.data.data.map(
             ({ title, link, completed, size, registeredAt }, index) => (
               <div
                 key={index}
@@ -189,7 +241,11 @@ const Product = () => {
                 }  px-4 py-5 grid grid-cols-3 gap-4`}
               >
                 <dt className="text-sm font-medium text-gray-200">
-                  <a href={link}>Download</a>
+                  {torrentUrl === link ? (
+                    <span className="text-green-500">●</span>
+                  ) : stored ? (
+                    <button onClick={() => setTorrent(link)}>Set</button>
+                  ) : null}
                 </dt>
                 <dd className="text-sm text-gray-200 mt-0 col-span-2">
                   <p>{title}</p>
