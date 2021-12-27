@@ -87,12 +87,11 @@ export const action: ActionFunction = async ({ request, params }) => {
     { fetch: (...args) => fetch(...args) }
   )
 
-  console.log(new Date().toISOString())
-
   const { data } = await supabase
     .from('Product')
     .update({
       torrentUrl: formData.get('torrentUrl'),
+      isProcessing: false,
       updatedAt: new Date().toISOString()
     })
     .match({ code: params.sku })
