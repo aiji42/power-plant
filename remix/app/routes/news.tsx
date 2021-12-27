@@ -29,7 +29,11 @@ export const loader: LoaderFunction = async ({ request }) => {
       }
     }
   )
-  return { items: (await res.json()).search_result, page }
+  return {
+    items: ((await res.json()) as { search_result: Data['items'] })
+      .search_result,
+    page
+  }
 }
 
 const News: VFC = () => {
