@@ -149,10 +149,16 @@ function Layout({ children }: { children: React.ReactNode }) {
                   stocks
                 </Link>
                 <Link
-                  to="#responsive-header"
+                  to="/stocks?isDownloaded=1"
                   className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white"
                 >
-                  Blog
+                  downloaded
+                </Link>
+                <Link
+                  to="/stocks?isDownloaded=0"
+                  className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white"
+                >
+                  not downloaded
                 </Link>
               </div>
             </div>

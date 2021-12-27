@@ -14,28 +14,45 @@ type Data = {
     isProcessing: boolean
   }[]
   page: number
+  isDownloaded: string | undefined
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
   const params = new URL(request.url).searchParams
   const page = Number(params.get('page') ?? 1)
+  const filterDownloaded =
+    params.get('isDownloaded') === '1'
+      ? true
+      : params.get('isDownloaded') === '0'
+      ? false
+      : undefined
   const supabase = createClient(
     process.env.SUPABASE_URL ?? '',
     process.env.SUPABASE_API_KEY ?? '',
     { fetch: (...args) => fetch(...args) }
   )
 
-  const { data } = await supabase
-    .from('Product')
-    .select('*')
-    .order('createdAt', { ascending: false })
-    .range((page - 1) * 20, page * 20 - 1)
+  const { data } =
+    filterDownloaded === undefined
+      ? await supabase
+          .from('Product')
+          .select('*')
+          .order('createdAt', { ascending: false })
+          .range((page - 1) * 20, page * 20 - 1)
+      : await supabase
+          .from('Product')
+          .select('*')
+          .filter('isDownloaded', 'eq', filterDownloaded)
+          .order('createdAt', { ascending: false })
+          .range((page - 1) * 20, page * 20 - 1)
 
-  return { items: data, page }
+  return { items: data, page, isDownloaded: params.get('isDownloaded') }
 }
 
 const Stocks: VFC = () => {
   const data = useLoaderData<Data>()
+
+  console.log(data)
 
   return (
     <>
@@ -72,13 +89,17 @@ const Stocks: VFC = () => {
       <div className="px-4 py-3 flex items-center justify-between border-t border-gray-300">
         <div className="flex-1 flex justify-between">
           <Link
-            to={`/stocks?page=${Math.max(data.page - 1, 1)}`}
+            to={`/stocks?page=${Math.max(data.page - 1, 1)}${
+              data.isDownloaded && `&isDownloaded=${data.isDownloaded}`
+            }`}
             className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-200"
           >
             Previous
           </Link>
           <Link
-            to={`/stocks?page=${data.page + 1}`}
+            to={`/stocks?page=${data.page + 1}${
+              data.isDownloaded && `&isDownloaded=${data.isDownloaded}`
+            }`}
             className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-200"
           >
             Next
