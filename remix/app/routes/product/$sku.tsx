@@ -242,7 +242,7 @@ const Product = () => {
               >
                 <dt className="text-sm font-medium text-gray-200">
                   {torrentUrl === link ? (
-                    <span className="text-green-500">●</span>
+                    <button className="text-red-500">Restart</button>
                   ) : stored ? (
                     <button onClick={() => setTorrent(link)}>Set</button>
                   ) : null}
