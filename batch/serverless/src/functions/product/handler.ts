@@ -16,7 +16,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       jobDefinition: process.env.JOB_DEFINITION,
       jobQueue: process.env.JOB_QUEUE,
       timeout: {
-        attemptDurationSeconds: 1800
+        attemptDurationSeconds: 2700
       },
       containerOverrides: {
         vcpus: 1,
