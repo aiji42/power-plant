@@ -1,24 +1,41 @@
 import {
+  ActionFunction,
+  Form,
   Link,
   Links,
   LiveReload,
+  LoaderFunction,
   Meta,
   Outlet,
+  redirect,
   Scripts,
   ScrollRestoration,
-  useCatch
+  useActionData,
+  useCatch,
+  useLoaderData
 } from 'remix'
 import type { LinksFunction } from 'remix'
 import style from '~/tailwind.css'
 import { useReducer } from 'react'
+import { supabaseClient } from '~/utils/supabase.server'
+import { getSession } from '~/utils/session.server'
 
-// https://remix.run/api/app#links
 export let links: LinksFunction = () => {
   return [{ rel: 'stylesheet', href: style }]
 }
 
-// https://remix.run/api/conventions#default-export
-// https://remix.run/api/conventions#route-filenames
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url)
+  const session = await getSession(request.headers.get('Cookie'))
+  const { user } = await supabaseClient.auth.api.getUser(
+    session.get('access_token')
+  )
+  if (url.pathname !== '/' && !user) return redirect('/')
+  if (url.pathname === '/' && user) return redirect('/news')
+
+  return { user }
+}
+
 export default function App() {
   return (
     <Document>
