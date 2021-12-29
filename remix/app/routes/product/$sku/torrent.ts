@@ -1,7 +1,6 @@
 import { LoaderFunction, json, ActionFunction } from 'remix'
 import parse from 'node-html-parser'
-import { createClient } from '@supabase/supabase-js'
-import { v4 as uuidv4 } from 'uuid'
+import { supabaseClient } from '~/utils/supabase.server'
 
 export type Data = {
   title: string
@@ -81,13 +80,7 @@ export const loader: LoaderFunction = async ({ params }) => {
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData()
 
-  const supabase = createClient(
-    process.env.SUPABASE_URL ?? '',
-    process.env.SUPABASE_API_KEY ?? '',
-    { fetch: (...args) => fetch(...args) }
-  )
-
-  const { data } = await supabase
+  const { data } = await supabaseClient
     .from('Product')
     .update({
       torrentUrl: formData.get('torrentUrl'),

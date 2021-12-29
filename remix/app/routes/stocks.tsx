@@ -1,6 +1,6 @@
 import { VFC } from 'react'
 import { Link, LoaderFunction, useLoaderData } from 'remix'
-import { createClient } from '@supabase/supabase-js'
+import { supabaseClient } from '~/utils/supabase.server'
 
 type Data = {
   items: {
@@ -26,20 +26,15 @@ export const loader: LoaderFunction = async ({ request }) => {
       : params.get('isDownloaded') === '0'
       ? false
       : undefined
-  const supabase = createClient(
-    process.env.SUPABASE_URL ?? '',
-    process.env.SUPABASE_API_KEY ?? '',
-    { fetch: (...args) => fetch(...args) }
-  )
 
   const { data } =
     filterDownloaded === undefined
-      ? await supabase
+      ? await supabaseClient
           .from('Product')
           .select('*')
           .order('createdAt', { ascending: false })
           .range((page - 1) * 20, page * 20 - 1)
-      : await supabase
+      : await supabaseClient
           .from('Product')
           .select('*')
           .filter('isDownloaded', 'eq', filterDownloaded)
@@ -51,8 +46,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 const Stocks: VFC = () => {
   const data = useLoaderData<Data>()
-
-  console.log(data)
 
   return (
     <>

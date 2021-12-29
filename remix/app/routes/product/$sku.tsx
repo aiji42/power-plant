@@ -8,7 +8,7 @@ import parse, { HTMLElement } from 'node-html-parser'
 import chunk from 'chunk'
 import { useCallback, useEffect } from 'react'
 import { Data as FetcherData } from './$sku/torrent'
-import { createClient } from '@supabase/supabase-js'
+import { supabaseClient } from '~/utils/supabase.server'
 import { v4 as uuidv4 } from 'uuid'
 
 const HOST = 'https://sp.mgstage.com'
@@ -82,12 +82,7 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
     .filter((src) => /\.jpg$/.test(src ?? ''))
   const sample = root.querySelector('#sample-movie')?.getAttribute('src')
 
-  const supabase = createClient(
-    process.env.SUPABASE_URL ?? '',
-    process.env.SUPABASE_API_KEY ?? '',
-    { fetch: (...args) => fetch(...args) }
-  )
-  const { data } = await supabase
+  const { data } = await supabaseClient
     .from('Product')
     .select('mediaUrls, torrentUrl, isProcessing, isDownloaded')
     .match({ code: info.code })
@@ -103,11 +98,6 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
-  const supabase = createClient(
-    process.env.SUPABASE_URL ?? '',
-    process.env.SUPABASE_API_KEY ?? '',
-    { fetch: (...args) => fetch(...args) }
-  )
   const record = Array.from(formData).reduce<
     Record<string, null | string | string[]>
   >(
@@ -127,13 +117,14 @@ export const action: ActionFunction = async ({ request }) => {
         : res,
     {}
   )
-  const { data } = await supabase
+  const { data } = await supabaseClient
     .from('Product')
     .select('id')
     .match({ code: record.code })
   if (data?.length)
-    await supabase.from('Product').delete().match({ code: record.code })
-  else await supabase.from('Product').insert([{ id: uuidv4(), ...record }])
+    await supabaseClient.from('Product').delete().match({ code: record.code })
+  else
+    await supabaseClient.from('Product').insert([{ id: uuidv4(), ...record }])
   return null
 }
 
