@@ -1,33 +1,59 @@
-import { useActionData, Form, ActionFunction, redirect, json } from 'remix'
+import {
+  useActionData,
+  Form,
+  ActionFunction,
+  redirect,
+  useLocation,
+  useSubmit
+} from 'remix'
 import { supabaseClient } from '~/utils/supabase.server'
 import { commitSession, getSession } from '~/utils/session.server'
+import { useEffect } from 'react'
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()
-  const email = form.get('email') as string
-  const password = form.get('password') as string
+  let token: string | null = null
+  if (form.has('email') && form.has('password')) {
+    const email = form.get('email') as string
+    const password = form.get('password') as string
 
-  const { session: user, error } = await supabaseClient.auth.signIn({
-    email,
-    password
-  })
-
-  if (user) {
-    const session = await getSession(request.headers.get('Cookie'))
-    session.set('access_token', user.access_token)
-
-    return redirect('/news', {
-      headers: {
-        'Set-Cookie': await commitSession(session)
-      }
+    const { session: user, error } = await supabaseClient.auth.signIn({
+      email,
+      password
     })
+
+    if (!user || error) return { user, error: error?.message }
+    token = user.access_token
+  }
+  if (form.has('access_token')) {
+    const { user, error } = await supabaseClient.auth.api.getUser(
+      form.get('access_token') as string
+    )
+    if (!user || error) return { user, error: error?.message }
+    token = form.get('access_token') as string
   }
 
-  return json({ user, error: error?.message })
+  const session = await getSession(request.headers.get('Cookie'))
+  session.set('access_token', token)
+  return redirect('/news', {
+    headers: {
+      'Set-Cookie': await commitSession(session)
+    }
+  })
 }
 
 export default function Index() {
   const actionData = useActionData()
+  const { hash } = useLocation()
+  const submit = useSubmit()
+  useEffect(() => {
+    const [token] = hash.replace('#', '').split('&')
+    if (token.startsWith('access_token='))
+      submit(
+        { access_token: token.replace('access_token=', '') },
+        { method: 'post', action: '/?index' }
+      )
+  }, [hash, submit])
 
   return (
     <div className="flex items-center justify-center min-h-screen">
