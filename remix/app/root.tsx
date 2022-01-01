@@ -193,7 +193,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                 <form className="w-full max-w-sm" onSubmit={onSubmit}>
                   <div className="flex items-center border-b border-indigo-500 py-2">
                     <input
-                      className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+                      className="appearance-none bg-transparent border-none w-full text-gray-200 mr-3 py-1 px-2 leading-tight focus:outline-none"
                       type="text"
                       onChange={onChange}
                     />
