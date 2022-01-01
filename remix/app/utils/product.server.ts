@@ -77,7 +77,7 @@ export const productFromSite = async (
     ? info.actor
     : [info.actor]
   delete info.actor
-  const length = info.length ? Number(info.length) : 0
+  const length = typeof info.length === 'string' ? parseInt(info.length) : 0
 
   return {
     ...info,

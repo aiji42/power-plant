@@ -1,56 +1,29 @@
 import { LoaderFunction, useFetcher, useLoaderData } from 'remix'
 import { useCallback, useEffect } from 'react'
 import { Data as FetcherData } from './$sku/torrent'
-import { supabaseClient } from '~/utils/supabase.server'
 import { ProductFromSite, productFromSite } from '~/utils/product.server'
-import { StockLoaderData } from '~/routes/product/$sku/stock'
-
-type Data = ProductFromSite & {
-  stored: boolean
-  mediaUrls?: string[]
-  torrentUrl?: string
-  isDownloaded: boolean
-  isProcessing: boolean
-}
+import { DBData } from '~/routes/product/$sku/db'
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
-  const product = await productFromSite(sku)
-
-  const { data } = await supabaseClient
-    .from('Product')
-    .select('mediaUrls, torrentUrl, isProcessing, isDownloaded')
-    .match({ code: product.code })
-  return {
-    ...product,
-    ...data?.[0]
-  }
+  return await productFromSite(sku)
 }
 
 const Product = () => {
-  const {
-    title,
-    mainImageUrl,
-    subImageUrls,
-    sample,
-    mediaUrls,
-    torrentUrl,
-    isDownloaded,
-    isProcessing,
-    ...data
-  } = useLoaderData<Data>()
+  const { title, mainImageUrl, subImageUrls, sample, ...data } =
+    useLoaderData<ProductFromSite>()
   const torrentsFetcher = useFetcher<{ data: FetcherData }>()
-  const stockFetcher = useFetcher<StockLoaderData>()
+  const dbFetcher = useFetcher<DBData>()
   const torrentUrlFetcher = useFetcher()
 
   useEffect(() => {
-    stockFetcher.load(`/product/${data.code}/stock`)
-  }, [stockFetcher.load, data.code])
+    dbFetcher.load(`/product/${data.code}/db`)
+  }, [dbFetcher.load, data.code])
   const stock = useCallback(() => {
-    stockFetcher.submit(null, {
-      method: stockFetcher.data?.isStocked ? 'delete' : 'post',
-      action: `/product/${data.code}/stock`
+    dbFetcher.submit(null, {
+      method: dbFetcher.data?.isSaved ? 'delete' : 'post',
+      action: `/product/${data.code}/db`
     })
-  }, [stockFetcher.submit, stockFetcher.data, data.code])
+  }, [dbFetcher.submit, dbFetcher.data?.isSaved, data.code])
 
   const setTorrent = useCallback(
     (url: string) => {
@@ -71,23 +44,26 @@ const Product = () => {
       <div className="grid grid-cols-8">
         <h1 className="text-gray-200 mb-4  col-span-7">{title}</h1>
         <button onClick={stock} className="text-yellow-600 text-2xl">
-          {stockFetcher.data?.isStocked ? '★' : '☆'}
+          {dbFetcher.data?.isSaved ? '★' : '☆'}
         </button>
       </div>
-      <dl className="text-gray-200 mb-4">
-        <div className="bg-gray-800 px-4 py-5 grid grid-cols-3 gap-4">
-          <dt className="text-sm font-medium text-gray-200">isProcessing</dt>
-          <dd className="text-sm text-yellow-600 mt-0 col-span-2">
-            {isProcessing && '●'}
-          </dd>
-        </div>
-        <div className="bg-gray-700 px-4 py-5 grid grid-cols-3 gap-4">
-          <dt className="text-sm font-medium text-gray-200">isDownloaded</dt>
-          <dd className="text-sm text-green-500 mt-0 col-span-2">
-            {isDownloaded && '●'}
-          </dd>
-        </div>
-      </dl>
+      {dbFetcher.data && (
+        <dl className="text-gray-200 mb-4">
+          <div className="bg-gray-800 px-4 py-5 grid grid-cols-3 gap-4">
+            <dt className="text-sm font-medium text-gray-200">isProcessing</dt>
+            <dd className="text-sm text-yellow-600 mt-0 col-span-2">
+              {dbFetcher.data.isProcessing && '●'}
+            </dd>
+          </div>
+          <div className="bg-gray-700 px-4 py-5 grid grid-cols-3 gap-4">
+            <dt className="text-sm font-medium text-gray-200">isDownloaded</dt>
+            <dd className="text-sm text-green-500 mt-0 col-span-2">
+              {dbFetcher.data.isDownloaded && '●'}
+            </dd>
+          </div>
+        </dl>
+      )}
+
       <dl className="text-gray-200 mb-4">
         {Object.entries(data).map(([key, val], index) => (
           <div
@@ -104,7 +80,7 @@ const Product = () => {
         ))}
       </dl>
 
-      {mediaUrls?.map((src) => (
+      {dbFetcher.data?.mediaUrls?.map((src) => (
         <video src={src} controls key={src} className="mb-4" />
       ))}
 
@@ -122,14 +98,14 @@ const Product = () => {
                 }  px-4 py-5 grid grid-cols-3 gap-4`}
               >
                 <dt className="text-sm font-medium text-gray-200">
-                  {torrentUrl === link ? (
+                  {dbFetcher.data?.torrentUrl === link ? (
                     <button
                       onClick={() => setTorrent(link)}
                       className="text-red-500"
                     >
                       Restart
                     </button>
-                  ) : stockFetcher.data?.isStocked ? (
+                  ) : dbFetcher.data?.isSaved ? (
                     <button onClick={() => setTorrent(link)}>Set</button>
                   ) : null}
                 </dt>
