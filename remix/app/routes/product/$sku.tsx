@@ -1,14 +1,9 @@
-import {
-  ActionFunction,
-  LoaderFunction,
-  useFetcher,
-  useLoaderData
-} from 'remix'
+import { LoaderFunction, useFetcher, useLoaderData } from 'remix'
 import { useCallback, useEffect } from 'react'
 import { Data as FetcherData } from './$sku/torrent'
 import { supabaseClient } from '~/utils/supabase.server'
-import { v4 as uuidv4 } from 'uuid'
 import { ProductFromSite, productFromSite } from '~/utils/product.server'
+import { StockLoaderData } from '~/routes/product/$sku/stock'
 
 type Data = ProductFromSite & {
   stored: boolean
@@ -27,53 +22,8 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
     .match({ code: product.code })
   return {
     ...product,
-    stored: (data?.length ?? 0) > 0,
     ...data?.[0]
   }
-}
-
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
-  const code = formData.get('code') as string
-  if (!code) return null
-  const { data } = await supabaseClient
-    .from('Product')
-    .select('id')
-    .match({ code })
-  const {
-    title,
-    mainImageUrl,
-    subImageUrls,
-    mainActor,
-    subActors,
-    length,
-    genres,
-    series,
-    releasedAt,
-    maker
-  } = await productFromSite(code)
-
-  if (data?.length)
-    await supabaseClient.from('Product').delete().match({ code })
-  else
-    await supabaseClient.from('Product').insert([
-      {
-        id: uuidv4(),
-        code,
-        title,
-        mainImageUrl,
-        subImageUrls,
-        mainActor,
-        subActors,
-        length,
-        genres,
-        series,
-        releasedAt,
-        maker
-      }
-    ])
-
-  return null
 }
 
 const Product = () => {
@@ -82,7 +32,6 @@ const Product = () => {
     mainImageUrl,
     subImageUrls,
     sample,
-    stored,
     mediaUrls,
     torrentUrl,
     isDownloaded,
@@ -90,17 +39,18 @@ const Product = () => {
     ...data
   } = useLoaderData<Data>()
   const torrentsFetcher = useFetcher<{ data: FetcherData }>()
-  const stockFetcher = useFetcher()
+  const stockFetcher = useFetcher<StockLoaderData>()
   const torrentUrlFetcher = useFetcher()
 
+  useEffect(() => {
+    stockFetcher.load(`/product/${data.code}/stock`)
+  }, [stockFetcher.load, data.code])
   const stock = useCallback(() => {
-    stockFetcher.submit(
-      {
-        code: data.code
-      },
-      { method: 'post' }
-    )
-  }, [stockFetcher.submit])
+    stockFetcher.submit(null, {
+      method: stockFetcher.data?.isStocked ? 'delete' : 'post',
+      action: `/product/${data.code}/stock`
+    })
+  }, [stockFetcher.submit, stockFetcher.data, data.code])
 
   const setTorrent = useCallback(
     (url: string) => {
@@ -121,7 +71,7 @@ const Product = () => {
       <div className="grid grid-cols-8">
         <h1 className="text-gray-200 mb-4  col-span-7">{title}</h1>
         <button onClick={stock} className="text-yellow-600 text-2xl">
-          {stored ? '★' : '☆'}
+          {stockFetcher.data?.isStocked ? '★' : '☆'}
         </button>
       </div>
       <dl className="text-gray-200 mb-4">
@@ -179,7 +129,7 @@ const Product = () => {
                     >
                       Restart
                     </button>
-                  ) : stored ? (
+                  ) : stockFetcher.data?.isStocked ? (
                     <button onClick={() => setTorrent(link)}>Set</button>
                   ) : null}
                 </dt>
