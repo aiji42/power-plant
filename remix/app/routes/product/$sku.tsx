@@ -13,7 +13,6 @@ const Product = () => {
     useLoaderData<ProductFromSite>()
   const torrentsFetcher = useFetcher<TorrentsData>()
   const dbFetcher = useFetcher<DBData>()
-  const torrentUrlFetcher = useFetcher()
 
   useEffect(() => {
     dbFetcher.load(`/product/${data.code}/db`)
@@ -24,15 +23,15 @@ const Product = () => {
       action: `/product/${data.code}/db`
     })
   }, [dbFetcher.submit, dbFetcher.data?.isSaved, data.code])
-
-  const setTorrent = useCallback(
+  const handleTorrent = useCallback(
     (url: string) => {
-      torrentUrlFetcher.submit(
-        { torrentUrl: url },
-        { method: 'post', action: `/product/${data.code}/torrent` }
-      )
+      dbFetcher.data?.isSaved &&
+        dbFetcher.submit(
+          { torrentUrl: url, isProcessing: 'false' },
+          { method: 'patch', action: `/product/${data.code}/db` }
+        )
     },
-    [torrentUrlFetcher.submit, data.code]
+    [dbFetcher.submit, data.code, dbFetcher.data?.isSaved]
   )
 
   useEffect(() => {
@@ -100,13 +99,13 @@ const Product = () => {
                 <dt className="text-sm font-medium text-gray-200">
                   {dbFetcher.data?.torrentUrl === link ? (
                     <button
-                      onClick={() => setTorrent(link)}
+                      onClick={() => handleTorrent(link)}
                       className="text-red-500"
                     >
                       Restart
                     </button>
                   ) : dbFetcher.data?.isSaved ? (
-                    <button onClick={() => setTorrent(link)}>Set</button>
+                    <button onClick={() => handleTorrent(link)}>Set</button>
                   ) : null}
                 </dt>
                 <dd className="text-sm text-gray-200 mt-0 col-span-2">

@@ -42,6 +42,48 @@ export const action: ActionFunction = async ({ request, params }) => {
       isProcessing: false
     } as DBData
   }
+  if (request.method === 'PATCH') {
+    const formData = Array.from((await request.formData()).entries()).reduce<
+      Record<string, string | boolean | number>
+    >(
+      (res, [k, v]) =>
+        typeof v !== 'string'
+          ? res
+          : {
+              ...res,
+              [k]:
+                v === 'false'
+                  ? false
+                  : v === 'true'
+                  ? true
+                  : Number.isNaN(Number(v))
+                  ? v
+                  : Number(v)
+            },
+      {}
+    )
+    const { data } = await supabaseClient
+      .from('Product')
+      .update({
+        ...formData,
+        updatedAt: new Date().toISOString()
+      })
+      .match({ code })
+    if (
+      formData.torrentUrl &&
+      data?.[0].id &&
+      process.env.NODE_ENV === 'production'
+    )
+      await fetch(`${process.env.BATCH_JOB_SLS_ENDPOINT}${data[0].id}`)
+    return {
+      isSaved: true,
+      isLiked: data?.[0].isLiked,
+      mediaUrls: data?.[0].mediaUrls,
+      torrentUrl: data?.[0].torrentUrl,
+      isDownloaded: data?.[0].isDownloaded,
+      isProcessing: data?.[0].isProcessing
+    } as DBData
+  }
 
   const {
     title,

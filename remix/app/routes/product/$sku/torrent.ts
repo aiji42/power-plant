@@ -1,5 +1,4 @@
-import { LoaderFunction, json, ActionFunction } from 'remix'
-import { supabaseClient } from '~/utils/supabase.server'
+import { LoaderFunction, json } from 'remix'
 import { searchTorrents, SearchedResult } from '~/utils/torrents.server'
 
 export type TorrentsData = SearchedResult[]
@@ -26,22 +25,4 @@ export const loader: LoaderFunction = async ({ params }) => {
       'cache-control': 'public, max-age=3600, stale-while-revalidate=3600'
     }
   })
-}
-
-export const action: ActionFunction = async ({ request, params }) => {
-  const formData = await request.formData()
-
-  const { data } = await supabaseClient
-    .from('Product')
-    .update({
-      torrentUrl: formData.get('torrentUrl'),
-      isProcessing: false,
-      updatedAt: new Date().toISOString()
-    })
-    .match({ code: params.sku })
-
-  if (data?.[0].id && process.env.NODE_ENV === 'production')
-    await fetch(`${process.env.BATCH_JOB_SLS_ENDPOINT}${data?.[0].id}`)
-
-  return null
 }
