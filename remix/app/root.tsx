@@ -29,7 +29,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     session.get('access_token')
   )
   if (url.pathname !== '/' && !user) return redirect('/')
-  if (url.pathname === '/' && user) return redirect('/news')
+  if (url.pathname === '/' && user) return redirect('/products')
 
   return { user }
 }
@@ -160,28 +160,16 @@ function Layout({ children }: { children: React.ReactNode }) {
             <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
               <div className="text-sm lg:flex-grow">
                 <Link
-                  to="/news"
+                  to="/products"
                   className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
                 >
                   news
                 </Link>
                 <Link
-                  to="/stocks"
+                  to="/products?mode=stocked"
                   className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
                 >
                   stocks
-                </Link>
-                <Link
-                  to="/stocks?isDownloaded=1"
-                  className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white"
-                >
-                  downloaded
-                </Link>
-                <Link
-                  to="/stocks?isDownloaded=0"
-                  className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white"
-                >
-                  not downloaded
                 </Link>
               </div>
             </div>

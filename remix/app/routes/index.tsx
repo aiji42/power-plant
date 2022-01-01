@@ -35,7 +35,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const session = await getSession(request.headers.get('Cookie'))
   session.set('access_token', token)
-  return redirect('/news', {
+  return redirect('/products', {
     headers: {
       'Set-Cookie': await commitSession(session)
     }

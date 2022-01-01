@@ -1,10 +1,11 @@
+import { supabaseClient } from '~/utils/supabase.server'
+
 export type ProductListItem = {
-  pid: string
   sku: string
   image_path: string
   name: string
-  sample_movie_path: string
-  suggest_actor: string
+  isDownloaded?: boolean
+  isProcessing?: string
 }
 
 const HOST = 'https://sp.mgstage.com'
@@ -24,10 +25,20 @@ export const productsFromSite = async (
     }
   )
   const result: { search_result: ProductListItem[] } = await res.json()
-  const items = result.search_result.map((item) => ({
+  return result.search_result.map((item) => ({
     ...item,
     image_path: `${IMAGE_HOST}${item.image_path}`
   }))
+}
 
-  return items
+export const productsFromDB = async (page: number) => {
+  const { data, error } = await supabaseClient
+    .from('Product')
+    .select(
+      'sku:code, name:title, image_path:mainImageUrl, isDownloaded, isProcessing'
+    )
+    .order('createdAt', { ascending: false })
+    .range((page - 1) * 20, page * 20 - 1)
+
+  return data
 }
