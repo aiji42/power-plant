@@ -33,7 +33,7 @@ const Products: VFC = () => {
     <>
       {data.items.map(
         ({ sku, image_path, name, isProcessing, isDownloaded }) => (
-          <Link to={`/product/${sku}`} className="w-full flex mb-2" key={sku}>
+          <Link to={`/products/${sku}`} className="w-full flex mb-2" key={sku}>
             <div
               className="h-48 w-36 flex-none bg-contain bg-no-repeat text-center overflow-hidden"
               style={{

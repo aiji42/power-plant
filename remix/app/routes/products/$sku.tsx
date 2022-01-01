@@ -2,7 +2,7 @@ import { LoaderFunction, useFetcher, useLoaderData } from 'remix'
 import { useCallback, useEffect } from 'react'
 import { TorrentsData } from './$sku/torrent'
 import { ProductFromSite, productFromSite } from '~/utils/product.server'
-import { DBData } from '~/routes/product/$sku/db'
+import { DBData } from '~/routes/products/$sku/db'
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   return await productFromSite(sku)
@@ -15,12 +15,12 @@ const Product = () => {
   const dbFetcher = useFetcher<DBData>()
 
   useEffect(() => {
-    dbFetcher.load(`/product/${data.code}/db`)
+    dbFetcher.load(`/products/${data.code}/db`)
   }, [dbFetcher.load, data.code])
   const stock = useCallback(() => {
     dbFetcher.submit(null, {
       method: dbFetcher.data?.isSaved ? 'delete' : 'post',
-      action: `/product/${data.code}/db`
+      action: `/products/${data.code}/db`
     })
   }, [dbFetcher.submit, dbFetcher.data?.isSaved, data.code])
   const handleTorrent = useCallback(
@@ -28,14 +28,14 @@ const Product = () => {
       dbFetcher.data?.isSaved &&
         dbFetcher.submit(
           { torrentUrl: url, isProcessing: 'false' },
-          { method: 'patch', action: `/product/${data.code}/db` }
+          { method: 'patch', action: `/products/${data.code}/db` }
         )
     },
     [dbFetcher.submit, data.code, dbFetcher.data?.isSaved]
   )
 
   useEffect(() => {
-    torrentsFetcher.load(`/product/${data.code}/torrent`)
+    torrentsFetcher.load(`/products/${data.code}/torrent`)
   }, [torrentsFetcher.load])
 
   return (
