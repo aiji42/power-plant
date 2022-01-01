@@ -14,7 +14,13 @@ import {
 } from 'remix'
 import type { LinksFunction } from 'remix'
 import style from '~/tailwind.css'
-import { useEffect, useReducer } from 'react'
+import {
+  ChangeEvent,
+  FormEventHandler,
+  useCallback,
+  useEffect,
+  useReducer
+} from 'react'
 import { supabaseClient } from '~/utils/supabase.server'
 import { getSession } from '~/utils/session.server'
 
@@ -129,6 +135,19 @@ function Document({
 
 function Layout({ children }: { children: React.ReactNode }) {
   const [open, toggle] = useReducer((s) => !s, false)
+  const [value, onChange] = useReducer(
+    (s: string, e: ChangeEvent<HTMLInputElement>) => {
+      return e.target.value
+    },
+    ''
+  )
+  const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
+    (e) => {
+      e.preventDefault()
+      location.href = `/products/${value}`
+    },
+    [value]
+  )
   const { user } = useLoaderData()
   const href = useLocation()
   useEffect(() => {
@@ -171,6 +190,18 @@ function Layout({ children }: { children: React.ReactNode }) {
                 >
                   stocks
                 </Link>
+                <form className="w-full max-w-sm" onSubmit={onSubmit}>
+                  <div className="flex items-center border-b border-indigo-500 py-2">
+                    <input
+                      className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+                      type="text"
+                      onChange={onChange}
+                    />
+                    <button className="flex-shrink-0 text-sm text-indigo-500 py-1 px-2">
+                      Jump
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           )}
