@@ -46,18 +46,28 @@ const Product = () => {
           {dbFetcher.data?.isSaved ? '★' : '☆'}
         </button>
       </div>
-      {dbFetcher.data && (
+      {dbFetcher.data && dbFetcher.data.isSaved && (
         <dl className="text-gray-200 mb-4">
           <div className="bg-gray-800 px-4 py-5 grid grid-cols-3 gap-4">
-            <dt className="text-sm font-medium text-gray-200">isProcessing</dt>
-            <dd className="text-sm text-yellow-600 mt-0 col-span-2">
-              {dbFetcher.data.isProcessing && '●'}
+            <dt className="text-sm font-medium text-gray-200">processing</dt>
+            <dd
+              className={`${
+                dbFetcher.data.isProcessing
+                  ? 'text-yellow-600'
+                  : 'text-gray-400'
+              } text-sm mt-0 col-span-2`}
+            >
+              ●
             </dd>
           </div>
           <div className="bg-gray-700 px-4 py-5 grid grid-cols-3 gap-4">
-            <dt className="text-sm font-medium text-gray-200">isDownloaded</dt>
-            <dd className="text-sm text-green-500 mt-0 col-span-2">
-              {dbFetcher.data.isDownloaded && '●'}
+            <dt className="text-sm font-medium text-gray-200">downloaded</dt>
+            <dd
+              className={`${
+                dbFetcher.data.isDownloaded ? 'text-green-500' : 'text-gray-400'
+              } text-sm mt-0 col-span-2`}
+            >
+              ●
             </dd>
           </div>
         </dl>
@@ -83,41 +93,42 @@ const Product = () => {
         <video src={src} controls key={src} className="mb-4" />
       ))}
 
-      {torrentsFetcher.state === 'loading' && (
+      {torrentsFetcher.state === 'loading' ? (
         <div className="text-gray-200 text-center mb-4">Loading</div>
-      )}
-      {torrentsFetcher.data && (
-        <dl className="text-gray-200 mb-4">
-          {torrentsFetcher.data.map(
-            ({ title, link, completed, size, registeredAt }, index) => (
-              <div
-                key={index}
-                className={`${
-                  index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
-                }  px-4 py-5 grid grid-cols-3 gap-4`}
-              >
-                <dt className="text-sm font-medium text-gray-200">
-                  {dbFetcher.data?.torrentUrl === link ? (
-                    <button
-                      onClick={() => handleTorrent(link)}
-                      className="text-red-500"
-                    >
-                      Restart
-                    </button>
-                  ) : dbFetcher.data?.isSaved ? (
-                    <button onClick={() => handleTorrent(link)}>Set</button>
-                  ) : null}
-                </dt>
-                <dd className="text-sm text-gray-200 mt-0 col-span-2">
-                  <p>{title}</p>
-                  <p>completed: {completed}</p>
-                  <p>size: {size}</p>
-                  <p>registered: {registeredAt}</p>
-                </dd>
-              </div>
-            )
-          )}
-        </dl>
+      ) : (
+        torrentsFetcher.data && (
+          <dl className="text-gray-200 mb-4">
+            {torrentsFetcher.data.map(
+              ({ title, link, completed, size, registeredAt }, index) => (
+                <div
+                  key={index}
+                  className={`${
+                    index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
+                  }  px-4 py-5 grid grid-cols-3 gap-4`}
+                >
+                  <dt className="text-sm font-medium text-gray-200">
+                    {dbFetcher.data?.torrentUrl === link ? (
+                      <button
+                        onClick={() => handleTorrent(link)}
+                        className="text-red-500"
+                      >
+                        Restart
+                      </button>
+                    ) : dbFetcher.data?.isSaved ? (
+                      <button onClick={() => handleTorrent(link)}>Set</button>
+                    ) : null}
+                  </dt>
+                  <dd className="text-sm text-gray-200 mt-0 col-span-2">
+                    <p>{title}</p>
+                    <p>completed: {completed}</p>
+                    <p>size: {size}</p>
+                    <p>registered: {registeredAt}</p>
+                  </dd>
+                </div>
+              )
+            )}
+          </dl>
+        )
       )}
 
       {sample && <video src={sample} controls />}
