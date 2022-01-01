@@ -18,7 +18,7 @@ export const searchTorrents = async (
   const res = await fetch(`${HOST}/?q=${keyword}&f=0&c=0_0`)
   const html = await res.text()
   const root = parse(html)
-  const trs = root.querySelectorAll('tr.default')
+  const trs = root.querySelectorAll('tr.default, tr.success')
   return trs
     .map((tr) => {
       return tr
