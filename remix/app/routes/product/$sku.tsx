@@ -4,28 +4,13 @@ import {
   useFetcher,
   useLoaderData
 } from 'remix'
-import parse, { HTMLElement } from 'node-html-parser'
-import chunk from 'chunk'
 import { useCallback, useEffect } from 'react'
 import { Data as FetcherData } from './$sku/torrent'
 import { supabaseClient } from '~/utils/supabase.server'
 import { v4 as uuidv4 } from 'uuid'
+import { ProductFromSite, productFromSite } from '~/utils/product.server'
 
-const HOST = 'https://sp.mgstage.com'
-
-type Data = {
-  [k: string]: string | string[]
-} & {
-  images: string[]
-  title: string
-  sample?: string | undefined
-  code: string
-  releasedAt: string
-  series?: string
-  maker?: string
-  actor?: string
-  length: string
-  genres?: string[]
+type Data = ProductFromSite & {
   stored: boolean
   mediaUrls?: string[]
   torrentUrl?: string
@@ -33,64 +18,15 @@ type Data = {
   isProcessing: boolean
 }
 
-const mapping: Record<string, string> = {
-  出演: 'actor',
-  シリーズ: 'series',
-  メーカー: 'maker',
-  ジャンル: 'genres',
-  配信開始日: 'releasedAt',
-  品番: 'code',
-  収録時間: 'length'
-}
-
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
-  const res = await fetch(HOST + `/product/product_detail/${sku}/`, {
-    headers: {
-      Cookie: 'adc=1',
-      'User-Agent':
-        'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Mobile Safari/537.36'
-    }
-  })
-  const html = await res.text()
-  const root = parse(html)
-  const infoList = root.querySelector('.info dl')?.childNodes ?? []
-  const info = Object.fromEntries(
-    chunk(
-      infoList.reduce<(string | string[])[]>((res, node) => {
-        if (
-          !(node instanceof HTMLElement) ||
-          !['dd', 'dt'].includes(node.rawTagName)
-        )
-          return res
-        if (node.rawTagName === 'dt')
-          return [...res, mapping[node.innerText] ?? node.innerText]
-        if (node.childNodes.length === 1)
-          return [...res, node.childNodes[0].innerText]
-        return [
-          ...res,
-          node.childNodes
-            .filter((n) => n instanceof HTMLElement)
-            .map((n) => n.innerText)
-        ]
-      }, [])
-    )
-  )
-  const title = root.querySelector('title')?.innerText.match(/「(.+)」/)?.[1]
-  const images = root
-    .querySelectorAll('.sample-image-wrap > img')
-    .map((img) => img.getAttribute('src'))
-    .filter((src) => /\.jpg$/.test(src ?? ''))
-  const sample = root.querySelector('#sample-movie')?.getAttribute('src')
+  const product = await productFromSite(sku)
 
   const { data } = await supabaseClient
     .from('Product')
     .select('mediaUrls, torrentUrl, isProcessing, isDownloaded')
-    .match({ code: info.code })
+    .match({ code: product.code })
   return {
-    ...info,
-    title,
-    images,
-    sample,
+    ...product,
     stored: (data?.length ?? 0) > 0,
     ...data?.[0]
   }
@@ -98,40 +34,53 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
-  const record = Array.from(formData).reduce<
-    Record<string, null | string | string[]>
-  >(
-    (res, [name, value]) =>
-      typeof value === 'string'
-        ? {
-            ...res,
-            [name]:
-              value === ''
-                ? null
-                : /^\[.+]$/.test(value)
-                ? JSON.parse(value)
-                : /^\d+$/.test(value)
-                ? Number(value)
-                : value
-          }
-        : res,
-    {}
-  )
+  const code = formData.get('code') as string
+  if (!code) return null
   const { data } = await supabaseClient
     .from('Product')
     .select('id')
-    .match({ code: record.code })
+    .match({ code })
+  const {
+    title,
+    mainImageUrl,
+    subImageUrls,
+    mainActor,
+    subActors,
+    length,
+    genres,
+    series,
+    releasedAt,
+    maker
+  } = await productFromSite(code)
+
   if (data?.length)
-    await supabaseClient.from('Product').delete().match({ code: record.code })
+    await supabaseClient.from('Product').delete().match({ code })
   else
-    await supabaseClient.from('Product').insert([{ id: uuidv4(), ...record }])
+    await supabaseClient.from('Product').insert([
+      {
+        id: uuidv4(),
+        code,
+        title,
+        mainImageUrl,
+        subImageUrls,
+        mainActor,
+        subActors,
+        length,
+        genres,
+        series,
+        releasedAt,
+        maker
+      }
+    ])
+
   return null
 }
 
 const Product = () => {
   const {
     title,
-    images,
+    mainImageUrl,
+    subImageUrls,
     sample,
     stored,
     mediaUrls,
@@ -147,16 +96,7 @@ const Product = () => {
   const stock = useCallback(() => {
     stockFetcher.submit(
       {
-        title,
-        code: data.code,
-        series: data.series ?? '',
-        releasedAt: data.releasedAt ?? '',
-        genres: JSON.stringify(data.genres ?? []),
-        maker: data.maker ?? '',
-        mainActor: data.actor ?? '',
-        mainImageUrl: images.slice(0, 1)[0] ?? '',
-        subImageUrls: JSON.stringify(images.slice(1) ?? []),
-        length: data.length.match(/\d+/)?.[0] ?? ''
+        code: data.code
       },
       { method: 'post' }
     )
@@ -257,7 +197,10 @@ const Product = () => {
 
       {sample && <video src={sample} controls />}
 
-      {images.map((src) => (
+      {mainImageUrl && (
+        <img src={mainImageUrl} loading="lazy" className="w-full mb-2" />
+      )}
+      {subImageUrls.map((src) => (
         <img src={src} loading="lazy" className="w-full mb-2" key={src} />
       ))}
     </>
