@@ -1,18 +1,8 @@
 import { LoaderFunction, json, ActionFunction } from 'remix'
-import parse from 'node-html-parser'
 import { supabaseClient } from '~/utils/supabase.server'
+import { searchTorrents, SearchedResult } from '~/utils/torrents.server'
 
-export type Data = {
-  title: string
-  link: string
-  size: string
-  registeredAt: string
-  seeder: string
-  leech: string
-  completed: string
-}[]
-
-const HOST = 'https://sukebei.nyaa.si'
+export type TorrentsData = SearchedResult[]
 
 export const loader: LoaderFunction = async ({ params }) => {
   const code = params.sku?.replace(/^SP-/, '') ?? ''
@@ -23,43 +13,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   const dataList = await Promise.all(
     codes.map(async (q) => {
       try {
-        const res = await fetch(`${HOST}/?q=${q}&f=0&c=0_0`)
-        const html = await res.text()
-        const root = parse(html)
-        const trs = root.querySelectorAll('tr.default')
-        return trs
-          .map((tr) => {
-            return tr
-              .querySelectorAll('td')
-              .slice(1)
-              .map((td) => {
-                const a = td.querySelector('a')
-                if (a) {
-                  const href = a.getAttribute('href')
-                  if (!href?.startsWith('/download')) return a.innerText
-                  return href
-                }
-                return td.innerText
-              })
-          })
-          .reduce<Data>(
-            (
-              res,
-              [title, link, size, registeredAt, seeder, leech, completed]
-            ) => [
-              ...res,
-              {
-                title,
-                link: `${HOST}${link}`,
-                size,
-                registeredAt,
-                seeder,
-                leech,
-                completed
-              }
-            ],
-            []
-          )
+        return searchTorrents(q)
       } catch (e) {
         console.error(e)
         return []
@@ -67,14 +21,11 @@ export const loader: LoaderFunction = async ({ params }) => {
     })
   )
 
-  return json(
-    { data: dataList.flat() },
-    {
-      headers: {
-        'cache-control': 'public, max-age=3600, stale-while-revalidate=3600'
-      }
+  return json(dataList.flat(), {
+    headers: {
+      'cache-control': 'public, max-age=3600, stale-while-revalidate=3600'
     }
-  )
+  })
 }
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -88,6 +39,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       updatedAt: new Date().toISOString()
     })
     .match({ code: params.sku })
+
   if (data?.[0].id && process.env.NODE_ENV === 'production')
     await fetch(`${process.env.BATCH_JOB_SLS_ENDPOINT}${data?.[0].id}`)
 

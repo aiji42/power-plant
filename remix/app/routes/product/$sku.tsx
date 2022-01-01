@@ -1,6 +1,6 @@
 import { LoaderFunction, useFetcher, useLoaderData } from 'remix'
 import { useCallback, useEffect } from 'react'
-import { Data as FetcherData } from './$sku/torrent'
+import { TorrentsData } from './$sku/torrent'
 import { ProductFromSite, productFromSite } from '~/utils/product.server'
 import { DBData } from '~/routes/product/$sku/db'
 
@@ -11,7 +11,7 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
 const Product = () => {
   const { title, mainImageUrl, subImageUrls, sample, ...data } =
     useLoaderData<ProductFromSite>()
-  const torrentsFetcher = useFetcher<{ data: FetcherData }>()
+  const torrentsFetcher = useFetcher<TorrentsData>()
   const dbFetcher = useFetcher<DBData>()
   const torrentUrlFetcher = useFetcher()
 
@@ -89,7 +89,7 @@ const Product = () => {
       )}
       {torrentsFetcher.data && (
         <dl className="text-gray-200 mb-4">
-          {torrentsFetcher.data.data.map(
+          {torrentsFetcher.data.map(
             ({ title, link, completed, size, registeredAt }, index) => (
               <div
                 key={index}
