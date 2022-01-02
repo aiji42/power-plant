@@ -100,8 +100,7 @@ const upload = async (files: string[], code: string) =>
         partSize: 100 * 1024 * 1024 // 100mb chunks
       })
       upload.on('httpUploadProgress', console.log)
-      return upload
-        .done()
+      return uploadaa.done()
     })
   )
 
@@ -131,10 +130,10 @@ const main = async () => {
     const fileNames = listFiles('/downloads').filter(
       (filePath) => fs.statSync(filePath).size > minSize * 1024 * 1024
     )
-    const urls = await upload(fileNames, product.code)
+    await upload(fileNames, product.code)
     await prisma.product.update({
       where: { id },
-      data: { mediaUrls: urls, isDownloaded: true, isProcessing: false }
+      data: { isDownloaded: true, isProcessing: false }
     })
   } catch (e) {
     if (e instanceof Error) console.error(e.message)
