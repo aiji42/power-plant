@@ -16,7 +16,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       jobDefinition: process.env.JOB_DEFINITION,
       jobQueue: process.env.JOB_QUEUE,
       timeout: {
-        attemptDurationSeconds: 3600 * 2 // 2H
+        attemptDurationSeconds: 3600 * 0.45 // 45m
       },
       containerOverrides: {
         command: ['ts-node', '/script.ts', id]
