@@ -125,12 +125,15 @@ const main = async () => {
   try {
     await download(product.torrentUrl, '/downloads')
 
-    const fileNames = await Promise.all(
-      listFiles('/downloads')
-        .filter(
-          (filePath) => fs.statSync(filePath).size > minSize * 1024 * 1024
-        )
-        .map((name, index) => compression(name, index + 1))
+    // const fileNames = await Promise.all(
+    //   listFiles('/downloads')
+    //     .filter(
+    //       (filePath) => fs.statSync(filePath).size > minSize * 1024 * 1024
+    //     )
+    //     .map((name, index) => compression(name, index + 1))
+    // )
+    const fileNames = listFiles('/downloads').filter(
+      (filePath) => fs.statSync(filePath).size > minSize * 1024 * 1024
     )
     const urls = await upload(fileNames, product.code)
     await prisma.product.update({
