@@ -100,7 +100,7 @@ const upload = async (files: string[], code: string) =>
         partSize: 100 * 1024 * 1024 // 100mb chunks
       })
       upload.on('httpUploadProgress', console.log)
-      return uploadaa.done()
+      return upload.done()
     })
   )
 
