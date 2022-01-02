@@ -13,11 +13,13 @@ const s3 = new S3Client({
 const download = async (target: string, dir: string) =>
   new Promise((resolve, reject) => {
     console.log(
-      `> aria2c -d ${dir} --seed-time=0 --max-overall-upload-limit=1K ${target}`
+      `> aria2c -d ${dir} --seed-time=0 --max-overall-upload-limit=1K --bt-stop-timeout=300 --lowest-speed-limit=500K ${target}`
     )
     const aria2c = spawn(
       'aria2c',
-      [`-d ${dir} --seed-time=0 --max-overall-upload-limit=1K ${target}`],
+      [
+        `-d ${dir} --seed-time=0 --max-overall-upload-limit=1K --bt-stop-timeout=300 --lowest-speed-limit=500K ${target}`
+      ],
       {
         shell: true
       }
@@ -28,14 +30,49 @@ const download = async (target: string, dir: string) =>
 
     aria2c.stderr.on('data', (data) => {
       console.error(data.toString())
-      reject(false)
     })
+
+    // self time out
+    setTimeout(() => {
+      aria2c.kill(7)
+    }, 1000 * 60 * 30) // 30min
 
     aria2c.on('close', (code) => {
       console.log(`aria2 exited with code ${code}`)
-      resolve(true)
+      if (code === 0) resolve(true)
+      else reject(false)
     })
   })
+
+const compression = async (target: string, index: number): Promise<string> => {
+  const newFile = `${path.dirname(target)}/${index}.mp4`
+  return new Promise((resolve, reject) => {
+    console.log(
+      `> ffmpeg -y -i ${target} -s 720:480 -b:v 2.5m -r 30 -vcodec libx264 ${newFile}`
+    )
+
+    const ffmpeg = spawn(
+      'ffmpeg',
+      [`-y -i ${target} -s 720:480 -b:v 2.5m -r 30 -vcodec libx264 ${newFile}`],
+      {
+        shell: true
+      }
+    )
+    ffmpeg.stdout.on('data', (data) => {
+      console.log(data.toString())
+    })
+
+    ffmpeg.stderr.on('data', (data) => {
+      console.error(data.toString())
+    })
+
+    ffmpeg.on('close', (code) => {
+      console.log(`ffmpeg exited with code ${code}`)
+      if (code === 0) resolve(newFile)
+      else reject(null)
+    })
+  })
+}
 
 const listFiles = (dir: string): string[] =>
   fs.readdirSync(dir, { withFileTypes: true }).flatMap((dirent) => {
@@ -87,12 +124,15 @@ const main = async () => {
 
   try {
     await download(product.torrentUrl, '/downloads')
-    const urls = await upload(
-      listFiles('/downloads').filter(
-        (filePath) => fs.statSync(filePath).size > minSize * 1000000
-      ),
-      product.code
+
+    const fileNames = await Promise.all(
+      listFiles('/downloads')
+        .filter(
+          (filePath) => fs.statSync(filePath).size > minSize * 1024 * 1024
+        )
+        .map((name, index) => compression(name, index + 1))
     )
+    const urls = await upload(fileNames, product.code)
     await prisma.product.update({
       where: { id },
       data: { mediaUrls: urls, isDownloaded: true, isProcessing: false }

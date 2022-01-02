@@ -7,7 +7,7 @@ ARG BUCKET
 ARG KEY_PREFIX
 ARG DATABASE_URL
 
-RUN apk update && apk add aria2
+RUN apk update && apk add aria2 ffmpeg
 RUN npm install -g ts-node
 
 COPY batch/package.json /package.json
