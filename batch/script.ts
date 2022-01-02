@@ -97,15 +97,11 @@ const upload = async (files: string[], code: string) =>
           ACL: 'public-read'
         },
         client: s3,
-        partSize: 10 * 1024 * 1024 // 10mb chunks
+        partSize: 100 * 1024 * 1024 // 100mb chunks
       })
       upload.on('httpUploadProgress', console.log)
       return upload
         .done()
-        .then(
-          () =>
-            `https://${process.env.BUCKET}.s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${key}`
-        )
     })
   )
 
