@@ -18,11 +18,24 @@ const Product = () => {
     dbFetcher.load(`/products/${data.code}/db`)
   }, [dbFetcher.load, data.code])
   const stock = useCallback(() => {
+    if (
+      dbFetcher.data?.isSaved &&
+      (dbFetcher.data?.isProcessing || dbFetcher.data?.mediaUrls.length)
+    ) {
+      alert('The stock cannot be removed.')
+      return
+    }
     dbFetcher.submit(null, {
       method: dbFetcher.data?.isSaved ? 'delete' : 'post',
       action: `/products/${data.code}/db`
     })
-  }, [dbFetcher.submit, dbFetcher.data?.isSaved, data.code])
+  }, [
+    dbFetcher.submit,
+    dbFetcher.data?.isSaved,
+    data.code,
+    dbFetcher.data?.isProcessing,
+    dbFetcher.data?.mediaUrls.length
+  ])
   const handleTorrent = useCallback(
     (url: string) => {
       dbFetcher.data?.isSaved &&
