@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { spawn } from 'child_process'
 import { S3Client } from '@aws-sdk/client-s3'
-const { Upload } = require('@aws-sdk/lib-storage')
+import { Upload } from '@aws-sdk/lib-storage'
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
