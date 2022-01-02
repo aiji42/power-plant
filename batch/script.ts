@@ -1,7 +1,8 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { spawn } from 'child_process'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client } from '@aws-sdk/client-s3'
+const { Upload } = require('@aws-sdk/lib-storage')
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
@@ -50,14 +51,20 @@ const upload = async (files: string[], code: string) =>
         filePath
       )}`
       console.log('uploading: ', filePath, ' => ', key)
-      const command = new PutObjectCommand({
-        Bucket: process.env.BUCKET,
-        Key: key,
-        Body: fs.createReadStream(filePath),
-        ACL: 'public-read'
+
+      const upload = new Upload({
+        params: {
+          Bucket: 'bucket-name',
+          Key: '3gbFile',
+          Body: fs.createReadStream(filePath),
+          ACL: 'public-read'
+        },
+        client: s3,
+        partSize: 10 * 1024 * 1024 // 10mb chunks
       })
-      return s3
-        .send(command)
+      upload.on('httpUploadProgress', console.log)
+      return upload
+        .done()
         .then(
           () =>
             `https://${process.env.BUCKET}.s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${key}`
