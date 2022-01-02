@@ -91,8 +91,8 @@ const upload = async (files: string[], code: string) =>
 
       const upload = new Upload({
         params: {
-          Bucket: 'bucket-name',
-          Key: '3gbFile',
+          Bucket: process.env.BUCKET,
+          Key: key,
           Body: fs.createReadStream(filePath),
           ACL: 'public-read'
         },
