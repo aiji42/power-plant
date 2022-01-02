@@ -103,7 +103,12 @@ const Product = () => {
       </dl>
 
       {dbFetcher.data?.mediaUrls?.map((src) => (
-        <video src={src} controls key={src} className="mb-4" />
+        <div className="w-full mb-4">
+          <video src={src} controls key={src} />
+          <a href={src} className="text-gray-200">
+            download
+          </a>
+        </div>
       ))}
 
       {torrentsFetcher.state === 'loading' ? (
