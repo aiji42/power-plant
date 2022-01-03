@@ -78,7 +78,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     return {
       isSaved: true,
       isLiked: data?.[0].isLiked,
-      mediaUrls: data?.[0].mediaUrls,
+      mediaUrls: data?.[0].mediaUrls ?? [],
       downloadUrl: data?.[0].downloadUrl,
       isDownloaded: data?.[0].isDownloaded,
       isProcessing: data?.[0].isProcessing

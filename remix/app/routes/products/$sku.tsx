@@ -1,5 +1,5 @@
 import { LoaderFunction, useFetcher, useLoaderData } from 'remix'
-import { useCallback, useEffect } from 'react'
+import { ChangeEvent, useCallback, useEffect, useReducer } from 'react'
 import { TorrentsData } from './$sku/torrent'
 import { ProductFromSite, productFromSite } from '~/utils/product.server'
 import { DBData } from '~/routes/products/$sku/db'
@@ -36,20 +36,20 @@ const Product = () => {
     dbFetcher.data?.isProcessing,
     dbFetcher.data?.mediaUrls.length
   ])
-  const handleTorrent = useCallback(
-    (url: string) => {
-      dbFetcher.data?.isSaved &&
-        dbFetcher.submit(
-          { downloadUrl: url, isProcessing: 'false' },
-          { method: 'patch', action: `/products/${data.code}/db` }
-        )
-    },
-    [dbFetcher.submit, data.code, dbFetcher.data?.isSaved]
-  )
 
   useEffect(() => {
     torrentsFetcher.load(`/products/${data.code}/torrent`)
   }, [torrentsFetcher.load])
+  const [inputValue, handleInputValue] = useReducer(
+    (s: string, e: ChangeEvent<HTMLTextAreaElement> | string) => {
+      return typeof e === 'string' ? e : e.target.value
+    },
+    ''
+  )
+  useEffect(() => {
+    dbFetcher.state === 'idle' && handleInputValue('')
+  }, [dbFetcher.state])
+  const Form = dbFetcher.Form
 
   return (
     <>
@@ -116,32 +116,51 @@ const Product = () => {
       ) : (
         torrentsFetcher.data && (
           <dl className="text-gray-200 mb-4">
+            {dbFetcher.data?.isSaved && (
+              <Form
+                action={`/products/${data.code}/db`}
+                method="patch"
+                className="w-full max-w-sm"
+              >
+                <div className="flex items-center border-b border-indigo-500 py-2">
+                  <input type="hidden" name="isProcessing" value="false" />
+                  <textarea
+                    className="appearance-none bg-transparent border-none w-full text-gray-200 mr-3 py-1 px-2 leading-tight focus:outline-none"
+                    name="downloadUrl"
+                    value={inputValue}
+                    onChange={handleInputValue}
+                    placeholder={dbFetcher.data.downloadUrl ?? ''}
+                    required
+                  />
+                  <button
+                    disabled={inputValue.trim().length < 1}
+                    className="flex-shrink-0 text-sm text-indigo-500 py-1 px-2 disabled:opacity-50"
+                  >
+                    Set download url
+                  </button>
+                </div>
+              </Form>
+            )}
             {torrentsFetcher.data.map(
               ({ title, link, completed, size, registeredAt }, index) => (
                 <div
                   key={index}
                   className={`${
                     index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
-                  }  px-4 py-5 grid grid-cols-3 gap-4`}
+                  }  px-4 py-5 text-sm text-gray-200`}
+                  onClick={() => handleInputValue(link)}
                 >
-                  <dt className="text-sm font-medium text-gray-200">
-                    {dbFetcher.data?.downloadUrl === link ? (
-                      <button
-                        onClick={() => handleTorrent(link)}
-                        className="text-red-500"
-                      >
-                        Restart
-                      </button>
-                    ) : dbFetcher.data?.isSaved ? (
-                      <button onClick={() => handleTorrent(link)}>Set</button>
+                  <p>
+                    {link === inputValue ? (
+                      <span className="text-indigo-500 pr-1">○</span>
+                    ) : dbFetcher.data?.downloadUrl === link ? (
+                      <span className="text-indigo-500 pr-1">●</span>
                     ) : null}
-                  </dt>
-                  <dd className="text-sm text-gray-200 mt-0 col-span-2">
-                    <p>{title}</p>
-                    <p>completed: {completed}</p>
-                    <p>size: {size}</p>
-                    <p>registered: {registeredAt}</p>
-                  </dd>
+                    {title.slice(0, 50)}
+                  </p>
+                  <p>completed: {completed}</p>
+                  <p>size: {size}</p>
+                  <p>registered: {registeredAt}</p>
                 </div>
               )
             )}
