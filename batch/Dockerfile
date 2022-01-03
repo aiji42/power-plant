@@ -7,8 +7,11 @@ ARG BUCKET
 ARG KEY_PREFIX
 ARG DATABASE_URL
 
-RUN apk update && apk add aria2 ffmpeg
-RUN npm install -g ts-node
+RUN apk update && apk add aria2 ffmpeg python3 py3-pip \
+    && pip3 install --upgrade pip \
+    && pip3 install awscli \
+    && rm -rf /var/cache/apk/* \
+    && npm install -g ts-node
 
 COPY batch/package.json /package.json
 COPY batch/yarn.lock /yarn.lock

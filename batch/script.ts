@@ -1,14 +1,8 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { spawn } from 'child_process'
-import { S3Client } from '@aws-sdk/client-s3'
-import { Upload } from '@aws-sdk/lib-storage'
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
-
-const s3 = new S3Client({
-  region: process.env.AWS_DEFAULT_REGION
-})
 
 const download = async (target: string, dir: string) =>
   new Promise((resolve, reject) => {
@@ -21,7 +15,8 @@ const download = async (target: string, dir: string) =>
         `-d ${dir} --seed-time=0 --max-overall-upload-limit=1K --bt-stop-timeout=300 --lowest-speed-limit=500K ${target}`
       ],
       {
-        shell: true
+        shell: true,
+        timeout: 1000 * 60 * 30
       }
     )
     aria2c.stdout.on('data', (data) => {
@@ -31,11 +26,6 @@ const download = async (target: string, dir: string) =>
     aria2c.stderr.on('data', (data) => {
       console.error(data.toString())
     })
-
-    // self time out
-    setTimeout(() => {
-      aria2c.kill(7)
-    }, 1000 * 60 * 30) // 30min
 
     aria2c.on('close', (code) => {
       console.log(`aria2 exited with code ${code}`)
@@ -81,7 +71,7 @@ const listFiles = (dir: string): string[] =>
       : listFiles(`${dir}/${dirent.name}`)
   })
 
-const upload = async (files: string[], code: string) =>
+const upload = async (files: string[], code: string): Promise<string[]> =>
   Promise.all(
     files.map((filePath, index) => {
       const key = `${process.env.KEY_PREFIX}/${code}/${index + 1}${path.extname(
@@ -89,18 +79,30 @@ const upload = async (files: string[], code: string) =>
       )}`
       console.log('uploading: ', filePath, ' => ', key)
 
-      const upload = new Upload({
-        params: {
-          Bucket: process.env.BUCKET,
-          Key: key,
-          Body: fs.createReadStream(filePath),
-          ACL: 'public-read'
-        },
-        client: s3,
-        partSize: 100 * 1024 * 1024 // 100mb chunks
+      return new Promise<string>((resolve, reject) => {
+        const aws = spawn(
+          'aws',
+          [`s3 mv ${filePath} s3://${process.env.BUCKET}/${key}`],
+          { shell: true }
+        )
+
+        aws.stdout.on('data', (data) => {
+          console.log(data.toString())
+        })
+
+        aws.stderr.on('data', (data) => {
+          console.error(data.toString())
+        })
+
+        aws.on('close', (code) => {
+          console.log(`aws s3 exited with code ${code}`)
+          if (code === 0)
+            resolve(
+              `https://${process.env.BUCKET}.s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${key}`
+            )
+          else reject(null)
+        })
       })
-      upload.on('httpUploadProgress', console.log)
-      return upload.done()
     })
   )
 
@@ -130,10 +132,10 @@ const main = async () => {
     const fileNames = listFiles('/downloads').filter(
       (filePath) => fs.statSync(filePath).size > minSize * 1024 * 1024
     )
-    await upload(fileNames, product.code)
+    const urls = await upload(fileNames, product.code)
     await prisma.product.update({
       where: { id },
-      data: { isDownloaded: true, isProcessing: false }
+      data: { mediaUrls: urls, isDownloaded: true, isProcessing: false }
     })
   } catch (e) {
     if (e instanceof Error) console.error(e.message)
