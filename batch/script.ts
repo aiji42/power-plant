@@ -115,12 +115,12 @@ const main = async () => {
 
   const product = await prisma.product.findUnique({ where: { id } })
   if (!product) throw new Error(`No record id: ${id}`)
-  if (!product.torrentUrl || product.isProcessing)
+  if (!product.downloadUrl || product.isProcessing)
     throw new Error(`The product is not ready for downloading`)
   await prisma.product.update({ where: { id }, data: { isProcessing: true } })
 
   try {
-    await download(product.torrentUrl, '/downloads')
+    await download(product.downloadUrl, '/downloads')
 
     // const fileNames = await Promise.all(
     //   listFiles('/downloads')
