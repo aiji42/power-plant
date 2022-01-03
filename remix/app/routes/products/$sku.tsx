@@ -40,7 +40,7 @@ const Product = () => {
     (url: string) => {
       dbFetcher.data?.isSaved &&
         dbFetcher.submit(
-          { torrentUrl: url, isProcessing: 'false' },
+          { downloadUrl: url, isProcessing: 'false' },
           { method: 'patch', action: `/products/${data.code}/db` }
         )
     },
@@ -125,7 +125,7 @@ const Product = () => {
                   }  px-4 py-5 grid grid-cols-3 gap-4`}
                 >
                   <dt className="text-sm font-medium text-gray-200">
-                    {dbFetcher.data?.torrentUrl === link ? (
+                    {dbFetcher.data?.downloadUrl === link ? (
                       <button
                         onClick={() => handleTorrent(link)}
                         className="text-red-500"

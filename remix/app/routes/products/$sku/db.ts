@@ -7,7 +7,7 @@ export type DBData = {
   isSaved: boolean
   isLiked: boolean
   mediaUrls: string[]
-  torrentUrl: string | null
+  downloadUrl: string | null
   isDownloaded: boolean
   isProcessing: boolean
 }
@@ -16,14 +16,14 @@ export const loader: LoaderFunction = async ({ params }) => {
   const code = params.sku
   const { data } = await supabaseClient
     .from('Product')
-    .select('isLiked, isDownloaded, isProcessing, torrentUrl, mediaUrls')
+    .select('isLiked, isDownloaded, isProcessing, downloadUrl, mediaUrls')
     .match({ code })
 
   return {
     isSaved: (data?.length ?? 0) > 0,
     isLiked: data?.[0]?.isLiked ?? false,
     mediaUrls: data?.[0]?.mediaUrls ?? [],
-    torrentUrl: data?.[0]?.torrentUrl ?? null,
+    downloadUrl: data?.[0]?.downloadUrl ?? null,
     isDownloaded: data?.[0]?.isDownloaded ?? false,
     isProcessing: data?.[0]?.isProcessing ?? false
   } as DBData
@@ -37,7 +37,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       isSaved: false,
       isLiked: false,
       mediaUrls: [],
-      torrentUrl: null,
+      downloadUrl: null,
       isDownloaded: false,
       isProcessing: false
     } as DBData
@@ -70,7 +70,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       })
       .match({ code })
     if (
-      formData.torrentUrl &&
+      formData.downloadUrl &&
       data?.[0].id &&
       process.env.NODE_ENV === 'production'
     )
@@ -79,7 +79,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       isSaved: true,
       isLiked: data?.[0].isLiked,
       mediaUrls: data?.[0].mediaUrls,
-      torrentUrl: data?.[0].torrentUrl,
+      downloadUrl: data?.[0].downloadUrl,
       isDownloaded: data?.[0].isDownloaded,
       isProcessing: data?.[0].isProcessing
     } as DBData
@@ -119,7 +119,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     isSaved: true,
     isLiked: false,
     mediaUrls: [],
-    torrentUrl: null,
+    downloadUrl: null,
     isDownloaded: false,
     isProcessing: false
   } as DBData
