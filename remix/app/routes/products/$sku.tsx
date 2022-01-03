@@ -1,11 +1,14 @@
-import { LoaderFunction, useFetcher, useLoaderData } from 'remix'
+import { LoaderFunction, useFetcher, useLoaderData, redirect } from 'remix'
 import { ChangeEvent, useCallback, useEffect, useReducer } from 'react'
 import { TorrentsData } from './$sku/torrent'
 import { ProductFromSite, productFromSite } from '~/utils/product.server'
 import { DBData } from '~/routes/products/$sku/db'
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
-  return await productFromSite(sku)
+  const data = await productFromSite(sku)
+  if (data.code !== sku && data.code.includes(sku))
+    return redirect(`/products/${data.code}`)
+  return data
 }
 
 const Product = () => {
