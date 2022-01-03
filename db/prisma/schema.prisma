@@ -27,5 +27,5 @@ model Product {
   releasedAt   DateTime?
   length       Int?
   isProcessing Boolean       @default(false)
-  torrentUrl   String?
+  downloadUrl   String?
 }
