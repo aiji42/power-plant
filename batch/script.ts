@@ -77,12 +77,15 @@ const upload = async (files: string[], code: string): Promise<string[]> =>
       const key = `${process.env.KEY_PREFIX}/${code}/${index + 1}${path.extname(
         filePath
       )}`
-      console.log('uploading: ', filePath, ' => ', key)
-
       return new Promise<string>((resolve, reject) => {
+        console.log(
+          `> aws s3 mv ${filePath} s3://${process.env.BUCKET}/${key} --acl public-read`
+        )
         const aws = spawn(
           'aws',
-          [`s3 mv ${filePath} s3://${process.env.BUCKET}/${key}`],
+          [
+            `s3 mv ${filePath} s3://${process.env.BUCKET}/${key} --acl public-read`
+          ],
           { shell: true }
         )
 
