@@ -1,5 +1,5 @@
 export const stripSKU = (sku: string, skipFormat = false): string => {
-  return _sku(sku, skipFormat).replace(/^SP-/, '')
+  return format(sku, skipFormat).replace(/^SP-/, '')
 }
 
 export const shortSKU = (sku: string, skipFormat = false): string => {
@@ -8,7 +8,7 @@ export const shortSKU = (sku: string, skipFormat = false): string => {
   return short1 && short2 ? `${short1}-${short2}` : ''
 }
 
-const _sku = (sku: string, skipFormat: boolean): string => {
+const format = (sku: string, skipFormat: boolean): string => {
   if (skipFormat) return sku
   const [, first, second] = sku.toUpperCase().match(/^([A-Z]+)(\d+)$/) ?? []
   if (first && second) return `${first}-${second}`
