@@ -7,6 +7,7 @@ export type DBData = {
   isSaved: boolean
   isLiked: boolean
   mediaUrls: string[]
+  casts: string[]
   downloadUrl: string | null
   isDownloaded: boolean
   isProcessing: boolean
@@ -16,13 +17,16 @@ export const loader: LoaderFunction = async ({ params }) => {
   const code = params.sku
   const { data } = await supabaseClient
     .from('Product')
-    .select('isLiked, isDownloaded, isProcessing, downloadUrl, mediaUrls')
+    .select(
+      'isLiked, isDownloaded, isProcessing, downloadUrl, mediaUrls, casts'
+    )
     .match({ code })
 
   return {
     isSaved: (data?.length ?? 0) > 0,
     isLiked: data?.[0]?.isLiked ?? false,
     mediaUrls: data?.[0]?.mediaUrls ?? [],
+    casts: data?.[0]?.casts ?? [],
     downloadUrl: data?.[0]?.downloadUrl ?? null,
     isDownloaded: data?.[0]?.isDownloaded ?? false,
     isProcessing: data?.[0]?.isProcessing ?? false
@@ -37,31 +41,14 @@ export const action: ActionFunction = async ({ request, params }) => {
       isSaved: false,
       isLiked: false,
       mediaUrls: [],
+      casts: [],
       downloadUrl: null,
       isDownloaded: false,
       isProcessing: false
     } as DBData
   }
   if (request.method === 'PATCH') {
-    const formData = Array.from((await request.formData()).entries()).reduce<
-      Record<string, string | boolean | number>
-    >(
-      (res, [k, v]) =>
-        typeof v !== 'string'
-          ? res
-          : {
-              ...res,
-              [k]:
-                v === 'false'
-                  ? false
-                  : v === 'true'
-                  ? true
-                  : Number.isNaN(Number(v))
-                  ? v
-                  : Number(v)
-            },
-      {}
-    )
+    const formData = await getFormData(request)
     const { data } = await supabaseClient
       .from('Product')
       .update({
@@ -79,6 +66,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       isSaved: true,
       isLiked: data?.[0].isLiked,
       mediaUrls: data?.[0].mediaUrls ?? [],
+      casts: data?.[0].casts ?? [],
       downloadUrl: data?.[0].downloadUrl,
       isDownloaded: data?.[0].isDownloaded,
       isProcessing: data?.[0].isProcessing
@@ -89,8 +77,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     title,
     mainImageUrl,
     subImageUrls,
-    mainActor,
-    subActors,
+    casts,
     length,
     genres,
     series,
@@ -105,8 +92,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       title,
       mainImageUrl,
       subImageUrls,
-      mainActor,
-      subActors,
+      casts,
       length,
       genres,
       series,
@@ -119,8 +105,40 @@ export const action: ActionFunction = async ({ request, params }) => {
     isSaved: true,
     isLiked: false,
     mediaUrls: [],
+    casts: [],
     downloadUrl: null,
     isDownloaded: false,
     isProcessing: false
   } as DBData
+}
+
+const getFormData = async (req: Request): Promise<Record<string, unknown>> => {
+  const parseValue = (v: string): string | number | boolean | null => {
+    if (v === '') return null
+    return v === 'false'
+      ? false
+      : v === 'true'
+      ? true
+      : Number.isNaN(Number(v))
+      ? v
+      : Number(v)
+  }
+
+  return Array.from((await req.formData()).entries()).reduce<
+    Record<string, unknown>
+  >((res, [k, v]) => {
+    const parsedV = parseValue(v as string)
+    if (k in res)
+      return Array.isArray(res[k])
+        ? {
+            ...res,
+            [k]: [...(res[k] as Array<unknown>), parsedV].filter(Boolean)
+          }
+        : { ...res, [k]: [res[k], parsedV].filter(Boolean) }
+
+    return {
+      ...res,
+      [k]: parsedV
+    }
+  }, {})
 }
