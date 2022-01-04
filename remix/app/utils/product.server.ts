@@ -1,6 +1,6 @@
 import parse, { HTMLElement } from 'node-html-parser'
 import chunk from 'chunk'
-import { Result } from '~/utils/products.server'
+import { productsSearchFromF } from '~/utils/f.server'
 
 const HOST = 'https://sp.mgstage.com'
 
@@ -84,17 +84,8 @@ export const productFromM = async (code: string): Promise<ProductFromSite> => {
 export const productFromF = async (
   code: string
 ): Promise<ProductFromSite | null> => {
-  const res: { result: Result } = await fetch(
-    `https://api.dmm.com/affiliate/v3/ItemList?${new URLSearchParams({
-      api_id: process.env.PROVIDER_F_API_ID ?? '',
-      affiliate_id: process.env.PROVIDER_F_AFF_ID ?? '',
-      site: 'FANZA',
-      service: 'digital',
-      floor: 'videoc',
-      cid: code
-    }).toString()}`
-  ).then((res) => res.json())
-  const [item] = res.result.items
+  const res = await productsSearchFromF({ cid: code })
+  const [item] = res.items
   if (!item) return null
 
   return {
