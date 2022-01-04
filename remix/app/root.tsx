@@ -34,7 +34,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   const { user } = await supabaseClient.auth.api.getUser(
     session.get('access_token')
   )
-  if (url.pathname !== '/' && !user) return redirect('/')
+  if (url.pathname !== '/' && !user && process.env.NODE_ENV === 'production')
+    return redirect('/')
   if (url.pathname === '/' && user) return redirect('/products')
 
   return { user }
