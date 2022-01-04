@@ -1,13 +1,11 @@
 import { LoaderFunction, json } from 'remix'
 import { searchTorrents, SearchedResult } from '~/utils/torrents.server'
+import { shortSKU, stripSKU } from '~/utils/sku'
 
 export type TorrentsData = SearchedResult[]
 
-export const loader: LoaderFunction = async ({ params }) => {
-  const code = params.sku?.replace(/^SP-/, '') ?? ''
-  const [, short1, short2] = code.match(/\d+([a-z]+)-(\d+)/i) ?? []
-  const shortCode = short1 && short2 ? `${short1}-${short2}` : null
-  const codes = [code, shortCode].filter((s): s is string => !!s)
+export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
+  const codes = [stripSKU(sku), shortSKU(sku)].filter(Boolean)
 
   const dataList = await Promise.all(
     codes.map(async (q) => {
