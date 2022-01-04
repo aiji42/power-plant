@@ -56,6 +56,7 @@ export const productsSearchFromF = async (params: {
       ...params
     }).toString()}`
   ).then((res) => res.json())
+  console.log(res)
 
   return res.result
 }
