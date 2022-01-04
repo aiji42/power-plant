@@ -1,8 +1,16 @@
 import { LoaderFunction, useFetcher, useLoaderData, redirect } from 'remix'
-import { ChangeEvent, useCallback, useEffect, useReducer } from 'react'
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  VFC
+} from 'react'
 import { TorrentsData } from './$sku/torrent'
 import { ProductFromSite, productFromSite } from '~/utils/product.server'
 import { DBData } from '~/routes/products/$sku/db'
+import { CastsData } from '~/routes/products/$sku/casts'
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   const data = await productFromSite(sku)
@@ -54,13 +62,47 @@ const Product = () => {
   }, [dbFetcher.state])
   const Form = dbFetcher.Form
 
+  const [truncate, toggleTruncate] = useReducer((s) => !s, true)
+  const [castFormOpen, openCastForm] = useReducer((s) => true, false)
+
   return (
     <>
       <div className="grid grid-cols-8">
-        <h1 className="text-gray-200 mb-4  col-span-7">{title}</h1>
+        <h1
+          className={`text-gray-200 col-span-7 ${truncate ? 'truncate' : ''}`}
+          onClick={toggleTruncate}
+        >
+          {title}
+        </h1>
         <button onClick={stock} className="text-yellow-600 text-2xl">
           {dbFetcher.data?.isSaved ? '★' : '☆'}
         </button>
+      </div>
+
+      <div className="mb-4 px-1">
+        {dbFetcher.data?.casts.map((cast) => (
+          <a
+            href={`/products?mode=stocked&filter=${cast}`}
+            key={cast}
+            className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-600 bg-indigo-200 last:mr-0 mr-1 mb-1"
+          >
+            {cast}
+          </a>
+        ))}
+        <span
+          onClick={openCastForm}
+          className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-200 last:mr-0 mr-1 mb-1"
+        >
+          edit
+        </span>
+        {dbFetcher.data && castFormOpen && (
+          <CastsForm
+            disabled={!dbFetcher.data.isSaved}
+            dbFetcher={dbFetcher}
+            selected={dbFetcher.data.casts}
+            code={data.code}
+          />
+        )}
       </div>
       {dbFetcher.data && dbFetcher.data.isSaved && (
         <dl className="text-gray-200 mb-4">
@@ -153,13 +195,13 @@ const Product = () => {
                   }  px-4 py-5 text-sm text-gray-200`}
                   onClick={() => handleInputValue(link)}
                 >
-                  <p>
+                  <p className="truncate">
                     {link === inputValue ? (
                       <span className="text-indigo-500 pr-1">○</span>
                     ) : dbFetcher.data?.downloadUrl === link ? (
                       <span className="text-indigo-500 pr-1">●</span>
                     ) : null}
-                    {title.slice(0, 50)}
+                    {title}
                   </p>
                   <p>completed: {completed}</p>
                   <p>size: {size}</p>
@@ -184,3 +226,57 @@ const Product = () => {
 }
 
 export default Product
+
+const CastsForm: VFC<{
+  code: string
+  dbFetcher: ReturnType<typeof useFetcher>
+  selected?: string[]
+  disabled?: boolean
+}> = ({ code, dbFetcher, disabled, selected = [] }) => {
+  const Form = dbFetcher.Form
+  const castFetcher = useFetcher<CastsData>()
+  useEffect(() => {
+    castFetcher.load(`/products/${code}/casts`)
+  }, [castFetcher.load])
+  const refSelected = useRef(selected)
+
+  return (
+    <Form
+      className="flex flex-col"
+      action={`/products/${code}/db`}
+      method="patch"
+    >
+      {castFetcher.data?.data?.map(({ name, link }) => (
+        <div key={name} className="inline-flex items-center mt-3">
+          <label>
+            <input type="hidden" name="casts" value="" />
+            <input
+              type="checkbox"
+              name="casts"
+              className="form-checkbox h-5 w-5"
+              disabled={disabled}
+              value={name}
+              defaultChecked={refSelected.current.includes(name)}
+            />
+            <span className="ml-2 text-gray-200">{name}</span>
+          </label>
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="pl-2 text-indigo-500"
+          >
+            →
+          </a>
+        </div>
+      ))}
+      <button
+        className="text-indigo-500 disabled:opacity-50"
+        disabled={disabled || castFetcher.state === 'loading'}
+      >
+        {castFetcher.state === 'loading' ? 'Searching...' : 'Save'}
+      </button>
+      <span className="text-gray-200">{castFetcher.data?.error}</span>
+    </Form>
+  )
+}
