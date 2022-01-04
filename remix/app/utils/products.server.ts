@@ -5,7 +5,7 @@ export type ProductListItem = {
   sku: string
   image_path: string
   name: string
-  casts: string[]
+  casts?: string[]
   isDownloaded?: boolean
   isProcessing?: string
 }

@@ -54,7 +54,7 @@ const Products: VFC = () => {
                   {name.slice(0, 70)}
                 </p>
                 <p className="text-indigo-500 block text-sm mb-2">
-                  {casts.join(', ')}
+                  {casts?.join(', ')}
                 </p>
               </div>
             </div>
