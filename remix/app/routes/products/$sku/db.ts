@@ -1,6 +1,6 @@
 import { ActionFunction, LoaderFunction } from 'remix'
 import { supabaseClient } from '~/utils/supabase.server'
-import { productFromSite } from '~/utils/product.server'
+import { productFromF, productFromM } from '~/utils/product.server'
 import { v4 as uuidv4 } from 'uuid'
 
 export type DBData = {
@@ -82,7 +82,9 @@ export const action: ActionFunction = async ({ request, params }) => {
     series,
     releasedAt,
     maker
-  } = await productFromSite(code)
+  } = code.startsWith('SP-')
+    ? await productFromM(code)
+    : (await productFromF(code)) ?? (await productFromM(code))
 
   await supabaseClient.from('Product').insert([
     {

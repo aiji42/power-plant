@@ -13,10 +13,10 @@ export type CastsData = {
 }
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
-  const castFastPromise = searchFast(shortSKU(sku) || stripSKU(sku))
+  const castFastPromise = searchFast(shortSKU(sku, true) || stripSKU(sku, true))
 
   const casts = await Promise.race<Casts>([
-    searchSlow(shortSKU(sku) || stripSKU(sku)),
+    searchSlow(shortSKU(sku, true) || stripSKU(sku, true)),
     new Promise<Casts>((s) => setTimeout(() => s([]), 20 * 1000))
   ])
 

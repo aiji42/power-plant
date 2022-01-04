@@ -1,5 +1,6 @@
 import parse, { HTMLElement } from 'node-html-parser'
 import chunk from 'chunk'
+import { Result } from '~/utils/products.server'
 
 const HOST = 'https://sp.mgstage.com'
 
@@ -14,7 +15,7 @@ const mapping: Record<string, string> = {
 }
 
 export type ProductFromSite = {
-  [k: string]: string | string[]
+  [k: string]: string | string[] | number
 } & {
   mainImageUrl: string
   subImageUrls: string[]
@@ -29,9 +30,7 @@ export type ProductFromSite = {
   genres?: string[]
 }
 
-export const productFromSite = async (
-  code: string
-): Promise<ProductFromSite> => {
+export const productFromM = async (code: string): Promise<ProductFromSite> => {
   const res = await fetch(HOST + `/product/product_detail/${code}/`, {
     headers: {
       Cookie: 'adc=1',
@@ -80,4 +79,35 @@ export const productFromSite = async (
     sample,
     length
   } as ProductFromSite
+}
+
+export const productFromF = async (
+  code: string
+): Promise<ProductFromSite | null> => {
+  const res: { result: Result } = await fetch(
+    `https://api.dmm.com/affiliate/v3/ItemList?${new URLSearchParams({
+      api_id: process.env.PROVIDER_F_API_ID ?? '',
+      affiliate_id: process.env.PROVIDER_F_AFF_ID ?? '',
+      site: 'FANZA',
+      service: 'digital',
+      floor: 'videoc',
+      cid: code
+    }).toString()}`
+  ).then((res) => res.json())
+  const [item] = res.result.items
+  if (!item) return null
+
+  return {
+    title: item.title,
+    mainImageUrl: item.imageURL.large,
+    subImageUrls: item.sampleImageURL?.sample_l.image ?? [],
+    sample: item.sampleMovieURL?.size_720_480 ?? '',
+    code: item.content_id,
+    releasedAt: item.date,
+    series: item.iteminfo.label[0].name,
+    maker: item.iteminfo.maker[0].name,
+    actor: '',
+    length: 100,
+    genres: item.iteminfo.genre.map(({ name }) => name)
+  }
 }

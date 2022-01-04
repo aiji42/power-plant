@@ -8,12 +8,18 @@ import {
   VFC
 } from 'react'
 import { TorrentsData } from './$sku/torrent'
-import { ProductFromSite, productFromSite } from '~/utils/product.server'
+import {
+  ProductFromSite,
+  productFromM,
+  productFromF
+} from '~/utils/product.server'
 import { DBData } from '~/routes/products/$sku/db'
 import { CastsData } from '~/routes/products/$sku/casts'
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
-  const data = await productFromSite(sku)
+  const f = productFromF(sku)
+  const m = productFromM(sku)
+  const data = sku.startsWith('SP-') ? await m : (await f) ?? (await m)
   if (data.code !== sku && data.code.includes(sku))
     return redirect(`/products/${data.code}`)
   return data
