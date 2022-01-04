@@ -24,8 +24,7 @@ export type ProductFromSite = {
   releasedAt: string
   series?: string
   maker?: string
-  mainActor: string
-  subActors: string[]
+  actor?: string
   length: number
   genres?: string[]
 }
@@ -71,12 +70,6 @@ export const productFromSite = async (
     .map((img) => img.getAttribute('src'))
     .filter((src): src is string => /\.jpg$/.test(src ?? ''))
   const sample = root.querySelector('#sample-movie')?.getAttribute('src') ?? ''
-  const [mainActor, ...subActors] = !('actor' in info)
-    ? ['']
-    : Array.isArray(info.actor)
-    ? info.actor
-    : [info.actor]
-  delete info.actor
   const length = typeof info.length === 'string' ? parseInt(info.length) : 0
 
   return {
@@ -84,8 +77,6 @@ export const productFromSite = async (
     title,
     mainImageUrl,
     subImageUrls,
-    mainActor,
-    subActors,
     sample,
     length
   } as ProductFromSite
