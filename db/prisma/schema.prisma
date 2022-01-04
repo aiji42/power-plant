@@ -18,8 +18,7 @@ model Product {
   maker        String?
   series       String?
   genres       String[]
-  mainActor    String?
-  subActors    String[]
+  casts        String[]
   url          String?
   mediaUrls    String[]
   mainImageUrl String?
