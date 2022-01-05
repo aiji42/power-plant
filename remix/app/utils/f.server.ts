@@ -44,6 +44,7 @@ type Result = {
 export const productsSearchFromF = async (params: {
   cid?: string
   offset?: string
+  floor?: 'videoc' | 'video'
 }): Promise<Result> => {
   const res: { result: Result } = await fetch(
     `https://api.dmm.com/affiliate/v3/ItemList?${new URLSearchParams({
@@ -51,7 +52,6 @@ export const productsSearchFromF = async (params: {
       affiliate_id: process.env.PROVIDER_F_AFF_ID ?? '',
       site: 'FANZA',
       service: 'digital',
-      floor: 'videoc',
       sort: 'date',
       ...params
     }).toString()}`

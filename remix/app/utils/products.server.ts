@@ -49,7 +49,10 @@ export const productsFromDB = async (page: number) => {
 export const productsFromF = async (
   page: number
 ): Promise<ProductListItem[]> => {
-  const res = await productsSearchFromF({ offset: String((page - 1) * 20 + 1) })
+  const res = await productsSearchFromF({
+    offset: String((page - 1) * 20 + 1),
+    floor: 'videoc'
+  })
 
   return res.items.map<ProductListItem>(({ title, content_id, imageURL }) => ({
     name: title,

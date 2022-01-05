@@ -11,6 +11,7 @@ export const shortSKU = (sku: string, skipFormat = false): string => {
 const format = (sku: string, skipFormat: boolean): string => {
   if (skipFormat) return sku
   const [, first, second] = sku.toUpperCase().match(/^([A-Z]+)(\d+)$/) ?? []
-  if (first && second) return `${first}-${second}`
+  if (first && second)
+    return `${first}-${String(Number(second)).padStart(3, '0')}`
   return sku
 }
