@@ -89,7 +89,8 @@ const downloadedOptions = {
 }
 
 const Filter: VFC = () => {
-  const { order, sort, casts, isDownloaded, provider } = useLoaderData<Data>()
+  const { order, sort, casts, isDownloaded, provider, page } =
+    useLoaderData<Data>()
   const [open, toggle] = useReducer((s) => !s, false)
   const castInput = useRef<HTMLInputElement>(null)
   const form = useRef<HTMLFormElement>(null)
@@ -111,6 +112,7 @@ const Filter: VFC = () => {
         onClick={toggle}
         className="mb-2 mx-4 float-right"
       />
+      <span className="px-1 float-right">Page {page}</span>
     </p>
   ) : (
     <form
