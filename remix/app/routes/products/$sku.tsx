@@ -88,7 +88,7 @@ const Product = () => {
       <div className="mb-4 px-1">
         {dbFetcher.data?.casts.map((cast) => (
           <a
-            href={`/products?mode=stocked&filter=${cast}`}
+            href={`/products?casts=${cast}`}
             key={cast}
             className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-600 bg-indigo-200 last:mr-0 mr-1 mb-1"
           >

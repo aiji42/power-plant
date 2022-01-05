@@ -34,14 +34,28 @@ export const productsFromM = async (
   }))
 }
 
-export const productsFromDB = async (page: number) => {
-  const { data } = await supabaseClient
+export const productsFromDB = async (
+  page: number,
+  order: {
+    column: 'releasedAt' | 'createdAt' | string | null
+    sort: 'asc' | 'desc' | string | null
+  },
+  filter?: { casts?: string | null; isDownloaded: string | null }
+) => {
+  let query = supabaseClient
     .from('Product')
     .select(
       'sku:code, name:title, image_path:mainImageUrl, isDownloaded, isProcessing, casts'
     )
-    .order('createdAt', { ascending: false })
+    .order(order.column ?? 'createdAt', { ascending: order.sort === 'asc' })
     .range((page - 1) * 20, page * 20 - 1)
+  if (filter?.casts) query = query.contains('casts', `{${filter.casts}}`)
+  if (filter?.isDownloaded)
+    query = query.is('isDownloaded', filter.isDownloaded === '1')
+
+  const { data, error } = await query
+
+  console.log(error)
 
   return data
 }
