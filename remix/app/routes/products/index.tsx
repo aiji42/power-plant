@@ -82,6 +82,12 @@ const Products: VFC = () => {
 
 export default Products
 
+const downloadedOptions = {
+  '': 'any',
+  '1': 'done',
+  '0': 'not yet'
+}
+
 const Filter: VFC = () => {
   const { order, sort, casts, isDownloaded, provider } = useLoaderData<Data>()
   const [open, toggle] = useReducer((s) => !s, false)
@@ -89,15 +95,23 @@ const Filter: VFC = () => {
   const form = useRef<HTMLFormElement>(null)
   if (provider) return null
   return !open ? (
-    <img
-      style={{
-        filter:
-          'invert(50%) sepia(0%) saturate(11%) hue-rotate(143deg) brightness(150%) contrast(93%);'
-      }}
-      src="https://img.icons8.com/ios/30/000000/sorting-options--v1.png"
-      onClick={toggle}
-      className="mb-2 mx-4 float-right"
-    />
+    <p className="text-indigo-500">
+      <span className="px-1">{order}</span>
+      <span className="px-1">{sort}</span>
+      <span className="px-1">
+        {downloadedOptions[isDownloaded as keyof typeof downloadedOptions]}
+      </span>
+      <span className="px-1">{casts}</span>
+      <img
+        style={{
+          filter:
+            'invert(50%) sepia(0%) saturate(11%) hue-rotate(143deg) brightness(150%) contrast(93%);'
+        }}
+        src="https://img.icons8.com/ios/30/000000/sorting-options--v1.png"
+        onClick={toggle}
+        className="mb-2 mx-4 float-right"
+      />
+    </p>
   ) : (
     <form
       ref={form}
@@ -143,11 +157,7 @@ const Filter: VFC = () => {
             name="isDownloaded"
             defaultValue={isDownloaded}
           >
-            {[
-              { value: '', name: 'any' },
-              { value: '1', name: 'done' },
-              { value: '0', name: 'not yet' }
-            ].map(({ value, name }) => (
+            {Object.entries(downloadedOptions).map(([value, name]) => (
               <option value={value} key={value}>
                 {name}
               </option>
