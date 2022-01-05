@@ -56,7 +56,13 @@ export const productsSearchFromF = async (params: {
       ...params
     }).toString()}`
   ).then((res) => res.json())
-  console.log(res)
 
   return res.result
+}
+
+export const sampleMovieUrl = (code: string): string | null => {
+  const initial = code.slice(0, 1)
+  const [, prefix] = code.match(/^([a-z]+)/) ?? []
+  if (!prefix) return null
+  return `https://cc3001.dmm.co.jp/litevideo/freepv/${initial}/${prefix}/${code}/${code}_dmb_w.mp4`
 }
