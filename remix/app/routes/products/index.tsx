@@ -23,7 +23,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const provider = params.get('provider')
   const isDownloaded = params.get('isDownloaded') ?? ''
   const casts = params.get('casts')
-  const order = params.get('order') ?? 'updatedAt'
+  const order = params.get('order') ?? 'createdAt'
   const sort = params.get('sort') ?? 'desc'
   const items = await (provider === 'm'
     ? productsFromM(page)
