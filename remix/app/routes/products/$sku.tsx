@@ -219,7 +219,12 @@ const Product = () => {
         )
       )}
 
-      {sample && <video src={sample} controls />}
+      {sample &&
+        (sample.endsWith('.mp4') ? (
+          <video src={sample} controls />
+        ) : (
+          <iframe src={sample} loading="lazy" className="w-full" height={200} />
+        ))}
 
       {mainImageUrl && (
         <img src={mainImageUrl} loading="lazy" className="w-full mb-2" />

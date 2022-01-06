@@ -1,6 +1,6 @@
 import parse, { HTMLElement } from 'node-html-parser'
 import chunk from 'chunk'
-import { productsSearchFromF, sampleMovieUrl } from '~/utils/f.server'
+import { productsSearchFromF } from '~/utils/f.server'
 
 const HOST = 'https://sp.mgstage.com'
 
@@ -92,7 +92,7 @@ export const productFromF = async (
     title: item.title,
     mainImageUrl: item.imageURL.large,
     subImageUrls: item.sampleImageURL?.sample_l.image ?? [],
-    sample: item.sampleMovieURL?.size_720_480 ? sampleMovieUrl(code) ?? '' : '',
+    sample: item.sampleMovieURL?.size_720_480 ?? '',
     code: item.content_id,
     releasedAt: item.date,
     series: item.iteminfo.label[0].name,
