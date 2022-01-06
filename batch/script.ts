@@ -19,12 +19,18 @@ const download = async (target: string, dir: string) =>
         timeout: 1000 * 60 * 30
       }
     )
+    let stdout = ''
     aria2c.stdout.on('data', (data) => {
-      console.log(data.toString())
+      if (stdout === data.toString()) return
+      stdout = data.toString()
+      console.log(stdout)
     })
 
+    let stderr = ''
     aria2c.stderr.on('data', (data) => {
-      console.error(data.toString())
+      if (stderr === data.toString()) return
+      stderr = data.toString()
+      console.error(stderr)
     })
 
     aria2c.on('close', (code) => {
@@ -48,12 +54,18 @@ const compression = async (target: string, index: number): Promise<string> => {
         shell: true
       }
     )
+    let stdout = ''
     ffmpeg.stdout.on('data', (data) => {
-      console.log(data.toString())
+      if (stdout === data.toString()) return
+      stdout = data.toString()
+      console.log(stdout)
     })
 
+    let stderr = ''
     ffmpeg.stderr.on('data', (data) => {
-      console.error(data.toString())
+      if (stderr === data.toString()) return
+      stderr = data.toString()
+      console.error(stderr)
     })
 
     ffmpeg.on('close', (code) => {
@@ -89,12 +101,18 @@ const upload = async (files: string[], code: string): Promise<string[]> =>
           { shell: true }
         )
 
+        let stdout = ''
         aws.stdout.on('data', (data) => {
-          console.log(data.toString())
+          if (stdout === data.toString()) return
+          stdout = data.toString()
+          console.log(stdout)
         })
 
+        let stderr = ''
         aws.stderr.on('data', (data) => {
-          console.error(data.toString())
+          if (stderr === data.toString()) return
+          stderr = data.toString()
+          console.error(stderr)
         })
 
         aws.on('close', (code) => {
