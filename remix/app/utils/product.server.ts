@@ -92,7 +92,9 @@ export const productFromF = async (
     title: item.title,
     mainImageUrl: item.imageURL.large,
     subImageUrls: item.sampleImageURL?.sample_l.image ?? [],
-    sample: item.sampleMovieURL?.size_720_480 ?? '',
+    sample: item.sampleMovieURL?.size_720_480
+      ? await sampleMovie(item.sampleMovieURL.size_720_480)
+      : '',
     code: item.content_id,
     releasedAt: item.date,
     series: item.iteminfo.label[0].name,
@@ -102,4 +104,16 @@ export const productFromF = async (
       Number(new Date(`1970-01-01T${item.volume.padStart(8, '0')}Z`)) / 60000,
     genres: item.iteminfo.genre.map(({ name }) => name)
   }
+}
+
+const sampleMovie = async (url: string) => {
+  let res = await fetch(url)
+  let html = await res.text()
+  const root = parse(html)
+  const src = root.querySelector('iframe')?.getAttribute('src')
+  if (!src) return ''
+  res = await fetch('https:' + src)
+  html = await res.text()
+  const [, movie] = html.match(/"src":"(.+?\.mp4)","title"/) ?? []
+  return `https:${movie.replace(/\\/g, '')}`
 }
