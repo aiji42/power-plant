@@ -96,22 +96,13 @@ const Filter: VFC = () => {
   const form = useRef<HTMLFormElement>(null)
   if (provider) return null
   return !open ? (
-    <p className="text-indigo-500">
+    <p className="text-indigo-500 mb-4" onClick={toggle}>
       <span className="px-1">{order}</span>
       <span className="px-1">{sort}</span>
       <span className="px-1">
         {downloadedOptions[isDownloaded as keyof typeof downloadedOptions]}
       </span>
       <span className="px-1">{casts}</span>
-      <img
-        style={{
-          filter:
-            'invert(50%) sepia(0%) saturate(11%) hue-rotate(143deg) brightness(150%) contrast(93%);'
-        }}
-        src="https://img.icons8.com/ios/30/000000/sorting-options--v1.png"
-        onClick={toggle}
-        className="mb-2 mx-4 float-right"
-      />
       <span className="px-1 float-right">Page {page}</span>
     </p>
   ) : (
