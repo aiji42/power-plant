@@ -1,5 +1,5 @@
 import { json, LoaderFunction } from 'remix'
-import { shortSKU, stripSKU } from '~/utils/sku'
+import { formatter } from '~/utils/sku'
 import parse from 'node-html-parser'
 
 type Casts = {
@@ -13,15 +13,27 @@ export type CastsData = {
 }
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
-  const castFastPromise = searchFast(shortSKU(sku, true) || stripSKU(sku, true))
+  const castFastPromise = searchFast(formatter(sku)[0])
+  const castMiddlePromise = searchMiddle(formatter(sku)[0])
 
-  const casts = await Promise.race<Casts>([
-    searchSlow(shortSKU(sku, true) || stripSKU(sku, true)),
+  const castSlowPromise = Promise.race<Casts>([
+    searchSlow(formatter(sku)[0]),
     new Promise<Casts>((s) => setTimeout(() => s([]), 20 * 1000))
   ])
 
+  const searchResults = await Promise.all([
+    castFastPromise,
+    castMiddlePromise,
+    castSlowPromise
+  ])
+
   return json(
-    { data: mergeCasts(casts, await castFastPromise) },
+    {
+      data: mergeCasts(
+        mergeCasts(searchResults[0], searchResults[1]),
+        searchResults[2]
+      )
+    },
     {
       headers: {
         'cache-control': 'public, max-age=3600, stale-while-revalidate=3600'
@@ -31,6 +43,7 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
 }
 
 const searchFast = async (s: string): Promise<Casts> => {
+  console.log('search cast: ', `https://shiroutoname.com/?s=${s}`)
   const res = await fetch(`https://shiroutoname.com/?s=${s}`)
   const html = await res.text()
   const root = parse(html)
@@ -42,7 +55,24 @@ const searchFast = async (s: string): Promise<Casts> => {
     }))
 }
 
+const searchMiddle = async (s: string): Promise<Casts> => {
+  console.log('search cast: ', `https://av-wiki.net/?s=${s}&post_type=product`)
+  let res = await fetch(`https://av-wiki.net/?s=${s}&post_type=product`)
+  let html = await res.text()
+  if (html.includes('Database Error')) {
+    res = await fetch(`https://av-wiki.net/?s=${s}&post_type=product`)
+    html = await res.text()
+  }
+  console.log(html)
+  const root = parse(html)
+  return root.querySelectorAll('.actress-name a').map<Casts[number]>((el) => ({
+    link: el.getAttribute('href') ?? '',
+    name: el.innerText
+  }))
+}
+
 const searchSlow = async (s: string): Promise<Casts> => {
+  console.log('search cast: ', `https://av-actress-star.com/?s=${s}`)
   const res = await fetch(`https://av-actress-star.com/?s=${s}`)
   const html = await res.text()
   const root = parse(html)

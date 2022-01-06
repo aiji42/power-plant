@@ -37,6 +37,7 @@ type Result = {
       genre: { id: number; name: string }[]
       maker: { id: number; name: string }[]
       label: { id: number; name: string }[]
+      actress?: { id: number; name: string }[]
     }
   }[]
 }

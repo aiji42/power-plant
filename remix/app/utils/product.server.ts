@@ -97,7 +97,7 @@ export const productFromF = async (
     releasedAt: item.date,
     series: item.iteminfo.label[0].name,
     maker: item.iteminfo.maker[0].name,
-    actor: '',
+    actor: item.iteminfo.actress?.[0].name ?? '',
     length:
       Number(new Date(`1970-01-01T${item.volume.padStart(8, '0')}Z`)) / 60000,
     genres: item.iteminfo.genre.map(({ name }) => name)
