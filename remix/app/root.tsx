@@ -145,7 +145,7 @@ function Layout({ children }: { children: React.ReactNode }) {
   const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
     (e) => {
       e.preventDefault()
-      location.href = `/products/${value}`
+      location.href = `/products/${value.trim()}`
     },
     [value]
   )
