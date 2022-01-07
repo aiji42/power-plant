@@ -136,7 +136,7 @@ const main = async () => {
   if (!product) throw new Error(`No record id: ${id}`)
   if (!product.downloadUrl || product.isProcessing)
     throw new Error(`The product is not ready for downloading`)
-  // await prisma.product.update({ where: { id }, data: { isProcessing: true } })
+  await prisma.product.update({ where: { id }, data: { isProcessing: true } })
 
   try {
     await download(product.downloadUrl, '/downloads')
@@ -151,18 +151,18 @@ const main = async () => {
     const fileNames = listFiles('/downloads').filter(
       (filePath) => fs.statSync(filePath).size > minSize * 1024 * 1024
     )
-    // const urls = await upload(fileNames, product.code)
-    // await prisma.product.update({
-    //   where: { id },
-    //   data: { mediaUrls: urls, isDownloaded: true, isProcessing: false }
-    // })
+    const urls = await upload(fileNames, product.code)
+    await prisma.product.update({
+      where: { id },
+      data: { mediaUrls: urls, isDownloaded: true, isProcessing: false }
+    })
   } catch (e) {
     if (e instanceof Error) console.error(e.message)
-    // await prisma.product.update({
-    //   where: { id },
-    //   data: { isProcessing: false }
-    // })
-    // throw e
+    await prisma.product.update({
+      where: { id },
+      data: { isProcessing: false }
+    })
+    throw e
   }
 }
 
