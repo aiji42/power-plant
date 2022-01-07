@@ -64,14 +64,19 @@ export const productsFromF = async (
   page: number
 ): Promise<ProductListItem[]> => {
   const res = await productsSearchFromF({
-    offset: String((page - 1) * 20 + 1),
-    floor: 'videoc'
+    offset: String((page - 1) * 100 + 1),
+    floor: 'videoc',
+    hits: 100
   })
 
-  return res.items.map<ProductListItem>(({ title, content_id, imageURL }) => ({
-    name: title,
-    sku: content_id,
-    image_path: imageURL.list,
-    casts: []
-  }))
+  return res.items
+    .filter(({ iteminfo: { maker } }) =>
+      /ホイホイ|ION|AREA/.test(maker[0].name)
+    )
+    .map<ProductListItem>(({ title, content_id, imageURL }) => ({
+      name: title,
+      sku: content_id,
+      image_path: imageURL.large,
+      casts: []
+    }))
 }

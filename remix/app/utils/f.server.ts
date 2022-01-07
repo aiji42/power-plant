@@ -46,6 +46,7 @@ export const productsSearchFromF = async (params: {
   cid?: string
   offset?: string
   floor?: 'videoc' | 'video'
+  hits?: number
 }): Promise<Result> => {
   const res: { result: Result } = await fetch(
     `https://api.dmm.com/affiliate/v3/ItemList?${new URLSearchParams({
@@ -54,7 +55,9 @@ export const productsSearchFromF = async (params: {
       site: 'FANZA',
       service: 'digital',
       sort: 'date',
-      ...params
+      ...Object.fromEntries(
+        Object.entries(params).map(([k, v]) => [k, String(v)])
+      )
     }).toString()}`
   ).then((res) => res.json())
 
