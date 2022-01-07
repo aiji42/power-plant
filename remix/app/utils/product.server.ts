@@ -93,27 +93,25 @@ export const productFromF = async (
     mainImageUrl: item.imageURL.large,
     subImageUrls: item.sampleImageURL?.sample_l.image ?? [],
     sample: item.sampleMovieURL?.size_720_480
-      ? await sampleMovie(item.sampleMovieURL.size_720_480)
+      ? await sampleMovie(item.content_id)
       : '',
     code: item.content_id,
     releasedAt: item.date,
     series: item.iteminfo.label[0].name,
     maker: item.iteminfo.maker[0].name,
     actor: item.iteminfo.actress?.[0].name ?? '',
-    length:
-      Number(new Date(`1970-01-01T${item.volume.padStart(8, '0')}Z`)) / 60000,
+    length: item.volume.includes(':')
+      ? Number(new Date(`1970-01-01T${item.volume.padStart(8, '0')}Z`)) / 60000
+      : Number(item.volume),
     genres: item.iteminfo.genre.map(({ name }) => name)
   }
 }
 
-const sampleMovie = async (url: string) => {
-  let res = await fetch(url)
-  let html = await res.text()
-  const root = parse(html)
-  const src = root.querySelector('iframe')?.getAttribute('src')
-  if (!src) return ''
-  res = await fetch('https:' + src)
-  html = await res.text()
+const sampleMovie = async (cid: string) => {
+  const res = await fetch(
+    `https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=${cid}`
+  )
+  const html = await res.text()
   const [, movie] = html.match(/"src":"(.+?\.mp4)","title"/) ?? []
   return `https:${movie.replace(/\\/g, '')}`
 }
