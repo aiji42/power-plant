@@ -2,6 +2,7 @@ import { ActionFunction, LoaderFunction } from 'remix'
 import { supabaseClient } from '~/utils/supabase.server'
 import { productFromF, productFromM } from '~/utils/product.server'
 import { v4 as uuidv4 } from 'uuid'
+import { submitJob } from '~/utils/aws.server'
 
 export type DBData = {
   isSaved: boolean
@@ -61,7 +62,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       data?.[0].id &&
       process.env.NODE_ENV === 'production'
     )
-      await fetch(`${process.env.BATCH_JOB_SLS_ENDPOINT}${data[0].id}`)
+      await submitJob(data[0].id)
     return {
       isSaved: true,
       isLiked: data?.[0].isLiked,

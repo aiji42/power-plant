@@ -17,7 +17,12 @@ require('esbuild')
       'process.env.SUPABASE_API_KEY': `"${process.env.SUPABASE_API_KEY}"`,
       'process.env.BATCH_JOB_SLS_ENDPOINT': `"${process.env.BATCH_JOB_SLS_ENDPOINT}"`,
       'process.env.PROVIDER_F_API_ID': `"${process.env.PROVIDER_F_API_ID}"`,
-      'process.env.PROVIDER_F_AFF_ID': `"${process.env.PROVIDER_F_AFF_ID}"`
+      'process.env.PROVIDER_F_AFF_ID': `"${process.env.PROVIDER_F_AFF_ID}"`,
+      'process.env.AWS_ACCESS_KEY_ID': `"${process.env.AWS_ACCESS_KEY_ID}"`,
+      'process.env.AWS_SECRET_ACCESS_KEY': `"${process.env.AWS_SECRET_ACCESS_KEY}"`,
+      'process.env.AWS_DEFAULT_REGION': `"${process.env.AWS_DEFAULT_REGION}"`,
+      'process.env.JOB_DEFINITION': `"${process.env.JOB_DEFINITION}"`,
+      'process.env.JOB_QUEUE': `"${process.env.JOB_QUEUE}"`
     },
     plugins: [
       alias({

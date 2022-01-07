@@ -31,3 +31,8 @@ jobs:
           BATCH_JOB_SLS_ENDPOINT: ${{ secrets.BATCH_JOB_SLS_ENDPOINT }}
           PROVIDER_F_API_ID: ${{ secrets.PROVIDER_F_API_ID }}
           PROVIDER_F_AFF_ID: ${{ secrets.PROVIDER_F_AFF_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-1
+          JOB_DEFINITION: ${{ secrets.JOB_DEFINITION }}
+          JOB_QUEUE: ${{ secrets.JOB_QUEUE }}

@@ -575,6 +575,11 @@ astring@^1.6.0:
   resolved "https://registry.yarnpkg.com/astring/-/astring-1.8.1.tgz#a91c4afd4af3523e11f31242a3d5d9af62bb6cc6"
   integrity sha512-Aj3mbwVzj7Vve4I/v2JYOPFkCGM2YS7OqQTNSxmUR+LECRpokuPgAYghePgr6SALDo5bD5DlfbSaYjOzGJZOLQ==
 
+aws4fetch@^1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/aws4fetch/-/aws4fetch-1.0.13.tgz#81f09e3b7c3c52742c55a5d09def641df252f682"
+  integrity sha512-UTlirJkLtGbJurR9PlL4rOZ9HM1G/1/joWItpVwQ0f7j5Alldd7rfCMcy2kd0l2nDZ4LBdd6cFhrMwsEtazCNw==
+
 bail@^2.0.0:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/bail/-/bail-2.0.2.tgz#d26f5cd8fe5d6f832a31517b9f7c356040ba6d5d"
