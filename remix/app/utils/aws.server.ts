@@ -26,6 +26,11 @@ export const submitJob = async (id: string) => {
   )
 }
 
+export const getBucketAndKeyFromURL = (url: string): [string, string] => {
+  const [, bucket, key] = url.match(/https:\/\/(.+)\.s3.+?\/(.+)/) ?? []
+  return [bucket, key]
+}
+
 export const getMediaMeta = async (bucket: string, key: string) => {
   const res = await aws.fetch(
     `https://s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${bucket}/${key}`,
@@ -35,7 +40,7 @@ export const getMediaMeta = async (bucket: string, key: string) => {
   )
 
   return {
-    type: res.headers.get('content-type'),
+    type: res.headers.get('content-type') ?? '',
     size: bytesToSize(Number(res.headers.get('content-length')))
   }
 }
@@ -45,4 +50,13 @@ const bytesToSize = (bytes: number) => {
   if (bytes == 0) return '0 Byte'
   const i = parseInt(String(Math.floor(Math.log(bytes) / Math.log(1024))))
   return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i]
+}
+
+export const deleteMedia = async (bucket: string, key: string) => {
+  await aws.fetch(
+    `https://s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${bucket}/${key}`,
+    {
+      method: 'DELETE'
+    }
+  )
 }

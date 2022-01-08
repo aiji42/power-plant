@@ -16,11 +16,11 @@ import {
   DBData
 } from '~/utils/product.server'
 import { CastsData } from '~/routes/products/$sku/casts'
-import { getMediaMeta } from '~/utils/aws.server'
+import { getBucketAndKeyFromURL, getMediaMeta } from '~/utils/aws.server'
 
 type Data = ProductFromSite &
   DBData & {
-    mediaInfo?: { size: string; type: string }
+    medias: { url: string; size: string; type: string }[]
   }
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
@@ -32,15 +32,13 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
     return redirect(`/products/${data.code}`)
   const dbData = await db
 
-  if (dbData.mediaUrls.length) {
-    const [, bucket, key] =
-      dbData.mediaUrls[0].match(/https:\/\/(.+)\.s3.+?\/(.+)/) ?? []
+  const medias = await Promise.all(
+    dbData.mediaUrls.map(async (url) => {
+      return { url, ...(await getMediaMeta(...getBucketAndKeyFromURL(url))) }
+    })
+  )
 
-    if (bucket && key)
-      return { ...data, ...dbData, mediaInfo: await getMediaMeta(bucket, key) }
-  }
-
-  return { ...data, ...dbData }
+  return { ...data, ...dbData, medias }
 }
 
 const Product = () => {
@@ -52,11 +50,9 @@ const Product = () => {
     isSaved,
     isProcessing,
     isDownloaded,
-    isLiked,
-    mediaUrls,
     downloadUrl,
     casts,
-    mediaInfo,
+    medias,
     ...data
   } = useLoaderData<Data>()
 
@@ -64,15 +60,12 @@ const Product = () => {
   const dbFetcher = useFetcher<DBData>()
 
   const stock = useCallback(() => {
-    if (isSaved && (isProcessing || mediaUrls.length)) {
-      alert('The stock cannot be removed.')
-      return
-    }
+    if (isSaved && !confirm('Is it okay if I delete the stock?')) return
     dbFetcher.submit(null, {
       method: isSaved ? 'delete' : 'post',
       action: `/products/${data.code}/db`
     })
-  }, [dbFetcher.submit, isSaved, data.code, isProcessing, mediaUrls.length])
+  }, [dbFetcher.submit, isSaved, data.code])
 
   useEffect(() => {
     torrentsFetcher.load(`/products/${data.code}/torrent`)
@@ -140,26 +133,37 @@ const Product = () => {
       </div>
 
       <dl className="text-gray-200 mb-4">
-        {Object.entries(data).map(([key, val], index) => (
-          <div
-            key={key}
-            className={`${
-              index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
-            }  px-4 py-5 grid grid-cols-3 gap-4`}
-          >
-            <dt className="text-sm font-medium text-gray-200">{key}</dt>
-            <dd className="text-sm text-gray-200 mt-0 col-span-2">
-              {Array.isArray(val) ? val.map((v) => <p key={v}>{v}</p>) : val}
-            </dd>
-          </div>
-        ))}
+        {Object.entries(data)
+          .filter(([key]) =>
+            [
+              'actor',
+              'maker',
+              'series',
+              'releasedAt',
+              'code',
+              'genre'
+            ].includes(key)
+          )
+          .map(([key, val], index) => (
+            <div
+              key={key}
+              className={`${
+                index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
+              }  px-4 py-5 grid grid-cols-3 gap-4`}
+            >
+              <dt className="text-sm font-medium text-gray-200">{key}</dt>
+              <dd className="text-sm text-gray-200 mt-0 col-span-2">
+                {Array.isArray(val) ? val.map((v) => <p key={v}>{v}</p>) : val}
+              </dd>
+            </div>
+          ))}
       </dl>
 
-      {mediaUrls.map((src) => (
-        <div className="w-full mb-4" key={src}>
-          <video src={src} controls key={src} />
-          <a href={src} className="text-gray-200 px-1 text-indigo-500">
-            download {mediaInfo?.size}( {mediaInfo?.type})
+      {medias.map(({ url, size, type }) => (
+        <div className="w-full mb-4" key={url}>
+          <video src={url} controls key={url} />
+          <a href={url} className="text-gray-200 px-1 text-indigo-500">
+            download {size}({type})
           </a>
         </div>
       ))}

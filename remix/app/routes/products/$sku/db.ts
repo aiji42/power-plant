@@ -2,12 +2,25 @@ import { ActionFunction } from 'remix'
 import { supabaseClient } from '~/utils/supabase.server'
 import { DBData, productFromF, productFromM } from '~/utils/product.server'
 import { v4 as uuidv4 } from 'uuid'
-import { submitJob } from '~/utils/aws.server'
+import {
+  deleteMedia,
+  getBucketAndKeyFromURL,
+  submitJob
+} from '~/utils/aws.server'
 
 export const action: ActionFunction = async ({ request, params }) => {
   const code = params.sku as string
   if (request.method === 'DELETE') {
-    await supabaseClient.from('Product').delete().match({ code })
+    const { data } = await supabaseClient
+      .from('Product')
+      .delete()
+      .match({ code })
+    if (process.env.NODE_ENV === 'production')
+      await Promise.all(
+        data?.[0]?.mediaUrls?.map((url: string) =>
+          deleteMedia(...getBucketAndKeyFromURL(url))
+        ) ?? []
+      )
     return {
       isSaved: false,
       isLiked: false,
