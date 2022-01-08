@@ -3,9 +3,6 @@ export const getMediaMeta = async (url: string) => {
     method: 'HEAD'
   })
 
-  console.log(res.headers)
-  console.log(await res.text())
-
   return {
     type: res.headers.get('content-type') ?? '',
     size: bytesToSize(Number(res.headers.get('content-length')))
