@@ -56,13 +56,11 @@ const Product = () => {
     isSaved,
     isProcessing,
     isDownloaded,
-    downloadUrl,
     casts,
     medias,
     ...data
   } = useLoaderData<Data>()
 
-  const torrentsFetcher = useFetcher<TorrentsData>()
   const dbFetcher = useFetcher<DBData>()
 
   const stock = useCallback(() => {
@@ -73,22 +71,9 @@ const Product = () => {
     })
   }, [dbFetcher.submit, isSaved, data.code])
 
-  useEffect(() => {
-    torrentsFetcher.load(`/products/${data.code}/torrent`)
-  }, [torrentsFetcher.load])
-  const [inputValue, handleInputValue] = useReducer(
-    (s: string, e: ChangeEvent<HTMLTextAreaElement> | string) => {
-      return typeof e === 'string' ? e : e.target.value
-    },
-    ''
-  )
-  useEffect(() => {
-    dbFetcher.state === 'idle' && handleInputValue('')
-  }, [dbFetcher.state])
-  const Form = dbFetcher.Form
-
   const [truncate, toggleTruncate] = useReducer((s) => !s, true)
   const [castFormOpen, openCastForm] = useReducer(() => true, casts.length < 1)
+  const [mediaDownloadOpen, openMediaForm] = useReducer(() => true, false)
 
   return (
     <>
@@ -135,7 +120,7 @@ const Product = () => {
         >
           edit
         </span>
-        {castFormOpen && <CastsForm dbFetcher={dbFetcher} code={data.code} />}
+        {castFormOpen && <CastsForm dbFetcher={dbFetcher} />}
       </div>
 
       <dl className="text-gray-200 mb-4">
@@ -185,62 +170,15 @@ const Product = () => {
         </div>
       ))}
 
-      {torrentsFetcher.state === 'loading' ? (
-        <div className="text-gray-200 text-center mb-4">Loading</div>
+      {!mediaDownloadOpen ? (
+        <p onClick={openMediaForm} className="px-1 py-2 text-indigo-500 mb-4">
+          Media Download Form
+        </p>
       ) : (
-        torrentsFetcher.data && (
-          <dl className="text-gray-200 mb-4">
-            {isSaved && (
-              <Form
-                action={`/products/${data.code}/db`}
-                method="patch"
-                className="w-full max-w-sm"
-              >
-                <div className="flex items-center border-b border-indigo-500 py-2">
-                  <input type="hidden" name="isProcessing" value="false" />
-                  <textarea
-                    className="appearance-none bg-transparent border-none w-full text-gray-200 mr-3 py-1 px-2 leading-tight focus:outline-none"
-                    name="downloadUrl"
-                    value={inputValue}
-                    onChange={handleInputValue}
-                    placeholder={downloadUrl ?? ''}
-                    required
-                  />
-                  <button
-                    disabled={inputValue.trim().length < 1}
-                    className="flex-shrink-0 text-sm text-indigo-500 py-1 px-2 disabled:opacity-50"
-                  >
-                    Set download url
-                  </button>
-                </div>
-              </Form>
-            )}
-            {torrentsFetcher.data.map(
-              ({ title, link, completed, size, registeredAt }, index) => (
-                <div
-                  key={index}
-                  className={`${
-                    index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
-                  }  px-4 py-5 text-sm text-gray-200`}
-                  onClick={() => handleInputValue(link)}
-                >
-                  <p className="truncate">
-                    {link === inputValue ? (
-                      <span className="text-indigo-500 pr-1">○</span>
-                    ) : dbFetcher.data?.downloadUrl === link ? (
-                      <span className="text-indigo-500 pr-1">●</span>
-                    ) : null}
-                    {title}
-                  </p>
-                  <p>completed: {completed}</p>
-                  <p>size: {size}</p>
-                  <p>registered: {registeredAt}</p>
-                </div>
-              )
-            )}
-          </dl>
-        )
+        <MediaDownloadForm dbFetcher={dbFetcher} />
       )}
+
+      <hr className="mb-4" />
 
       {sample && <video src={sample} controls className="w-full" />}
 
@@ -257,10 +195,9 @@ const Product = () => {
 export default Product
 
 const CastsForm: VFC<{
-  code: string
   dbFetcher: ReturnType<typeof useFetcher>
-}> = ({ code, dbFetcher }) => {
-  const { casts, isSaved } = useLoaderData<Data>()
+}> = ({ dbFetcher }) => {
+  const { casts, isSaved, code } = useLoaderData<Data>()
   const Form = dbFetcher.Form
   const castFetcher = useFetcher<CastsData>()
   useEffect(() => {
@@ -306,5 +243,85 @@ const CastsForm: VFC<{
       </button>
       <span className="text-gray-200">{castFetcher.data?.error}</span>
     </Form>
+  )
+}
+
+const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
+  dbFetcher
+}) => {
+  const torrentsFetcher = useFetcher<TorrentsData>()
+  const { code, isSaved, downloadUrl } = useLoaderData<Data>()
+  useEffect(() => {
+    torrentsFetcher.load(`/products/${code}/torrent`)
+  }, [torrentsFetcher.load, code])
+  const [inputValue, handleInputValue] = useReducer(
+    (s: string, e: ChangeEvent<HTMLTextAreaElement> | string) => {
+      return typeof e === 'string' ? e : e.target.value
+    },
+    ''
+  )
+  useEffect(() => {
+    dbFetcher.state === 'idle' && handleInputValue('')
+  }, [dbFetcher.state])
+
+  const Form = dbFetcher.Form
+
+  return (
+    <>
+      {isSaved && (
+        <Form
+          action={`/products/${code}/db`}
+          method="patch"
+          className="w-full max-w-sm mb-2"
+        >
+          <div className="flex items-center border-b border-indigo-500 py-2">
+            <input type="hidden" name="isProcessing" value="false" />
+            <textarea
+              className="appearance-none bg-transparent border-none w-full text-gray-200 mr-3 py-1 px-2 leading-tight focus:outline-none"
+              name="downloadUrl"
+              value={inputValue}
+              onChange={handleInputValue}
+              placeholder={downloadUrl ?? ''}
+              required
+            />
+            <button
+              disabled={inputValue.trim().length < 1}
+              className="flex-shrink-0 text-sm text-indigo-500 py-1 px-2 disabled:opacity-50"
+            >
+              Set download url
+            </button>
+          </div>
+        </Form>
+      )}
+      {torrentsFetcher.state === 'loading' ? (
+        <div className="text-gray-200 text-center mb-4">Loading</div>
+      ) : (
+        <dl className="text-gray-200 mb-4">
+          {torrentsFetcher.data?.map(
+            ({ title, link, completed, size, registeredAt }, index) => (
+              <div
+                key={index}
+                className={`${
+                  index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
+                }  px-4 py-5 text-sm text-gray-200`}
+                onClick={() => handleInputValue(link)}
+              >
+                <p className="truncate">
+                  {link === inputValue ? (
+                    <span className="text-indigo-500 pr-1">○</span>
+                  ) : downloadUrl === link ? (
+                    <span className="text-indigo-500 pr-1">●</span>
+                  ) : null}
+                  {title}
+                </p>
+                <p>completed: {completed}</p>
+                <p>size: {size}</p>
+                <p>registered: {registeredAt}</p>
+              </div>
+            )
+          )}
+        </dl>
+      )}
+    </>
   )
 }
