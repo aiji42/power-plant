@@ -63,7 +63,6 @@ const searchMiddle = async (s: string): Promise<Casts> => {
     res = await fetch(`https://av-wiki.net/?s=${s}&post_type=product`)
     html = await res.text()
   }
-  console.log(html)
   const root = parse(html)
   return root.querySelectorAll('.actress-name a').map<Casts[number]>((el) => ({
     link: el.getAttribute('href') ?? '',
