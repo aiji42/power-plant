@@ -68,7 +68,7 @@ const Products: VFC = () => {
               src={image_path}
             />
             <div className="flex flex-col justify-between px-2 leading-normal">
-              <h2 className="mb-2 text-xs tracking-tight truncate w-52">
+              <h2 className="mb-1 text-xs tracking-tight truncate w-52">
                 {isProcessing ? (
                   <span className="text-yellow-600 pr-1">●</span>
                 ) : isDownloaded ? (
@@ -76,9 +76,21 @@ const Products: VFC = () => {
                 ) : null}
                 {name}
               </h2>
-              {maker && <p className="mb-1 text-xs text-gray-400">{maker}</p>}
-              {series && maker !== series && (
-                <p className="mb-1 text-xs text-gray-400">{series}</p>
+              <p className="mb-1 text-xs text-gray-600">{sku}</p>
+              {maker && (
+                <p className="mb-1 text-xs text-gray-400">
+                  {
+                    <>
+                      {maker}
+                      {series && maker !== series && (
+                        <>
+                          <br />
+                          {series}
+                        </>
+                      )}
+                    </>
+                  }
+                </p>
               )}
               {!!casts?.length && (
                 <p className="mb-1 text-xs text-indigo-500">

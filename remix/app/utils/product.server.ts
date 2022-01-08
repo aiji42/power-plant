@@ -73,6 +73,7 @@ export const productFromM = async (code: string): Promise<ProductFromSite> => {
   const length = typeof info.length === 'string' ? parseInt(info.length) : 0
 
   return {
+    code: '',
     ...info,
     title,
     mainImageUrl,
