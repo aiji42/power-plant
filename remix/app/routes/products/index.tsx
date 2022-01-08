@@ -1,5 +1,5 @@
 import { Link, LoaderFunction, useLoaderData } from 'remix'
-import { useReducer, useRef, VFC } from 'react'
+import { RefObject, useReducer, useRef, VFC } from 'react'
 import {
   ProductListItem,
   productsFromDB,
@@ -10,11 +10,15 @@ import {
 type Data = {
   items: ProductListItem[]
   page: number
-  provider: 'm' | 'f' | null
-  order: string
-  sort: string
-  casts: string | null
-  isDownloaded: string
+  params: {
+    provider: 'm' | 'f' | null
+    order: string
+    sort: string
+    casts: string | null
+    maker: string | null
+    series: string | null
+    isDownloaded: string
+  }
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -23,22 +27,32 @@ export const loader: LoaderFunction = async ({ request }) => {
   const provider = params.get('provider')
   const isDownloaded = params.get('isDownloaded') ?? ''
   const casts = params.get('casts')
+  const maker = params.get('maker')
+  const series = params.get('series')
   const order = params.get('order') ?? 'createdAt'
   const sort = params.get('sort') ?? 'desc'
   const items = await (provider === 'm'
     ? productsFromM(page)
     : provider === 'f'
     ? productsFromF(page)
-    : productsFromDB(page, { column: order, sort }, { casts, isDownloaded }))
+    : productsFromDB(
+        page,
+        { column: order, sort },
+        { casts, isDownloaded, maker, series }
+      ))
   return {
     items,
     page,
-    provider,
-    order,
-    sort,
-    casts,
-    isDownloaded
-  }
+    params: {
+      provider,
+      order,
+      sort,
+      casts,
+      isDownloaded,
+      maker,
+      series
+    }
+  } as Data
 }
 
 const Products: VFC = () => {
@@ -93,8 +107,12 @@ const Products: VFC = () => {
                 </p>
               )}
               {!!casts?.length && (
-                <p className="mb-1 text-xs text-indigo-500">
-                  {casts.join(', ')}
+                <p className="mb-1 text-xs text-gray-400">
+                  {casts.map((cast) => (
+                    <span key={cast} className="pr-1">
+                      {cast}
+                    </span>
+                  ))}
                 </p>
               )}
             </div>
@@ -115,10 +133,11 @@ const downloadedOptions = {
 }
 
 const Filter: VFC = () => {
-  const { order, sort, casts, isDownloaded, provider, page } =
-    useLoaderData<Data>()
+  const {
+    params: { order, sort, casts, isDownloaded, provider, maker, series },
+    page
+  } = useLoaderData<Data>()
   const [open, toggle] = useReducer((s) => !s, false)
-  const castInput = useRef<HTMLInputElement>(null)
   const form = useRef<HTMLFormElement>(null)
   if (provider) return null
   return !open ? (
@@ -128,7 +147,9 @@ const Filter: VFC = () => {
       <span className="px-1">
         {downloadedOptions[isDownloaded as keyof typeof downloadedOptions]}
       </span>
-      <span className="px-1">{casts}</span>
+      {casts && <span className="px-1">{casts}</span>}
+      {maker && <span className="px-1">{maker}</span>}
+      {series && <span className="px-1">{series}</span>}
       <span className="px-1 float-right">Page {page}</span>
     </p>
   ) : (
@@ -185,47 +206,59 @@ const Filter: VFC = () => {
         </div>
       </div>
 
-      {casts && (
-        <div className="flex flex-wrap mb-4">
-          <div className="w-full px-3">
-            <label className="block text-gray-200 text-xs">cast</label>
-            <div className="flex border-b border-indigo-500 py-2">
-              <input
-                ref={castInput}
-                type="text"
-                defaultValue={casts}
-                className="appearance-none bg-transparent border-none w-full text-gray-200 mr-3 py-1 px-4 leading-tight focus:outline-none"
-                name="casts"
-                readOnly
-              />
-              <button
-                type="button"
-                className="flex-shrink-0 text-sm text-indigo-500 py-1 px-2"
-                onClick={(e) => {
-                  castInput.current && (castInput.current.value = '')
-                  form.current?.submit()
-                }}
-              >
-                Clear
-              </button>
+      {[
+        { type: 'cast', value: casts },
+        { type: 'maker', value: maker },
+        { type: 'series', value: series }
+      ]
+        .filter(
+          (
+            item
+          ): item is {
+            type: string
+            value: string
+          } => !!item.value
+        )
+        .map(({ type, value }) => (
+          <div className="flex flex-wrap mb-4" key={type}>
+            <div className="w-full px-3">
+              <label className="block text-gray-200 text-xs">{type}</label>
+              <div className="flex border-b border-indigo-500 py-2">
+                <input
+                  type="text"
+                  defaultValue={value}
+                  className="appearance-none bg-transparent border-none w-full text-gray-200 mr-3 py-1 px-4 leading-tight focus:outline-none"
+                  name="casts"
+                  readOnly
+                />
+                <button
+                  type="button"
+                  className="flex-shrink-0 text-sm text-indigo-500 py-1 px-2"
+                  onClick={(e) => {
+                    if (
+                      e.currentTarget.previousElementSibling instanceof
+                      HTMLInputElement
+                    )
+                      e.currentTarget.previousElementSibling.value = ''
+                    form.current?.submit()
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        ))}
     </form>
   )
 }
 
 const Pagination: VFC = () => {
-  const { page, provider, order, sort, casts, isDownloaded } =
-    useLoaderData<Data>()
-  const filter = {
-    ...(provider && { provider }),
-    ...(sort && { sort }),
-    ...(order && { order }),
-    ...(isDownloaded && { isDownloaded }),
-    ...(casts && { casts })
-  }
+  const { page, params } = useLoaderData<Data>()
+  const filter = Object.entries(params).reduce(
+    (res, [key, val]) => (!val ? res : { ...res, [key]: val }),
+    {}
+  )
 
   return (
     <div className="px-4 py-3 flex items-center justify-between border-t border-gray-300">

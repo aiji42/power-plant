@@ -42,7 +42,12 @@ export const productsFromDB = async (
     column: 'releasedAt' | 'createdAt' | string | null
     sort: 'asc' | 'desc' | string | null
   },
-  filter?: { casts?: string | null; isDownloaded: string | null }
+  filter?: {
+    casts?: string | null
+    maker?: string | null
+    series?: string | null
+    isDownloaded: string | null
+  }
 ) => {
   let query = supabaseClient
     .from('Product')
@@ -52,6 +57,8 @@ export const productsFromDB = async (
     .order(order.column ?? 'createdAt', { ascending: order.sort === 'asc' })
     .range((page - 1) * 40, page * 40 - 1)
   if (filter?.casts) query = query.contains('casts', `{${filter.casts}}`)
+  if (filter?.maker) query = query.eq('maker', filter.maker)
+  if (filter?.series) query = query.eq('series', filter.series)
   if (filter?.isDownloaded)
     query = query.is('isDownloaded', filter.isDownloaded === '1')
 

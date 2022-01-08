@@ -1,4 +1,10 @@
-import { LoaderFunction, useFetcher, useLoaderData, redirect } from 'remix'
+import {
+  LoaderFunction,
+  useFetcher,
+  useLoaderData,
+  redirect,
+  Link
+} from 'remix'
 import {
   ChangeEvent,
   useCallback,
@@ -115,13 +121,13 @@ const Product = () => {
 
       <div className="mb-4 px-1">
         {casts.map((cast) => (
-          <a
-            href={`/products?casts=${cast}`}
+          <Link
+            to={`/products?casts=${cast}`}
             key={cast}
             className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-600 bg-indigo-200 last:mr-0 mr-1 mb-1"
           >
             {cast}
-          </a>
+          </Link>
         ))}
         <span
           onClick={openCastForm}
@@ -153,7 +159,18 @@ const Product = () => {
             >
               <dt className="text-sm font-medium text-gray-200">{key}</dt>
               <dd className="text-sm text-gray-200 mt-0 col-span-2">
-                {Array.isArray(val) ? val.map((v) => <p key={v}>{v}</p>) : val}
+                {['maker', 'series'].includes(key) ? (
+                  <Link
+                    to={`/products?${key}=${val}`}
+                    className="text-indigo-400"
+                  >
+                    {val}
+                  </Link>
+                ) : Array.isArray(val) ? (
+                  val.map((v) => <p key={v}>{v}</p>)
+                ) : (
+                  val
+                )}
               </dd>
             </div>
           ))}
