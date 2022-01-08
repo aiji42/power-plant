@@ -16,8 +16,12 @@ import {
   DBData
 } from '~/utils/product.server'
 import { CastsData } from '~/routes/products/$sku/casts'
+import { getMediaMeta } from '~/utils/aws.server'
 
-type Data = ProductFromSite & DBData
+type Data = ProductFromSite &
+  DBData & {
+    mediaInfo?: { size: string; type: string }
+  }
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   const db = productFromDB(sku)
@@ -27,6 +31,15 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   if (data.code !== sku && data.code.includes(sku))
     return redirect(`/products/${data.code}`)
   const dbData = await db
+
+  if (dbData.mediaUrls.length) {
+    const [, bucket, key] =
+      dbData.mediaUrls[0].match(/https:\/\/(.+)\.s3.+?\/(.+)/) ?? []
+
+    if (bucket && key)
+      return { ...data, ...dbData, mediaInfo: await getMediaMeta(bucket, key) }
+  }
+
   return { ...data, ...dbData }
 }
 
@@ -43,6 +56,7 @@ const Product = () => {
     mediaUrls,
     downloadUrl,
     casts,
+    mediaInfo,
     ...data
   } = useLoaderData<Data>()
 
@@ -144,8 +158,8 @@ const Product = () => {
       {mediaUrls.map((src) => (
         <div className="w-full mb-4" key={src}>
           <video src={src} controls key={src} />
-          <a href={src} className="text-gray-200">
-            download
+          <a href={src} className="text-gray-200 px-1 text-indigo-500">
+            download {mediaInfo?.size}( {mediaInfo?.type})
           </a>
         </div>
       ))}
