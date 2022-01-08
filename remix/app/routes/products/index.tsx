@@ -42,35 +42,49 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 const Products: VFC = () => {
-  const { items, page, provider, order, sort, casts, isDownloaded } =
-    useLoaderData<Data>()
+  const { items } = useLoaderData<Data>()
 
   return (
     <>
       <Filter />
       {items.map(
-        ({ sku, image_path, name, isProcessing, isDownloaded, casts }) => (
-          <Link to={`/products/${sku}`} className="w-full flex mb-2" key={sku}>
-            <div
-              className="h-48 w-36 flex-none bg-contain bg-no-repeat text-center overflow-hidden"
-              style={{
-                backgroundImage: `url("${image_path}")`
-              }}
+        ({
+          sku,
+          image_path,
+          name,
+          isProcessing,
+          isDownloaded,
+          casts,
+          maker,
+          series
+        }) => (
+          <Link
+            to={`/products/${sku}`}
+            key={sku}
+            className="flex items-center flex-row text-gray-200 mb-4"
+          >
+            <img
+              className="object-cover w-full h-96 rounded-t-lg h-auto w-32 rounded-none rounded-l-lg"
+              src={image_path}
             />
-            <div className="flex flex-col justify-between leading-normal">
-              <div className="mb-8">
-                <p className="text-gray-200 block text-sm mb-2">
-                  {isProcessing ? (
-                    <span className="text-yellow-600 pr-1">●</span>
-                  ) : isDownloaded ? (
-                    <span className="text-green-500 pr-1">●</span>
-                  ) : null}
-                  {name.slice(0, 70)}
+            <div className="flex flex-col justify-between px-2 leading-normal">
+              <h2 className="mb-2 text-xs tracking-tight truncate w-52">
+                {isProcessing ? (
+                  <span className="text-yellow-600 pr-1">●</span>
+                ) : isDownloaded ? (
+                  <span className="text-green-500 pr-1">●</span>
+                ) : null}
+                {name}
+              </h2>
+              {maker && <p className="mb-1 text-xs text-gray-400">{maker}</p>}
+              {series && maker !== series && (
+                <p className="mb-1 text-xs text-gray-400">{series}</p>
+              )}
+              {casts?.length && (
+                <p className="mb-1 text-xs text-indigo-500">
+                  {casts.join(', ')}
                 </p>
-                <p className="text-indigo-500 block text-sm mb-2">
-                  {casts?.join(', ')}
-                </p>
-              </div>
+              )}
             </div>
           </Link>
         )

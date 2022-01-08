@@ -1,6 +1,7 @@
 import parse, { HTMLElement } from 'node-html-parser'
 import chunk from 'chunk'
 import { productsSearchFromF } from '~/utils/f.server'
+import { supabaseClient } from '~/utils/supabase.server'
 
 const HOST = 'https://sp.mgstage.com'
 
@@ -93,7 +94,7 @@ export const productFromF = async (
     mainImageUrl: item.imageURL.large,
     subImageUrls: item.sampleImageURL?.sample_l.image ?? [],
     sample: item.sampleMovieURL?.size_720_480
-      ? await sampleMovie(item.content_id)
+      ? await sampleMovieFromF(item.content_id)
       : '',
     code: item.content_id,
     releasedAt: item.date,
@@ -107,11 +108,39 @@ export const productFromF = async (
   }
 }
 
-const sampleMovie = async (cid: string) => {
+const sampleMovieFromF = async (cid: string) => {
   const res = await fetch(
     `https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=${cid}`
   )
   const html = await res.text()
   const [, movie] = html.match(/"src":"(.+?\.mp4)","title"/) ?? []
   return `https:${movie.replace(/\\/g, '')}`
+}
+
+export const productFromDB = async (code: string): Promise<DBData> => {
+  const { data } = await supabaseClient
+    .from('Product')
+    .select('*')
+    .match({ code })
+    .single()
+
+  return {
+    isSaved: !!data,
+    isLiked: data?.isLiked ?? false,
+    mediaUrls: data?.mediaUrls ?? [],
+    casts: data?.casts ?? [],
+    downloadUrl: data?.downloadUrl ?? null,
+    isDownloaded: data?.isDownloaded ?? false,
+    isProcessing: data?.isProcessing ?? false
+  }
+}
+
+export type DBData = {
+  isSaved: boolean
+  isLiked: boolean
+  mediaUrls: string[]
+  casts: string[]
+  downloadUrl: string | null
+  isDownloaded: boolean
+  isProcessing: boolean
 }

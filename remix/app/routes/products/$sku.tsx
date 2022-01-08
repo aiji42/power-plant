@@ -11,48 +11,54 @@ import { TorrentsData } from './$sku/torrent'
 import {
   ProductFromSite,
   productFromM,
-  productFromF
+  productFromF,
+  productFromDB,
+  DBData
 } from '~/utils/product.server'
-import { DBData } from '~/routes/products/$sku/db'
 import { CastsData } from '~/routes/products/$sku/casts'
 
+type Data = ProductFromSite & DBData
+
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
+  const db = productFromDB(sku)
   const f = productFromF(sku)
   const m = productFromM(sku)
   const data = sku.startsWith('SP-') ? await m : (await f) ?? (await m)
   if (data.code !== sku && data.code.includes(sku))
     return redirect(`/products/${data.code}`)
-  return data
+  const dbData = await db
+  return { ...data, ...dbData }
 }
 
 const Product = () => {
-  const { title, mainImageUrl, subImageUrls, sample, ...data } =
-    useLoaderData<ProductFromSite>()
+  const {
+    title,
+    mainImageUrl,
+    subImageUrls,
+    sample,
+    isSaved,
+    isProcessing,
+    isDownloaded,
+    isLiked,
+    mediaUrls,
+    downloadUrl,
+    casts,
+    ...data
+  } = useLoaderData<Data>()
+
   const torrentsFetcher = useFetcher<TorrentsData>()
   const dbFetcher = useFetcher<DBData>()
 
-  useEffect(() => {
-    dbFetcher.load(`/products/${data.code}/db`)
-  }, [dbFetcher.load, data.code])
   const stock = useCallback(() => {
-    if (
-      dbFetcher.data?.isSaved &&
-      (dbFetcher.data?.isProcessing || dbFetcher.data?.mediaUrls.length)
-    ) {
+    if (isSaved && (isProcessing || mediaUrls.length)) {
       alert('The stock cannot be removed.')
       return
     }
     dbFetcher.submit(null, {
-      method: dbFetcher.data?.isSaved ? 'delete' : 'post',
+      method: isSaved ? 'delete' : 'post',
       action: `/products/${data.code}/db`
     })
-  }, [
-    dbFetcher.submit,
-    dbFetcher.data?.isSaved,
-    data.code,
-    dbFetcher.data?.isProcessing,
-    dbFetcher.data?.mediaUrls.length
-  ])
+  }, [dbFetcher.submit, isSaved, data.code, isProcessing, mediaUrls.length])
 
   useEffect(() => {
     torrentsFetcher.load(`/products/${data.code}/torrent`)
@@ -69,24 +75,39 @@ const Product = () => {
   const Form = dbFetcher.Form
 
   const [truncate, toggleTruncate] = useReducer((s) => !s, true)
-  const [castFormOpen, openCastForm] = useReducer((s) => true, false)
+  const [castFormOpen, openCastForm] = useReducer(() => true, casts.length < 1)
 
   return (
     <>
       <div className="grid grid-cols-8">
         <h1
-          className={`text-gray-200 col-span-7 ${truncate ? 'truncate' : ''}`}
+          className={`px-1 text-gray-200 col-span-7 ${
+            truncate ? 'truncate' : ''
+          }`}
           onClick={toggleTruncate}
         >
+          {isSaved && (
+            <span
+              className={`text-sm pr-1 ${
+                isProcessing
+                  ? 'text-yellow-600'
+                  : isDownloaded
+                  ? 'text-green-500'
+                  : 'text-gray-400'
+              }`}
+            >
+              {isDownloaded || isProcessing ? '●' : '○'}
+            </span>
+          )}
           {title}
         </h1>
         <button onClick={stock} className="text-yellow-600 text-2xl">
-          {dbFetcher.data?.isSaved ? '★' : '☆'}
+          {isSaved ? '★' : '☆'}
         </button>
       </div>
 
       <div className="mb-4 px-1">
-        {dbFetcher.data?.casts.map((cast) => (
+        {casts.map((cast) => (
           <a
             href={`/products?casts=${cast}`}
             key={cast}
@@ -101,41 +122,8 @@ const Product = () => {
         >
           edit
         </span>
-        {dbFetcher.data && castFormOpen && (
-          <CastsForm
-            disabled={!dbFetcher.data.isSaved}
-            dbFetcher={dbFetcher}
-            selected={dbFetcher.data.casts}
-            code={data.code}
-          />
-        )}
+        {castFormOpen && <CastsForm dbFetcher={dbFetcher} code={data.code} />}
       </div>
-      {dbFetcher.data && dbFetcher.data.isSaved && (
-        <dl className="text-gray-200 mb-4">
-          <div className="bg-gray-800 px-4 py-5 grid grid-cols-3 gap-4">
-            <dt className="text-sm font-medium text-gray-200">processing</dt>
-            <dd
-              className={`${
-                dbFetcher.data.isProcessing
-                  ? 'text-yellow-600'
-                  : 'text-gray-400'
-              } text-sm mt-0 col-span-2`}
-            >
-              ●
-            </dd>
-          </div>
-          <div className="bg-gray-700 px-4 py-5 grid grid-cols-3 gap-4">
-            <dt className="text-sm font-medium text-gray-200">downloaded</dt>
-            <dd
-              className={`${
-                dbFetcher.data.isDownloaded ? 'text-green-500' : 'text-gray-400'
-              } text-sm mt-0 col-span-2`}
-            >
-              ●
-            </dd>
-          </div>
-        </dl>
-      )}
 
       <dl className="text-gray-200 mb-4">
         {Object.entries(data).map(([key, val], index) => (
@@ -153,8 +141,8 @@ const Product = () => {
         ))}
       </dl>
 
-      {dbFetcher.data?.mediaUrls?.map((src) => (
-        <div className="w-full mb-4">
+      {mediaUrls.map((src) => (
+        <div className="w-full mb-4" key={src}>
           <video src={src} controls key={src} />
           <a href={src} className="text-gray-200">
             download
@@ -167,7 +155,7 @@ const Product = () => {
       ) : (
         torrentsFetcher.data && (
           <dl className="text-gray-200 mb-4">
-            {dbFetcher.data?.isSaved && (
+            {isSaved && (
               <Form
                 action={`/products/${data.code}/db`}
                 method="patch"
@@ -180,7 +168,7 @@ const Product = () => {
                     name="downloadUrl"
                     value={inputValue}
                     onChange={handleInputValue}
-                    placeholder={dbFetcher.data.downloadUrl ?? ''}
+                    placeholder={downloadUrl ?? ''}
                     required
                   />
                   <button
@@ -236,15 +224,14 @@ export default Product
 const CastsForm: VFC<{
   code: string
   dbFetcher: ReturnType<typeof useFetcher>
-  selected?: string[]
-  disabled?: boolean
-}> = ({ code, dbFetcher, disabled, selected = [] }) => {
+}> = ({ code, dbFetcher }) => {
+  const { casts, isSaved } = useLoaderData<Data>()
   const Form = dbFetcher.Form
   const castFetcher = useFetcher<CastsData>()
   useEffect(() => {
     castFetcher.load(`/products/${code}/casts`)
   }, [castFetcher.load])
-  const refSelected = useRef(selected)
+  const refSelected = useRef(casts)
 
   return (
     <Form
@@ -260,7 +247,7 @@ const CastsForm: VFC<{
               type="checkbox"
               name="casts"
               className="form-checkbox h-5 w-5"
-              disabled={disabled}
+              disabled={!isSaved}
               value={name}
               defaultChecked={refSelected.current.includes(name)}
             />
@@ -278,7 +265,7 @@ const CastsForm: VFC<{
       ))}
       <button
         className="text-indigo-500 disabled:opacity-50"
-        disabled={disabled || castFetcher.state === 'loading'}
+        disabled={!isSaved || castFetcher.state === 'loading'}
       >
         {castFetcher.state === 'loading' ? 'Searching...' : 'Save'}
       </button>

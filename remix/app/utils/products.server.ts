@@ -8,6 +8,8 @@ export type ProductListItem = {
   casts?: string[]
   isDownloaded?: boolean
   isProcessing?: string
+  maker?: string
+  series?: string
 }
 
 const HOST = 'https://sp.mgstage.com'
@@ -45,10 +47,10 @@ export const productsFromDB = async (
   let query = supabaseClient
     .from('Product')
     .select(
-      'sku:code, name:title, image_path:mainImageUrl, isDownloaded, isProcessing, casts'
+      'sku:code, name:title, image_path:mainImageUrl, isDownloaded, isProcessing, casts, maker, series'
     )
     .order(order.column ?? 'createdAt', { ascending: order.sort === 'asc' })
-    .range((page - 1) * 20, page * 20 - 1)
+    .range((page - 1) * 40, page * 40 - 1)
   if (filter?.casts) query = query.contains('casts', `{${filter.casts}}`)
   if (filter?.isDownloaded)
     query = query.is('isDownloaded', filter.isDownloaded === '1')
@@ -73,10 +75,12 @@ export const productsFromF = async (
     .filter(({ iteminfo: { maker } }) =>
       /ホイホイ|ION|AREA/.test(maker[0].name)
     )
-    .map<ProductListItem>(({ title, content_id, imageURL }) => ({
+    .map<ProductListItem>(({ title, content_id, imageURL, iteminfo }) => ({
       name: title,
       sku: content_id,
       image_path: imageURL.large,
-      casts: []
+      casts: [],
+      maker: iteminfo.maker?.[0].name,
+      series: iteminfo.label?.[0].name
     }))
 }

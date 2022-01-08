@@ -178,19 +178,19 @@ function Layout({ children }: { children: React.ReactNode }) {
               <div className="text-sm lg:flex-grow">
                 <Link
                   to="/products?provider=m"
-                  className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
+                  className="block py-2 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
                 >
-                  provider=m
+                  Provider | F
                 </Link>
                 <Link
                   to="/products?provider=f"
-                  className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
+                  className="block py-2 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
                 >
-                  provider=f
+                  Provider | F
                 </Link>
                 <Link
                   to="/products"
-                  className="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
+                  className="block py-2 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
                 >
                   stocks
                 </Link>

@@ -1,38 +1,8 @@
-import { ActionFunction, LoaderFunction } from 'remix'
+import { ActionFunction } from 'remix'
 import { supabaseClient } from '~/utils/supabase.server'
-import { productFromF, productFromM } from '~/utils/product.server'
+import { DBData, productFromF, productFromM } from '~/utils/product.server'
 import { v4 as uuidv4 } from 'uuid'
 import { submitJob } from '~/utils/aws.server'
-
-export type DBData = {
-  isSaved: boolean
-  isLiked: boolean
-  mediaUrls: string[]
-  casts: string[]
-  downloadUrl: string | null
-  isDownloaded: boolean
-  isProcessing: boolean
-}
-
-export const loader: LoaderFunction = async ({ params }) => {
-  const code = params.sku
-  const { data } = await supabaseClient
-    .from('Product')
-    .select(
-      'isLiked, isDownloaded, isProcessing, downloadUrl, mediaUrls, casts'
-    )
-    .match({ code })
-
-  return {
-    isSaved: (data?.length ?? 0) > 0,
-    isLiked: data?.[0]?.isLiked ?? false,
-    mediaUrls: data?.[0]?.mediaUrls ?? [],
-    casts: data?.[0]?.casts ?? [],
-    downloadUrl: data?.[0]?.downloadUrl ?? null,
-    isDownloaded: data?.[0]?.isDownloaded ?? false,
-    isProcessing: data?.[0]?.isProcessing ?? false
-  } as DBData
-}
 
 export const action: ActionFunction = async ({ request, params }) => {
   const code = params.sku as string
