@@ -39,6 +39,8 @@ export const getMediaMeta = async (bucket: string, key: string) => {
     }
   )
 
+  console.log(res)
+
   return {
     type: res.headers.get('content-type') ?? '',
     size: bytesToSize(Number(res.headers.get('content-length')))
