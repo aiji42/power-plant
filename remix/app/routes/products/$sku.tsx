@@ -178,7 +178,7 @@ const Product = () => {
 
       {medias.map(({ url, size, type }) => (
         <div className="w-full mb-4" key={url}>
-          <video src={url} controls key={url} />
+          <video src={url} controls key={url} className="w-full" />
           <a href={url} className="text-gray-200 px-1 text-indigo-500">
             download {size}({type})
           </a>
@@ -242,7 +242,7 @@ const Product = () => {
         )
       )}
 
-      {sample && <video src={sample} controls />}
+      {sample && <video src={sample} controls className="w-full" />}
 
       {mainImageUrl && (
         <img src={mainImageUrl} loading="lazy" className="w-full mb-2" />

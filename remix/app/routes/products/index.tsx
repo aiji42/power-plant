@@ -134,8 +134,7 @@ const downloadedOptions = {
 
 const Filter: VFC = () => {
   const {
-    params: { order, sort, casts, isDownloaded, provider, maker, series },
-    page
+    params: { order, sort, casts, isDownloaded, provider, maker, series }
   } = useLoaderData<Data>()
   const [open, toggle] = useReducer((s) => !s, false)
   const form = useRef<HTMLFormElement>(null)
@@ -150,7 +149,6 @@ const Filter: VFC = () => {
       {casts && <span className="px-1">{casts}</span>}
       {maker && <span className="px-1">{maker}</span>}
       {series && <span className="px-1">{series}</span>}
-      <span className="px-1 float-right">Page {page}</span>
     </p>
   ) : (
     <form
@@ -261,25 +259,28 @@ const Pagination: VFC = () => {
   )
 
   return (
-    <div className="px-4 py-3 flex items-center justify-between border-t border-gray-300">
+    <div className="bg-gray-900 px-4 py-3 flex items-center justify-between border-t border-gray-500 sticky bottom-0 w-full">
       <div className="flex-1 flex justify-between">
         <Link
           to={`/products?${new URLSearchParams({
             page: String(Math.max(page - 1, 1)),
             ...filter
           }).toString()}`}
-          className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-200"
+          className="relative inline-flex items-center px-4 text-xl font-medium text-gray-200"
         >
-          Previous
+          &larr;
         </Link>
+
+        <p className="text-gray-200">{page}</p>
+
         <Link
           to={`/products?${new URLSearchParams({
             page: String(page + 1),
             ...filter
           }).toString()}`}
-          className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-200"
+          className="relative inline-flex items-center px-4 text-xl font-medium text-gray-200"
         >
-          Next
+          &rarr;
         </Link>
       </div>
     </div>

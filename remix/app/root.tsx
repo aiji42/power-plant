@@ -154,9 +154,9 @@ function Layout({ children }: { children: React.ReactNode }) {
     open && toggle()
   }, [href.key])
   return (
-    <div className="bg-gray-900">
+    <div className="bg-gray-900 min-h-screen">
       <header className="mb-2">
-        <nav className="flex items-center justify-between flex-wrap p-4 border-b border-gray-500">
+        <nav className="flex items-center justify-between flex-wrap p-2 px-4 border-b border-gray-500">
           <div className="flex items-center flex-shrink-0 text-white mr-6" />
           <div className="block">
             <button
@@ -192,7 +192,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                   to="/products"
                   className="block py-2 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
                 >
-                  stocks
+                  Stocks
                 </Link>
                 <form className="w-full max-w-sm" onSubmit={onSubmit}>
                   <div className="flex items-center border-b border-indigo-500 py-2">
