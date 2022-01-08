@@ -19,7 +19,17 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
     })
   )
 
-  return json(dataList.flat(), {
+  const unified = Object.values(
+    dataList.flat().reduce<Record<string, SearchedResult>>(
+      (res, item) => ({
+        ...res,
+        [item.link]: item
+      }),
+      {}
+    )
+  )
+
+  return json(unified, {
     headers: {
       'cache-control': 'public, max-age=3600, stale-while-revalidate=3600'
     }
