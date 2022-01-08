@@ -64,7 +64,7 @@ const Products: VFC = () => {
             className="flex items-center flex-row text-gray-200 mb-4"
           >
             <img
-              className="object-cover w-full h-96 rounded-t-lg h-auto w-32 rounded-none rounded-l-lg"
+              className="object-cover w-full h-96 h-auto w-32"
               src={image_path}
             />
             <div className="flex flex-col justify-between px-2 leading-normal">
@@ -80,7 +80,7 @@ const Products: VFC = () => {
               {series && maker !== series && (
                 <p className="mb-1 text-xs text-gray-400">{series}</p>
               )}
-              {casts?.length && (
+              {!!casts?.length && (
                 <p className="mb-1 text-xs text-indigo-500">
                   {casts.join(', ')}
                 </p>

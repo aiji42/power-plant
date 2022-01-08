@@ -186,7 +186,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                   to="/products?provider=f"
                   className="block py-2 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
                 >
-                  Provider | F
+                  Provider | M
                 </Link>
                 <Link
                   to="/products"
