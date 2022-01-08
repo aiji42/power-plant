@@ -22,7 +22,7 @@ import {
   DBData
 } from '~/utils/product.server'
 import { CastsData } from '~/routes/products/$sku/casts'
-import { getBucketAndKeyFromURL, getMediaMeta } from '~/utils/aws.server'
+import { getMediaMeta } from '~/utils/media.server'
 
 type Data = ProductFromSite &
   DBData & {
@@ -40,7 +40,7 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
 
   const medias = await Promise.all(
     dbData.mediaUrls.map(async (url) => {
-      return { url, ...(await getMediaMeta(...getBucketAndKeyFromURL(url))) }
+      return { url, ...(await getMediaMeta(url)) }
     })
   )
 

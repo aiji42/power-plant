@@ -31,29 +31,6 @@ export const getBucketAndKeyFromURL = (url: string): [string, string] => {
   return [bucket, key]
 }
 
-export const getMediaMeta = async (bucket: string, key: string) => {
-  const res = await aws.fetch(
-    `https://s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${bucket}/${key}`,
-    {
-      method: 'HEAD'
-    }
-  )
-
-  console.log(res)
-
-  return {
-    type: res.headers.get('content-type') ?? '',
-    size: bytesToSize(Number(res.headers.get('content-length')))
-  }
-}
-
-const bytesToSize = (bytes: number) => {
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-  if (bytes == 0) return '0 Byte'
-  const i = parseInt(String(Math.floor(Math.log(bytes) / Math.log(1024))))
-  return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i]
-}
-
 export const deleteMedia = async (bucket: string, key: string) => {
   await aws.fetch(
     `https://s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${bucket}/${key}`,
