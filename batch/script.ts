@@ -100,7 +100,7 @@ const upload = async (files: string[], code: string): Promise<string[]> =>
           [
             `s3 mv ${filePath} s3://${
               process.env.BUCKET
-            }/${key} --acl public-read --metadata ${formatForMeta(meta)}`
+            }/${key} --acl public-read --metadata "${formatForMeta(meta)}"`
           ],
           { shell: true }
         )
@@ -131,11 +131,24 @@ const upload = async (files: string[], code: string): Promise<string[]> =>
     })
   )
 
-const scan = async (path: string): Promise<FFProbeStream> => {
+const scan = async (
+  path: string
+): Promise<Record<string, number | string | undefined>> => {
   const {
     streams: [res]
   } = await ffprobe(path, { path: '/usr/bin/ffprobe' })
-  return res
+
+  const [n1, n2] = res.avg_frame_rate.split('/')
+  const frameRate = Number(n1) / Number(n2)
+
+  return {
+    codec: res.codec_name,
+    width: res.width,
+    height: res.height,
+    frameRate,
+    duration: res.duration,
+    bitRate: res.bit_rate
+  }
 }
 
 const formatForMeta = (obj: Record<string, any>): string => {
