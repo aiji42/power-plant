@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { spawn } from 'child_process'
 import { PrismaClient } from '@prisma/client'
+import ffprobe, { FFProbeStream } from 'ffprobe'
 const prisma = new PrismaClient()
 
 const download = async (target: string, dir: string) =>
@@ -83,18 +84,23 @@ const listFiles = (dir: string): string[] =>
 
 const upload = async (files: string[], code: string): Promise<string[]> =>
   Promise.all(
-    files.map((filePath, index) => {
+    files.map(async (filePath, index) => {
       const key = `${process.env.KEY_PREFIX}/${code}/${index + 1}${path.extname(
         filePath
       )}`
+      const meta = await scan(filePath)
       return new Promise<string>((resolve, reject) => {
         console.log(
-          `> aws s3 mv ${filePath} s3://${process.env.BUCKET}/${key} --acl public-read`
+          `> aws s3 mv ${filePath} s3://${
+            process.env.BUCKET
+          }/${key} --acl public-read --metadata ${JSON.stringify(meta)}`
         )
         const aws = spawn(
           'aws',
           [
-            `s3 mv ${filePath} s3://${process.env.BUCKET}/${key} --acl public-read`
+            `s3 mv ${filePath} s3://${
+              process.env.BUCKET
+            }/${key} --acl public-read --metadata ${JSON.stringify(meta)}`
           ],
           { shell: true }
         )
@@ -124,6 +130,13 @@ const upload = async (files: string[], code: string): Promise<string[]> =>
       })
     })
   )
+
+const scan = async (path: string): Promise<FFProbeStream> => {
+  const {
+    streams: [res]
+  } = await ffprobe(path, { path: '/usr/bin/ffprobe' })
+  return res
+}
 
 const main = async () => {
   const id = process.argv[2]
