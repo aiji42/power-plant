@@ -118,7 +118,10 @@ function Document({
     <html lang="ja">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width,initial-scale=1,maximum-scale=1.0"
+        />
         <meta name="robots" content="noindex,nofollow" />
         {title ?? <title>{title}</title>}
         <Meta />
@@ -154,14 +157,14 @@ function Layout({ children }: { children: React.ReactNode }) {
     open && toggle()
   }, [href.key])
   return (
-    <div className="bg-gray-900 min-h-screen">
+    <div className="bg-gray-900 text-gray-200 min-h-screen">
       <header className="mb-2">
         <nav className="flex items-center justify-between flex-wrap p-2 px-4 border-b border-gray-500">
           <div className="flex items-center flex-shrink-0 text-white mr-6" />
           <div className="block">
             <button
               onClick={toggle}
-              className="flex items-center px-3 py-2 border rounded text-gray-200 border-gray-400 hover:text-white hover:border-white"
+              className="flex items-center px-3 py-2 border rounded border-gray-400 hover:text-white hover:border-white"
             >
               <svg
                 className="fill-current h-3 w-3"
@@ -176,32 +179,34 @@ function Layout({ children }: { children: React.ReactNode }) {
           {open && (
             <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
               <div className="text-sm lg:flex-grow">
-                <Link
-                  to="/products?provider=m"
-                  className="block py-2 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
-                >
-                  Provider | M
-                </Link>
-                <Link
-                  to="/products?provider=f"
-                  className="block py-2 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
-                >
-                  Provider | F
-                </Link>
-                <Link
-                  to="/products"
-                  className="block py-2 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
-                >
-                  Stocks
-                </Link>
-                <form className="w-full max-w-sm" onSubmit={onSubmit}>
+                <div className="mb-2">
+                  <Link
+                    to="/products?provider=m"
+                    className="block py-2 hover:text-white hover:bg-gray-800"
+                  >
+                    Provider | M
+                  </Link>
+                  <Link
+                    to="/products?provider=f"
+                    className="block py-2 hover:text-white hover:bg-gray-800"
+                  >
+                    Provider | F
+                  </Link>
+                  <Link
+                    to="/products"
+                    className="block py-2 hover:text-white hover:bg-gray-800"
+                  >
+                    Stocks
+                  </Link>
+                </div>
+                <form className="w-full" onSubmit={onSubmit}>
                   <div className="flex items-center border-b border-indigo-500 py-2">
                     <input
-                      className="appearance-none bg-transparent border-none w-full text-gray-200 mr-3 py-1 px-2 leading-tight focus:outline-none"
+                      className="appearance-none bg-transparent border-none w-full mr-3 py-1 px-2 leading-tight focus:outline-none"
                       type="text"
                       onChange={onChange}
                     />
-                    <button className="flex-shrink-0 text-sm text-indigo-500 py-1 px-2">
+                    <button className="flex-shrink-0 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 py-1 px-2">
                       Jump
                     </button>
                   </div>
