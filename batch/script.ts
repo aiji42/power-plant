@@ -105,11 +105,12 @@ const upload = async (files: string[], code: string): Promise<string[]> =>
           { shell: true }
         )
 
-        let stdout = ''
+        let counter = 0
         aws.stdout.on('data', (data) => {
-          if (stdout === data.toString()) return
-          stdout = data.toString()
-          console.log(stdout)
+          if (data.toString().includes('move:')) console.log(data.toString())
+          if (counter++ === 1000) return
+          console.log(data.toString())
+          counter = 0
         })
 
         let stderr = ''
