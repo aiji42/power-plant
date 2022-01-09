@@ -225,13 +225,13 @@ const Filter: VFC = () => {
                 <input
                   type="text"
                   defaultValue={value}
-                  className="appearance-none bg-transparent border-none w-full mr-3 py-1 px-4 leading-tight focus:outline-none"
+                  className="appearance-none bg-transparent border-none w-full mr-3 py-2 px-4 leading-tight focus:outline-none"
                   name="casts"
                   readOnly
                 />
                 <button
                   type="button"
-                  className="flex-shrink-0 text-sm text-indigo-500 py-1 px-2"
+                  className="flex-shrink-0 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 py-2 px-2"
                   onClick={(e) => {
                     if (
                       e.currentTarget.previousElementSibling instanceof
