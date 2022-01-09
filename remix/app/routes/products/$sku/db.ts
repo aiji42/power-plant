@@ -1,12 +1,13 @@
 import { ActionFunction } from 'remix'
 import { supabaseClient } from '~/utils/supabase.server'
-import { DBData, productFromF, productFromM } from '~/utils/product.server'
+import { DBData, searchProductFromSite } from '~/utils/product.server'
 import { v4 as uuidv4 } from 'uuid'
 import {
   deleteMedia,
   getBucketAndKeyFromURL,
   submitJob
 } from '~/utils/aws.server'
+import { cacheable } from '~/utils/kv.server'
 
 export const action: ActionFunction = async ({ request, params }) => {
   const code = params.sku as string
@@ -66,9 +67,11 @@ export const action: ActionFunction = async ({ request, params }) => {
     series,
     releasedAt,
     maker
-  } = code.startsWith('SP-')
-    ? await productFromM(code)
-    : (await productFromF(code)) ?? (await productFromM(code))
+  } = await cacheable(
+    searchProductFromSite(code),
+    `searchProductFromSite-${code}`,
+    { cacheable: false }
+  )
 
   await supabaseClient.from('Product').insert([
     {

@@ -145,3 +145,9 @@ export type DBData = {
   isDownloaded: boolean
   isProcessing: boolean
 }
+
+export const searchProductFromSite = async (code: string) => {
+  const f = productFromF(code)
+  const m = productFromM(code)
+  return code.startsWith('SP-') ? await m : (await f) ?? (await m)
+}

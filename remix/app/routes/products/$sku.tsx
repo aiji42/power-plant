@@ -16,13 +16,13 @@ import {
 import { TorrentsData } from './$sku/torrent'
 import {
   ProductFromSite,
-  productFromM,
-  productFromF,
   productFromDB,
-  DBData
+  DBData,
+  searchProductFromSite
 } from '~/utils/product.server'
 import { CastsData } from '~/routes/products/$sku/casts'
 import { getMediaMeta } from '~/utils/media.server'
+import { cacheable } from '~/utils/kv.server'
 
 type Data = ProductFromSite &
   DBData & {
@@ -31,11 +31,14 @@ type Data = ProductFromSite &
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   const db = productFromDB(sku)
-  const f = productFromF(sku)
-  const m = productFromM(sku)
-  const data = sku.startsWith('SP-') ? await m : (await f) ?? (await m)
-  if (data.code !== sku && data.code.includes(sku))
-    return redirect(`/products/${data.code}`)
+  const data = await cacheable(
+    searchProductFromSite(sku),
+    `searchProductFromSite-${sku}`,
+    (res) => ({
+      expirationTtl: res.code.length > 0 ? 3600 * 24 * 3 : 3600 * 24
+    })
+  )
+  if (data.code !== sku) return redirect(`/products/${data.code}`)
   const dbData = await db
 
   const medias = await Promise.all(

@@ -1,25 +1,22 @@
-import { LoaderFunction, json } from 'remix'
+import { LoaderFunction } from 'remix'
 import { searchTorrents, SearchedResult } from '~/utils/torrents.server'
 import { formatter } from '~/utils/sku'
+import { cacheable } from '~/utils/kv.server'
 
 export type TorrentsData = SearchedResult[]
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   const codes = formatter(sku)
   console.log('torrent search', 'original sku: ', sku, '; search by: ', codes)
-
   const dataList = await Promise.all(
-    codes.map(async (q) => {
-      try {
-        return searchTorrents(q)
-      } catch (e) {
-        console.error(e)
-        return []
-      }
-    })
+    codes.map((q) =>
+      cacheable(searchTorrents(q), `searchTorrents-${q}`, (res) => ({
+        expirationTtl: res.length > 0 ? 3600 * 24 : 3600
+      }))
+    )
   )
 
-  const unified = Object.values(
+  return Object.values(
     dataList.flat().reduce<Record<string, SearchedResult>>(
       (res, item) => ({
         ...res,
@@ -28,10 +25,4 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
       {}
     )
   )
-
-  return json(unified, {
-    headers: {
-      'cache-control': 'public, max-age=3600, stale-while-revalidate=3600'
-    }
-  })
 }

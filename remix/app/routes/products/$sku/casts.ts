@@ -1,11 +1,13 @@
-import { json, LoaderFunction } from 'remix'
+import { LoaderFunction } from 'remix'
 import { formatter } from '~/utils/sku'
-import parse from 'node-html-parser'
-
-type Casts = {
-  link: string
-  name: string
-}[]
+import {
+  Casts,
+  mergeCasts,
+  searchFast,
+  searchMiddle,
+  searchSlow
+} from '~/utils/casts.server'
+import { cacheable } from '~/utils/kv.server'
 
 export type CastsData = {
   error?: string
@@ -13,78 +15,36 @@ export type CastsData = {
 }
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
-  const castFastPromise = searchFast(formatter(sku)[0])
-  const castMiddlePromise = searchMiddle(formatter(sku)[0])
+  const code = formatter(sku)[0]
+  const castFastPromise = searchFast(code)
+  const castMiddlePromise = searchMiddle(code)
 
   const castSlowPromise = Promise.race<Casts>([
-    searchSlow(formatter(sku)[0]),
+    searchSlow(code),
     new Promise<Casts>((s) => setTimeout(() => s([]), 20 * 1000))
   ])
 
-  const searchResults = await Promise.all([
-    castFastPromise,
-    castMiddlePromise,
-    castSlowPromise
-  ])
+  try {
+    const cacheController = (res: Casts) => ({
+      expirationTtl: res.length > 0 ? 3600 * 24 * 3 : 3600
+    })
+    const searchResults = await Promise.all([
+      cacheable(castFastPromise, `castSearchFast-${code}`, cacheController),
+      cacheable(castMiddlePromise, `castSearchMiddle-${code}`, cacheController),
+      cacheable(castSlowPromise, `castSearchSlow-${code}`, cacheController)
+    ])
 
-  return json(
-    {
+    return {
       data: mergeCasts(
         mergeCasts(searchResults[0], searchResults[1]),
         searchResults[2]
       )
-    },
-    {
-      headers: {
-        'cache-control': 'public, max-age=3600, stale-while-revalidate=3600'
-      }
     }
-  )
-}
-
-const searchFast = async (s: string): Promise<Casts> => {
-  console.log('search cast: ', `https://shiroutoname.com/?s=${s}`)
-  const res = await fetch(`https://shiroutoname.com/?s=${s}`)
-  const html = await res.text()
-  const root = parse(html)
-  return root
-    .querySelectorAll('div.actress-name .mlink')
-    .map<Casts[number]>((el) => ({
-      link: el.getAttribute('href') ?? '',
-      name: el.innerText
-    }))
-}
-
-const searchMiddle = async (s: string): Promise<Casts> => {
-  console.log('search cast: ', `https://av-wiki.net/?s=${s}&post_type=product`)
-  let res = await fetch(`https://av-wiki.net/?s=${s}&post_type=product`)
-  let html = await res.text()
-  if (html.includes('Database Error')) {
-    res = await fetch(`https://av-wiki.net/?s=${s}&post_type=product`)
-    html = await res.text()
+  } catch (e) {
+    console.error(e)
+    return {
+      data: [],
+      error: e instanceof Error ? e.message : 'occurred unexpected error'
+    }
   }
-  const root = parse(html)
-  return root.querySelectorAll('.actress-name a').map<Casts[number]>((el) => ({
-    link: el.getAttribute('href') ?? '',
-    name: el.innerText
-  }))
-}
-
-const searchSlow = async (s: string): Promise<Casts> => {
-  console.log('search cast: ', `https://av-actress-star.com/?s=${s}`)
-  const res = await fetch(`https://av-actress-star.com/?s=${s}`)
-  const html = await res.text()
-  const root = parse(html)
-  return root.querySelectorAll('a.actress').map<Casts[number]>((el) => ({
-    link: el.getAttribute('href') ?? '',
-    name: el.innerText
-  }))
-}
-
-const mergeCasts = (casts1: Casts, casts2: Casts): Casts => {
-  const casts1Names = casts1.map(({ name }) => name)
-  return [
-    ...casts1,
-    ...casts2.filter(({ name }) => !casts1Names.includes(name))
-  ]
 }
