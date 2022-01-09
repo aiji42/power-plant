@@ -75,7 +75,7 @@ const Products: VFC = () => {
           <Link
             to={`/products/${sku}`}
             key={sku}
-            className="flex items-center flex-row text-gray-200 mb-4"
+            className="flex items-center flex-row mb-1 py-1 hover:bg-gray-800"
           >
             <img
               className="object-cover w-full h-96 h-auto w-32"
@@ -158,9 +158,9 @@ const Filter: VFC = () => {
     >
       <div className="flex flex-wrap mb-4">
         <div className="w-full w-1/2 px-3">
-          <label className="block text-gray-200 text-xs">Order</label>
+          <label className="block text-xs">Order</label>
           <select
-            className="appearance-none bg-transparent w-full border-b border-indigo-500 text-gray-200 py-2 px-4 focus:outline-none"
+            className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
             name="order"
             defaultValue={order}
           >
@@ -172,9 +172,9 @@ const Filter: VFC = () => {
           </select>
         </div>
         <div className="w-full w-1/2 px-3">
-          <label className="block text-gray-200 text-xs">Sort</label>
+          <label className="block text-xs">Sort</label>
           <select
-            className="appearance-none bg-transparent w-full border-b border-indigo-500 text-gray-200 py-2 px-4 focus:outline-none"
+            className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
             name="sort"
             defaultValue={sort}
           >
@@ -189,9 +189,9 @@ const Filter: VFC = () => {
 
       <div className="flex flex-wrap mb-4">
         <div className="w-full px-3">
-          <label className="block text-gray-200 text-xs">downloaded</label>
+          <label className="block text-xs">downloaded</label>
           <select
-            className="appearance-none bg-transparent w-full border-b border-indigo-500 text-gray-200 py-2 px-4 focus:outline-none"
+            className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
             name="isDownloaded"
             defaultValue={isDownloaded}
           >
@@ -220,12 +220,12 @@ const Filter: VFC = () => {
         .map(({ type, value }) => (
           <div className="flex flex-wrap mb-4" key={type}>
             <div className="w-full px-3">
-              <label className="block text-gray-200 text-xs">{type}</label>
+              <label className="block text-xs">{type}</label>
               <div className="flex border-b border-indigo-500 py-2">
                 <input
                   type="text"
                   defaultValue={value}
-                  className="appearance-none bg-transparent border-none w-full text-gray-200 mr-3 py-1 px-4 leading-tight focus:outline-none"
+                  className="appearance-none bg-transparent border-none w-full mr-3 py-1 px-4 leading-tight focus:outline-none"
                   name="casts"
                   readOnly
                 />
@@ -259,26 +259,26 @@ const Pagination: VFC = () => {
   )
 
   return (
-    <div className="bg-gray-900 px-4 py-3 flex items-center justify-between border-t border-gray-500 sticky bottom-0 w-full">
+    <div className="bg-gray-900 flex items-center justify-between border-t border-gray-500 sticky bottom-0 w-full">
       <div className="flex-1 flex justify-between">
         <Link
           to={`/products?${new URLSearchParams({
             page: String(Math.max(page - 1, 1)),
             ...filter
           }).toString()}`}
-          className="relative inline-flex items-center px-4 text-xl font-medium text-gray-200"
+          className="relative inline-flex items-center py-2 px-8 text-xl font-medium hover:bg-gray-800"
         >
           &larr;
         </Link>
 
-        <p className="text-gray-200">{page}</p>
+        <p className="py-2">{page}</p>
 
         <Link
           to={`/products?${new URLSearchParams({
             page: String(page + 1),
             ...filter
           }).toString()}`}
-          className="relative inline-flex items-center px-4 text-xl font-medium text-gray-200"
+          className="relative inline-flex items-center py-2 px-8 text-xl font-medium hover:bg-gray-800"
         >
           &rarr;
         </Link>
