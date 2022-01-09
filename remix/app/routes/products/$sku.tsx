@@ -240,7 +240,7 @@ const CastsForm: VFC<{
         </div>
       ))}
       <button
-        className="text-indigo-500 disabled:opacity-50 hover:text-indigo-400"
+        className="text-indigo-500 disabled:opacity-50 hover:text-indigo-400 hover:bg-gray-800 hover:bg-gray-800"
         disabled={!isSaved || castFetcher.state === 'loading'}
       >
         {castFetcher.state === 'loading' ? 'Searching...' : 'Save'}
