@@ -79,9 +79,7 @@ const Product = () => {
     <>
       <div className="grid grid-cols-8">
         <h1
-          className={`px-1 text-gray-200 col-span-7 ${
-            truncate ? 'truncate' : ''
-          }`}
+          className={`px-1 col-span-7 ${truncate ? 'truncate' : ''}`}
           onClick={toggleTruncate}
         >
           {isSaved && (
@@ -109,21 +107,21 @@ const Product = () => {
           <Link
             to={`/products?casts=${cast}`}
             key={cast}
-            className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-600 bg-indigo-200 last:mr-0 mr-1 mb-1"
+            className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-600 bg-indigo-200  hover:text-indigo-500 hover:bg-indigo-100 last:mr-0 mr-1 mb-1"
           >
             {cast}
           </Link>
         ))}
         <span
           onClick={openCastForm}
-          className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-200 last:mr-0 mr-1 mb-1"
+          className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-200 hover:text-indigo-100 last:mr-0 mr-1 mb-1"
         >
           edit
         </span>
         {castFormOpen && <CastsForm dbFetcher={dbFetcher} />}
       </div>
 
-      <dl className="text-gray-200 mb-4">
+      <dl className="mb-4">
         {Object.entries(data)
           .filter(([key]) =>
             [
@@ -143,11 +141,11 @@ const Product = () => {
               }  px-4 py-5 grid grid-cols-3 gap-4`}
             >
               <dt className="text-sm font-medium text-gray-200">{key}</dt>
-              <dd className="text-sm text-gray-200 mt-0 col-span-2">
+              <dd className="text-sm mt-0 col-span-2">
                 {['maker', 'series'].includes(key) ? (
                   <Link
                     to={`/products?${key}=${val}`}
-                    className="text-indigo-400"
+                    className="text-indigo-400 hover:text-indigo-300 w-full block"
                   >
                     {val}
                   </Link>
@@ -163,15 +161,21 @@ const Product = () => {
 
       {medias.map(({ url, size, type }) => (
         <div className="w-full mb-4" key={url}>
-          <video src={url} controls key={url} className="w-full" />
-          <a href={url} className="text-gray-200 px-1 text-indigo-500">
+          <video src={url} controls key={url} className="w-full mb-1" />
+          <a
+            href={url}
+            className="p-1 text-indigo-500 hover:bg-indigo-400 block w-full"
+          >
             download {size}({type})
           </a>
         </div>
       ))}
 
       {!mediaDownloadOpen ? (
-        <p onClick={openMediaForm} className="px-1 py-2 text-indigo-500 mb-4">
+        <p
+          onClick={openMediaForm}
+          className="px-1 py-2 text-indigo-500 hover:text-indigo-400 mb-4"
+        >
           Media Download Form
         </p>
       ) : (
@@ -236,12 +240,12 @@ const CastsForm: VFC<{
         </div>
       ))}
       <button
-        className="text-indigo-500 disabled:opacity-50"
+        className="text-indigo-500 disabled:opacity-50 hover:text-indigo-400"
         disabled={!isSaved || castFetcher.state === 'loading'}
       >
         {castFetcher.state === 'loading' ? 'Searching...' : 'Save'}
       </button>
-      <span className="text-gray-200">{castFetcher.data?.error}</span>
+      <span>{castFetcher.data?.error}</span>
     </Form>
   )
 }
@@ -277,7 +281,7 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
           <div className="flex items-center border-b border-indigo-500 py-2">
             <input type="hidden" name="isProcessing" value="false" />
             <textarea
-              className="appearance-none bg-transparent border-none w-full text-gray-200 mr-3 py-1 px-2 leading-tight focus:outline-none"
+              className="appearance-none bg-transparent border-none w-full mr-3 py-1 px-2 leading-tight focus:outline-none"
               name="downloadUrl"
               value={inputValue}
               onChange={handleInputValue}
@@ -294,9 +298,9 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
         </Form>
       )}
       {torrentsFetcher.state === 'loading' ? (
-        <div className="text-gray-200 text-center mb-4">Loading</div>
+        <div className="text-center mb-4">Loading</div>
       ) : (
-        <dl className="text-gray-200 mb-4">
+        <dl className="mb-4">
           {torrentsFetcher.data?.map(
             ({ title, link, completed, size, registeredAt }, index) => (
               <div
