@@ -112,13 +112,16 @@ const Product = () => {
             {cast}
           </Link>
         ))}
-        <span
-          onClick={openCastForm}
-          className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-200 hover:text-indigo-100 last:mr-0 mr-1 mb-1"
-        >
-          edit
-        </span>
-        {castFormOpen && <CastsForm dbFetcher={dbFetcher} />}
+        {!castFormOpen ? (
+          <span
+            onClick={openCastForm}
+            className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-200 hover:text-indigo-100 last:mr-0 mr-1 mb-1"
+          >
+            edit
+          </span>
+        ) : (
+          <CastsForm dbFetcher={dbFetcher} />
+        )}
       </div>
 
       <dl className="mb-4">
@@ -140,7 +143,7 @@ const Product = () => {
                 index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
               }  px-4 py-5 grid grid-cols-3 gap-4`}
             >
-              <dt className="text-sm font-medium text-gray-200">{key}</dt>
+              <dt className="text-sm font-medium">{key}</dt>
               <dd className="text-sm mt-0 col-span-2">
                 {['maker', 'series'].includes(key) ? (
                   <Link
@@ -217,7 +220,7 @@ const CastsForm: VFC<{
     >
       {castFetcher.data?.data?.map(({ name, link }) => (
         <div key={name} className="inline-flex items-center mt-3">
-          <label>
+          <label className="py-1 mb-1">
             <input type="hidden" name="casts" value="" />
             <input
               type="checkbox"
@@ -227,20 +230,20 @@ const CastsForm: VFC<{
               value={name}
               defaultChecked={refSelected.current.includes(name)}
             />
-            <span className="ml-2 text-gray-200">{name}</span>
+            <span className="ml-2">{name}</span>
           </label>
           <a
             href={link}
             target="_blank"
             rel="noopener noreferrer"
-            className="pl-2 text-indigo-500"
+            className="pl-4 text-indigo-500"
           >
-            →
+            &rarr;
           </a>
         </div>
       ))}
       <button
-        className="text-indigo-500 disabled:opacity-50 hover:text-indigo-400 hover:bg-gray-800 hover:bg-gray-800"
+        className="text-indigo-500 disabled:opacity-50 hover:text-indigo-400 hover:bg-gray-800 mt-3"
         disabled={!isSaved || castFetcher.state === 'loading'}
       >
         {castFetcher.state === 'loading' ? 'Searching...' : 'Save'}
@@ -307,7 +310,7 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
                 key={index}
                 className={`${
                   index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
-                }  px-4 py-5 text-sm text-gray-200`}
+                }  px-4 py-5 text-sm`}
                 onClick={() => handleInputValue(link)}
               >
                 <p className="truncate">
