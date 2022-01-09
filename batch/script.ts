@@ -93,18 +93,14 @@ const upload = async (files: string[], code: string): Promise<string[]> =>
         console.log(
           `> aws s3 mv ${filePath} s3://${
             process.env.BUCKET
-          }/${key} --acl public-read --metadata ${JSON.stringify(
-            objectValueStringify(meta)
-          )}`
+          }/${key} --acl public-read --metadata ${formatForMeta(meta)}`
         )
         const aws = spawn(
           'aws',
           [
             `s3 mv ${filePath} s3://${
               process.env.BUCKET
-            }/${key} --acl public-read --metadata ${JSON.stringify(
-              objectValueStringify(meta)
-            )}`
+            }/${key} --acl public-read --metadata ${formatForMeta(meta)}`
           ],
           { shell: true }
         )
@@ -142,16 +138,16 @@ const scan = async (path: string): Promise<FFProbeStream> => {
   return res
 }
 
-const objectValueStringify = (
-  obj: Record<string, any>
-): Record<string, string> => {
-  return Object.entries(obj).reduce(
-    (res, [k, v]) =>
-      typeof k === 'string' || typeof k === 'number'
-        ? { ...res, [k]: String(v) }
-        : res,
-    {}
-  )
+const formatForMeta = (obj: Record<string, any>): string => {
+  return Object.entries(obj)
+    .reduce<string[]>(
+      (res, [k, v]) =>
+        typeof v === 'string' || typeof v === 'number'
+          ? [...res, `${k}=${v}`]
+          : res,
+      []
+    )
+    .join(',')
 }
 
 const main = async () => {
