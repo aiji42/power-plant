@@ -21,13 +21,10 @@ import {
   searchProductFromSite
 } from '~/utils/product.server'
 import { CastsData } from '~/routes/products/$sku/casts'
-import { getMediaMeta } from '~/utils/media.server'
 import { cacheable } from '~/utils/kv.server'
+import { MediaMetaData } from '~/utils/media.server'
 
-type Data = ProductFromSite &
-  DBData & {
-    medias: { url: string; size: string; type: string }[]
-  }
+type Data = ProductFromSite & DBData
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   const db = productFromDB(sku)
@@ -41,13 +38,7 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   if (data.code !== sku) return redirect(`/products/${data.code}`)
   const dbData = await db
 
-  const medias = await Promise.all(
-    dbData.mediaUrls.map(async (url) => {
-      return { url, ...(await getMediaMeta(url)) }
-    })
-  )
-
-  return { ...data, ...dbData, medias }
+  return { ...data, ...dbData }
 }
 
 const Product = () => {
@@ -60,7 +51,7 @@ const Product = () => {
     isProcessing,
     isDownloaded,
     casts,
-    medias,
+    mediaUrls,
     ...data
   } = useLoaderData<Data>()
 
@@ -165,16 +156,8 @@ const Product = () => {
           ))}
       </dl>
 
-      {medias.map(({ url, size, type }) => (
-        <div className="w-full mb-4" key={url}>
-          <video src={url} controls key={url} className="w-full mb-1" />
-          <a
-            href={url}
-            className="p-1 text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 block w-full"
-          >
-            download {size}({type})
-          </a>
-        </div>
+      {mediaUrls.map((url) => (
+        <Media url={url} key={url} />
       ))}
 
       {!mediaDownloadOpen ? (
@@ -333,5 +316,28 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
         </dl>
       )}
     </>
+  )
+}
+
+const Media: VFC<{ url: string }> = ({ url }) => {
+  const { code } = useLoaderData<Data>()
+  const fetcher = useFetcher<MediaMetaData | Record<string, never>>()
+  useEffect(() => {
+    fetcher.load(`/products/${code}/media?mediaURL=${url}`)
+  }, [fetcher.load, code])
+
+  const meta = fetcher.data ?? {}
+
+  return (
+    <div className="w-full mb-4">
+      <video src={url} controls key={url} className="w-full mb-1" />
+      <a
+        href={url}
+        className="p-1 text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 block w-full"
+      >
+        download {meta.size} {meta.type} {meta.resolution} {meta.bitRate}{' '}
+        {meta.frameRate} {meta.codec}
+      </a>
+    </div>
   )
 }
