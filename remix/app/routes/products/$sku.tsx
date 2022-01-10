@@ -333,10 +333,10 @@ const Media: VFC<{ url: string }> = ({ url }) => {
       <video src={url} controls key={url} className="w-full mb-1" />
       <a
         href={url}
-        className="p-1 text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 block w-full"
+        className="p-1 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 block w-full"
       >
-        download {meta.size} {meta.type} {meta.resolution} {meta.bitRate}{' '}
-        {meta.frameRate} {meta.codec}
+        {meta.size}/{meta.resolution}/{meta.bitRate}/{meta.frameRate}/
+        {meta.duration}/{meta.codec}
       </a>
     </div>
   )

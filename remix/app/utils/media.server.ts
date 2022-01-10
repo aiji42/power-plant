@@ -1,6 +1,6 @@
 export type MediaMetaData = {
-  duration: number | undefined
-  frameRate: number | undefined
+  duration: string | undefined
+  frameRate: string | undefined
   size: string
   bitRate: string | undefined
   type: string
@@ -17,18 +17,16 @@ export const getMediaMeta = async (url: string): Promise<MediaMetaData> => {
   const codec = meteCodec ?? undefined
 
   const meteBitRate = res.headers.get('x-amz-meta-bitrate')
-  const bitRate = meteBitRate
-    ? (Number(meteBitRate) / 1024 ** 2).toFixed(2)
-    : undefined
+  const bitRate = meteBitRate ? toSize(Number(meteBitRate), 'bps') : undefined
 
   const metaDuration = res.headers.get('x-amz-meta-duration')
   const duration = metaDuration
-    ? Math.round(Number(metaDuration) / 6000)
+    ? `${Math.round(Number(metaDuration) / 60)}min`
     : undefined
 
   const metaFrameRate = res.headers.get('x-amz-meta-framerate')
   const frameRate = metaFrameRate
-    ? Math.round(Number(metaFrameRate))
+    ? `${Math.round(Number(metaFrameRate))}fps`
     : undefined
 
   const metaWidth = res.headers.get('x-amz-meta-width')
@@ -38,7 +36,7 @@ export const getMediaMeta = async (url: string): Promise<MediaMetaData> => {
 
   return {
     type: res.headers.get('content-type') ?? '',
-    size: bytesToSize(Number(res.headers.get('content-length'))),
+    size: toSize(Number(res.headers.get('content-length')), 'B'),
     bitRate,
     duration,
     frameRate,
@@ -47,9 +45,9 @@ export const getMediaMeta = async (url: string): Promise<MediaMetaData> => {
   }
 }
 
-const bytesToSize = (bytes: number) => {
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+const toSize = (bytes: number, unit: string) => {
+  const sizes = ['', 'K', 'M', 'G', 'T']
   if (bytes == 0) return '0 Byte'
   const i = parseInt(String(Math.floor(Math.log(bytes) / Math.log(1024))))
-  return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i]
+  return `${(bytes / Math.pow(1024, i)).toFixed(1)}${sizes[i]}${unit}`
 }
