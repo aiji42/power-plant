@@ -77,7 +77,7 @@ export const productsFromF = async (
     floor: 'videoc',
     hits: 100
   })
-  conosole.log(res)
+  console.log(res)
   return res.items
     ?.filter(({ iteminfo: { maker } }) =>
       /ホイホイ|ION|AREA/.test(maker[0].name)
