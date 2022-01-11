@@ -77,17 +77,17 @@ export const productsFromF = async (
     floor: 'videoc',
     hits: 100
   })
-
+  conosole.log(res)
   return res.items
-    .filter(({ iteminfo: { maker } }) =>
+    ?.filter(({ iteminfo: { maker } }) =>
       /ホイホイ|ION|AREA/.test(maker[0].name)
     )
-    .map<ProductListItem>(({ title, content_id, imageURL, iteminfo }) => ({
+    ?.map<ProductListItem>(({ title, content_id, imageURL, iteminfo }) => ({
       name: title,
       sku: content_id,
       image_path: imageURL.large,
       casts: [],
       maker: iteminfo.maker?.[0].name,
       series: iteminfo.label?.[0].name
-    }))
+    })) ?? []
 }
