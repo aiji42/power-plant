@@ -15,7 +15,7 @@ export const cacheable = async <T>(
     return cache
   }
 
-  const result = typeof org === 'function' ? await org() : await org
+  const result = await (typeof org === 'function' ? org() : org)
   const { cacheable = true, ...option } =
     typeof controller === 'function'
       ? await controller(result)
