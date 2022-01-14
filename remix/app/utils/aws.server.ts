@@ -12,14 +12,14 @@ export const submitJob = async (id: string) => {
     {
       method: 'POST',
       body: JSON.stringify({
-        jobName: `power-plant-${id}`,
-        jobDefinition: process.env.JOB_DEFINITION,
+        jobName: `power-plant-download-${id}`,
+        jobDefinition: process.env.JOB_DEFINITION_FOR_DOWNLOAD,
         jobQueue: process.env.JOB_QUEUE,
         timeout: {
           attemptDurationSeconds: 3600 * 0.45 // 45m
         },
         containerOverrides: {
-          command: ['ts-node', '/script.ts', id]
+          command: ['ts-node', '/download.ts', id]
         }
       })
     }

@@ -20,7 +20,7 @@ require('esbuild')
       'process.env.AWS_ACCESS_KEY_ID': `"${process.env.AWS_ACCESS_KEY_ID}"`,
       'process.env.AWS_SECRET_ACCESS_KEY': `"${process.env.AWS_SECRET_ACCESS_KEY}"`,
       'process.env.AWS_DEFAULT_REGION': `"${process.env.AWS_DEFAULT_REGION}"`,
-      'process.env.JOB_DEFINITION': `"${process.env.JOB_DEFINITION}"`,
+      'process.env.JOB_DEFINITION_FOR_DOWNLOAD': `"${process.env.JOB_DEFINITION_FOR_DOWNLOAD}"`,
       'process.env.JOB_QUEUE': `"${process.env.JOB_QUEUE}"`
     },
     plugins: [
