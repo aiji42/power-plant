@@ -20,6 +20,8 @@ RUN yarn
 
 COPY db/prisma/schema.prisma /schema.prisma
 COPY batch/download.ts /download.ts
+COPY batch/compression.ts /compression.ts
+COPY batch/libraries.ts /libraries.ts
 
 RUN yarn prisma generate --schema=/schema.prisma
 
