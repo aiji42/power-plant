@@ -19,7 +19,7 @@ COPY batch/yarn.lock /yarn.lock
 RUN yarn
 
 COPY db/prisma/schema.prisma /schema.prisma
-COPY batch/script.ts /script.ts
+COPY batch/download.ts /download.ts
 
 RUN yarn prisma generate --schema=/schema.prisma
 
@@ -33,4 +33,4 @@ ENV BUCKET $BUCKET
 ENV KEY_PREFIX $KEY_PREFIX
 ENV DATABASE_URL $DATABASE_URL
 
-#ENTRYPOINT ["ts-node", "/script.ts"]
+#ENTRYPOINT ["ts-node", "/download.ts"]
