@@ -69,7 +69,7 @@ export const upload = async (
     let counter = 0
     aws.stdout.on('data', (data) => {
       if (data.toString().includes('move:')) console.log(data.toString())
-      if (counter++ === 1000) return
+      if (counter++ < 1000) return
       console.log(data.toString())
       counter = 0
     })

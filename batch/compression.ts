@@ -20,11 +20,15 @@ const compression = async (target: string): Promise<string> => {
         shell: true
       }
     )
-    let stdout = ''
+    let counter = 0
     ffmpeg.stdout.on('data', (data) => {
-      if (stdout === data.toString()) return
-      stdout = data.toString()
-      console.log(stdout)
+      if (!data.toString().includes('frame=')) {
+        console.log(data.toString())
+        return
+      }
+      if (counter++ < 30) return
+      console.log(data.toString())
+      counter = 0
     })
 
     let stderr = ''
