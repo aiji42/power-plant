@@ -34,4 +34,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ap-northeast-1
           JOB_DEFINITION_FOR_DOWNLOAD: ${{ secrets.JOB_DEFINITION_FOR_DOWNLOAD }}
+          JOB_DEFINITION_FOR_COMPRESSION: ${{ secrets.JOB_DEFINITION_FOR_COMPRESSION }}
           JOB_QUEUE: ${{ secrets.JOB_QUEUE }}
+          JOB_QUEUE_FOR_HIGH: ${{ secrets.JOB_QUEUE_FOR_HIGH }}

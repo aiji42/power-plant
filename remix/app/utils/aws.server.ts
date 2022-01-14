@@ -6,7 +6,7 @@ const aws = new AwsClient({
   region: process.env.AWS_DEFAULT_REGION
 })
 
-export const submitJob = async (id: string) => {
+export const submitDownloadJob = async (id: string) => {
   await aws.fetch(
     `https://batch.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/v1/submitjob`,
     {
@@ -20,6 +20,26 @@ export const submitJob = async (id: string) => {
         },
         containerOverrides: {
           command: ['ts-node', '/download.ts', id]
+        }
+      })
+    }
+  )
+}
+
+export const submitCompressionJob = async (url: string, code: string) => {
+  await aws.fetch(
+    `https://batch.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/v1/submitjob`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        jobName: `power-plant-compression-${code}`,
+        jobDefinition: process.env.JOB_DEFINITION_FOR_COMPRESSION,
+        jobQueue: process.env.JOB_QUEUE_FOR_HIGH,
+        timeout: {
+          attemptDurationSeconds: 3600
+        },
+        containerOverrides: {
+          command: ['ts-node', '/compression.ts', url]
         }
       })
     }

@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   deleteMedia,
   getBucketAndKeyFromURL,
-  submitJob
+  submitDownloadJob
 } from '~/utils/aws.server'
 import { cacheable } from '~/utils/kv.server'
 
@@ -46,7 +46,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       data?.[0].id &&
       process.env.NODE_ENV === 'production'
     )
-      await submitJob(data[0].id)
+      await submitDownloadJob(data[0].id)
     return {
       isSaved: true,
       isLiked: data?.[0].isLiked,

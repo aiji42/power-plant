@@ -21,7 +21,9 @@ require('esbuild')
       'process.env.AWS_SECRET_ACCESS_KEY': `"${process.env.AWS_SECRET_ACCESS_KEY}"`,
       'process.env.AWS_DEFAULT_REGION': `"${process.env.AWS_DEFAULT_REGION}"`,
       'process.env.JOB_DEFINITION_FOR_DOWNLOAD': `"${process.env.JOB_DEFINITION_FOR_DOWNLOAD}"`,
-      'process.env.JOB_QUEUE': `"${process.env.JOB_QUEUE}"`
+      'process.env.JOB_DEFINITION_FOR_COMPRESSION': `"${process.env.JOB_DEFINITION_FOR_COMPRESSION}"`,
+      'process.env.JOB_QUEUE': `"${process.env.JOB_QUEUE}"`,
+      'process.env.JOB_QUEUE_FOR_HIGH': `"${process.env.JOB_QUEUE_FOR_HIGH}"`
     },
     plugins: [
       alias({
