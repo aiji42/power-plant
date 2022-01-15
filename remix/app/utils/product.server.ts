@@ -118,7 +118,9 @@ const sampleMovieFromF = async (cid: string) => {
   return `https:${movie.replace(/\\/g, '')}`
 }
 
-export const productFromDB = async (code: string): Promise<DBData> => {
+export const productFromDB = async (
+  code: string
+): Promise<DBData & { id: string }> => {
   const { data } = await supabaseClient
     .from('Product')
     .select('*')
@@ -126,6 +128,7 @@ export const productFromDB = async (code: string): Promise<DBData> => {
     .single()
 
   return {
+    id: data.id,
     isSaved: !!data,
     isLiked: data?.isLiked ?? false,
     mediaUrls: data?.mediaUrls ?? [],

@@ -325,8 +325,16 @@ const Media: VFC<{ url: string }> = ({ url }) => {
   useEffect(() => {
     fetcher.load(`/products/${code}/media?mediaURL=${url}`)
   }, [fetcher.load, code])
-
   const meta = fetcher.data ?? {}
+
+  const compressionFetcher = useFetcher()
+  const compression = useCallback(() => {
+    if (!confirm(`Do you want to compress this file? (${meta.size})`)) return
+    compressionFetcher.submit(
+      { mediaUrl: url },
+      { action: `/products/${code}/media`, method: 'post' }
+    )
+  }, [compressionFetcher.submit, code, url, meta.size])
 
   return (
     <div className="w-full mb-4">
@@ -338,6 +346,12 @@ const Media: VFC<{ url: string }> = ({ url }) => {
         {meta.size}/{meta.resolution}/{meta.bitRate}/{meta.frameRate}/
         {meta.duration}/{meta.codec}
       </a>
+      <button
+        className="p-1 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800"
+        onClick={compression}
+      >
+        compress
+      </button>
     </div>
   )
 }
