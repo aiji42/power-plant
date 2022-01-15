@@ -128,7 +128,7 @@ export const productFromDB = async (
     .single()
 
   return {
-    id: data.id,
+    id: data?.id ?? '',
     isSaved: !!data,
     isLiked: data?.isLiked ?? false,
     mediaUrls: data?.mediaUrls ?? [],
