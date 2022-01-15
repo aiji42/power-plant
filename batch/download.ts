@@ -35,6 +35,7 @@ const main = async () => {
     const fileNames = listFiles('/downloads').filter(
       (filePath) => fs.statSync(filePath).size > minSize * 1024 * 1024
     )
+    // FIXME: It overwrites files that already exist.
     await Promise.all(
       fileNames.map((src, index) => {
         const key = `${prefix}/${code}/${index + 1}${path.extname(src)}`
