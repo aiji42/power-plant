@@ -1,7 +1,13 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { PrismaClient } from '@prisma/client'
-import { download, listFiles, upload } from './libraries'
+import {
+  download,
+  fileListOnS3,
+  listFiles,
+  makeS3Url,
+  upload
+} from './libraries'
 const prisma = new PrismaClient()
 
 const main = async () => {
@@ -17,27 +23,34 @@ const main = async () => {
     throw new Error(`The product is not ready for downloading`)
   await prisma.product.update({ where: { id }, data: { isProcessing: true } })
 
+  const [bucket, prefix, code] = [
+    process.env.BUCKET ?? '',
+    process.env.KEY_PREFIX ?? '',
+    product.code
+  ]
+
   try {
     await download(product.downloadUrl, '/downloads')
 
     const fileNames = listFiles('/downloads').filter(
       (filePath) => fs.statSync(filePath).size > minSize * 1024 * 1024
     )
-    // FIXME: When multiple files are registered, they will be overwritten
-    const urls = await Promise.all(
+    await Promise.all(
       fileNames.map((src, index) => {
-        const key = `${process.env.KEY_PREFIX}/${product.code}/${
-          index + 1
-        }${path.extname(src)}`
-        return upload(src, process.env.BUCKET ?? '', key)
+        const key = `${prefix}/${code}/${index + 1}${path.extname(src)}`
+        return upload(src, bucket, key)
       })
+    )
+    const filesOnS3 = await fileListOnS3(bucket, prefix, code)
+    const mediaUrls = filesOnS3.map((f) =>
+      makeS3Url(bucket, `${prefix}/${code}/${f}`)
     )
 
     await prisma.product.update({
       where: { id },
-      data: { mediaUrls: urls, isDownloaded: true, isProcessing: false }
+      data: { mediaUrls, isDownloaded: true, isProcessing: false }
     })
-    console.log('Download complete ', product.code)
+    console.log('Download complete ', code)
   } catch (e) {
     if (e instanceof Error) console.error(e.message)
     await prisma.product.update({

@@ -1,4 +1,4 @@
-import { spawn } from 'child_process'
+import { spawn, exec } from 'child_process'
 import fs from 'fs'
 import ffprobe from 'ffprobe'
 
@@ -83,10 +83,7 @@ export const upload = async (
 
     aws.on('close', (code) => {
       console.log(`aws s3 exited with code ${code}`)
-      if (code === 0)
-        resolve(
-          `https://${bucket}.s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${key}`
-        )
+      if (code === 0) resolve(makeS3Url(bucket, key))
       else reject(null)
     })
   })
@@ -122,4 +119,32 @@ const formatForMeta = (obj: Record<string, any>): string => {
       []
     )
     .join(',')
+}
+
+export const makeS3Url = (bucket: string, key: string) =>
+  `https://${bucket}.s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${key}`
+
+export const fileListOnS3 = (
+  bucket: string,
+  prefix: string,
+  code: string
+): Promise<string[]> => {
+  console.log(`aws s3 ls s3://${bucket}/${prefix}/${code}/ | awk '{print $4}'`)
+  return new Promise((resolve, reject) => {
+    exec(
+      `aws s3 ls s3://${bucket}/${prefix}/${code}/ | awk '{print $4}'`,
+      (err, stdout, stderr) => {
+        if (err) {
+          console.error(err)
+          reject(err)
+        }
+        if (stderr) {
+          console.error(stderr)
+          reject(stderr)
+        }
+        console.log(stdout)
+        resolve(stdout.split('\n').filter(Boolean))
+      }
+    )
+  })
 }
