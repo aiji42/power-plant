@@ -1,4 +1,4 @@
-import { Link, LoaderFunction, useLoaderData } from 'remix'
+import { json, Link, LoaderFunction, useLoaderData } from 'remix'
 import { RefObject, useReducer, useRef, VFC } from 'react'
 import {
   ProductListItem,
@@ -6,6 +6,7 @@ import {
   productsFromF,
   productsFromM
 } from '~/utils/products.server'
+import { filterConditionStore } from '~/utils/cookie.server'
 
 type Data = {
   items: ProductListItem[]
@@ -25,12 +26,16 @@ export const loader: LoaderFunction = async ({ request }) => {
   const params = new URL(request.url).searchParams
   const page = Number(params.get('page') ?? 1)
   const provider = params.get('provider')
-  const isDownloaded = params.get('isDownloaded') ?? ''
+
+  const cookie =
+    (await filterConditionStore.parse(request.headers.get('Cookie'))) || {}
+
+  const isDownloaded = params.get('isDownloaded') ?? cookie.isDownloaded ?? ''
   const casts = params.get('casts')
   const maker = params.get('maker')
   const series = params.get('series')
-  const order = params.get('order') ?? 'createdAt'
-  const sort = params.get('sort') ?? 'desc'
+  const order = params.get('order') ?? cookie.order ?? 'createdAt'
+  const sort = params.get('sort') ?? cookie.sort ?? 'desc'
   const items = await (provider === 'm'
     ? productsFromM(page)
     : provider === 'f'
@@ -40,19 +45,30 @@ export const loader: LoaderFunction = async ({ request }) => {
         { column: order, sort },
         { casts, isDownloaded, maker, series }
       ))
-  return {
-    items,
-    page,
-    params: {
-      provider,
-      order,
-      sort,
-      casts,
-      isDownloaded,
-      maker,
-      series
+  return json(
+    {
+      items,
+      page,
+      params: {
+        provider,
+        order,
+        sort,
+        casts,
+        isDownloaded,
+        maker,
+        series
+      }
+    } as Data,
+    {
+      headers: {
+        'Set-Cookie': await filterConditionStore.serialize({
+          isDownloaded,
+          order,
+          sort
+        })
+      }
     }
-  } as Data
+  )
 }
 
 const Products: VFC = () => {
