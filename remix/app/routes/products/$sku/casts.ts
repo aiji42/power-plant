@@ -38,8 +38,8 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
 
     return {
       data: mergeCasts(
-        mergeCasts(searchResults[0], searchResults[1]),
-        searchResults[2]
+        mergeCasts(searchResults[2], searchResults[1]),
+        searchResults[0]
       )
     }
   } catch (e) {
@@ -61,7 +61,7 @@ export const action: ActionFunction = async ({ request, params, context }) => {
     const newCasts =
       request.method === 'DELETE'
         ? casts.filter((c) => c !== cast)
-        : [...casts, cast]
+        : [...new Set([...casts, cast])]
 
     await supabaseClient
       .from('Product')
