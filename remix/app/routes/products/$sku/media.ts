@@ -1,7 +1,14 @@
 import { ActionFunction, json, LoaderFunction } from 'remix'
-import { getMediaMeta } from '~/utils/media.server'
+import { getMediaMeta, MediaMetaData } from '~/utils/media.server'
 import { productFromDB } from '~/utils/product.server'
-import { submitCompressionJob } from '~/utils/aws.server'
+import {
+  deleteMedia,
+  getBucketAndKeyFromURL,
+  submitCompressionJob
+} from '~/utils/aws.server'
+import { supabaseClient } from '~/utils/supabase.server'
+
+export type MediaData = MediaMetaData | null
 
 export const loader: LoaderFunction = async ({ request }) => {
   const params = new URL(request.url)
@@ -16,10 +23,22 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData()
   const url = formData.get('mediaUrl')
   if (typeof url !== 'string') return json(null, { status: 400 })
+  const { mediaUrls, id } = await productFromDB(code)
 
-  const { id } = await productFromDB(code)
+  if (request.method === 'DELETE') {
+    const newMediaUrls = mediaUrls.filter((src) => src !== url)
+    await supabaseClient
+      .from('Product')
+      .update({
+        mediaUrls: newMediaUrls,
+        isDownloaded: newMediaUrls.length > 0,
+        updatedAt: new Date().toISOString()
+      })
+      .match({ code })
+    await deleteMedia(...getBucketAndKeyFromURL(url))
+    return null
+  }
 
   await submitCompressionJob(id, url)
-
-  return null
+  return await getMediaMeta(url)
 }

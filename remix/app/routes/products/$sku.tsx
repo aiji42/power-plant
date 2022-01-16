@@ -22,8 +22,8 @@ import {
 } from '~/utils/product.server'
 import { CastsData } from '~/routes/products/$sku/casts'
 import { cacheable } from '~/utils/kv.server'
-import { MediaMetaData } from '~/utils/media.server'
 import { JobListData } from '~/routes/products/$sku/job'
+import { MediaData } from '~/routes/products/$sku/media'
 
 type Data = ProductFromSite & DBData
 
@@ -372,20 +372,28 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
 
 const Media: VFC<{ url: string }> = ({ url }) => {
   const { code } = useLoaderData<Data>()
-  const fetcher = useFetcher<MediaMetaData | Record<string, never>>()
+  const fetcher = useFetcher<MediaData>()
   useEffect(() => {
     fetcher.load(`/products/${code}/media?mediaURL=${url}`)
   }, [fetcher.load, code])
-  const meta = fetcher.data ?? {}
+  const meta = fetcher.data
 
-  const compressionFetcher = useFetcher()
   const compression = useCallback(() => {
-    if (!confirm(`Do you want to compress this file? (${meta.size})`)) return
-    compressionFetcher.submit(
+    if (!confirm(`Do you want to compress this file? (${meta?.size})`)) return
+    fetcher.submit(
       { mediaUrl: url },
       { action: `/products/${code}/media`, method: 'post' }
     )
-  }, [compressionFetcher.submit, code, url, meta.size])
+  }, [fetcher.submit, code, url, meta?.size])
+  const remove = useCallback(() => {
+    if (!confirm(`Do you want to remove this file? (${meta?.size})`)) return
+    fetcher.submit(
+      { mediaUrl: url },
+      { action: `/products/${code}/media`, method: 'delete' }
+    )
+  }, [fetcher.submit, code, url, meta?.size])
+  if (!meta) return null
+  if (fetcher.submission?.method === 'DELETE') return null
 
   return (
     <div className="w-full mb-4">
@@ -402,6 +410,12 @@ const Media: VFC<{ url: string }> = ({ url }) => {
         onClick={compression}
       >
         compress
+      </button>
+      <button
+        className="p-1 text-sm text-red-500 hover:text-red-400 hover:bg-gray-800"
+        onClick={remove}
+      >
+        remove
       </button>
     </div>
   )
