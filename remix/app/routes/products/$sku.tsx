@@ -23,6 +23,7 @@ import {
 import { CastsData } from '~/routes/products/$sku/casts'
 import { cacheable } from '~/utils/kv.server'
 import { MediaMetaData } from '~/utils/media.server'
+import { JobListData } from '~/routes/products/$sku/job'
 
 type Data = ProductFromSite & DBData
 
@@ -56,6 +57,10 @@ const Product = () => {
   } = useLoaderData<Data>()
 
   const dbFetcher = useFetcher<DBData>()
+  const jobFetcher = useFetcher<JobListData>()
+  useEffect(() => {
+    jobFetcher.load(`/products/${data.code}/job`)
+  }, [jobFetcher.load])
 
   const stock = useCallback(() => {
     if (isSaved && !confirm('Is it okay if I delete the stock?')) return
@@ -155,6 +160,48 @@ const Product = () => {
             </div>
           ))}
       </dl>
+
+      {jobFetcher.data && (
+        <dl className="mb-4">
+          {jobFetcher.data?.map(
+            (
+              { type, jobId, status, createdAt, stoppedAt, duration },
+              index
+            ) => (
+              <div
+                key={jobId}
+                className={`${
+                  index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
+                }  px-4 py-5 grid grid-cols-3 gap-4`}
+              >
+                <dt className="text-sm font-medium">{type}</dt>
+                <dd className="text-sm mt-0 col-span-2">
+                  <p
+                    className={
+                      status === 'FAILED'
+                        ? 'text-red-500'
+                        : status === 'SUCCEEDED'
+                        ? 'text-green-500'
+                        : 'text-yellow-600'
+                    }
+                  >
+                    {status}
+                  </p>
+                  {createdAt && (
+                    <p>created: {new Date(createdAt).toLocaleString()}</p>
+                  )}
+                  {stoppedAt && duration && (
+                    <p>
+                      stopped: {new Date(stoppedAt).toLocaleString()} (
+                      {Math.floor(duration / 60000)}m)
+                    </p>
+                  )}
+                </dd>
+              </div>
+            )
+          )}
+        </dl>
+      )}
 
       {mediaUrls.map((url) => (
         <Media url={url} key={url} />
