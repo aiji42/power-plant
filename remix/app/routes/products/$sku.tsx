@@ -7,6 +7,7 @@ import {
 } from 'remix'
 import {
   ChangeEvent,
+  ChangeEventHandler,
   useCallback,
   useEffect,
   useReducer,
@@ -115,7 +116,7 @@ const Product = () => {
             edit
           </span>
         ) : (
-          <CastsForm dbFetcher={dbFetcher} />
+          <CastsForm />
         )}
       </div>
 
@@ -190,27 +191,53 @@ const Product = () => {
 
 export default Product
 
-const CastsForm: VFC<{
-  dbFetcher: ReturnType<typeof useFetcher>
-}> = ({ dbFetcher }) => {
+const CastsForm: VFC = () => {
   const { casts, isSaved, code } = useLoaderData<Data>()
-  const Form = dbFetcher.Form
   const castFetcher = useFetcher<CastsData>()
   useEffect(() => {
     castFetcher.load(`/products/${code}/casts`)
   }, [castFetcher.load])
   const refSelected = useRef(casts)
+  const handler = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    (e) => {
+      castFetcher.submit(
+        { cast: e.target.value },
+        {
+          method: e.target.checked ? 'post' : 'delete',
+          action: `/products/${code}/casts`
+        }
+      )
+    },
+    [castFetcher.submit, code]
+  )
+
+  const textInput = useRef<HTMLInputElement>(null)
+  const textInputHandler = useCallback(() => {
+    if (!textInput.current?.value) return
+    refSelected.current = [...refSelected.current, textInput.current.value]
+
+    castFetcher.submit(
+      { cast: textInput.current.value },
+      {
+        method: 'post',
+        action: `/products/${code}/casts`
+      }
+    )
+  }, [castFetcher.submit, code])
+
+  const selectableCasts = [
+    ...(castFetcher.data?.data ?? []),
+    ...casts.map((name) => ({ name, link: '' }))
+  ].reduce<{ name: string; link: string }[]>((res, item) => {
+    if (res.some(({ name }) => name === item.name)) return res
+    return [...res, item]
+  }, [])
 
   return (
-    <Form
-      className="flex flex-col"
-      action={`/products/${code}/db`}
-      method="patch"
-    >
-      {castFetcher.data?.data?.map(({ name, link }) => (
+    <form className="flex flex-col">
+      {selectableCasts.map(({ name, link }) => (
         <div key={name} className="inline-flex items-center mt-3">
           <label className="py-1 mb-1">
-            <input type="hidden" name="casts" value="" />
             <input
               type="checkbox"
               name="casts"
@@ -218,27 +245,42 @@ const CastsForm: VFC<{
               disabled={!isSaved}
               value={name}
               defaultChecked={refSelected.current.includes(name)}
+              onChange={handler}
             />
             <span className="ml-2">{name}</span>
           </label>
-          <a
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="pl-4 text-indigo-500"
-          >
-            &rarr;
-          </a>
+          {link && (
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pl-4 text-indigo-500"
+            >
+              &rarr;
+            </a>
+          )}
         </div>
       ))}
-      <button
-        className="text-indigo-500 disabled:opacity-50 hover:text-indigo-400 hover:bg-gray-800 mt-3"
-        disabled={!isSaved || castFetcher.state === 'loading'}
-      >
-        {castFetcher.state === 'loading' ? 'Searching...' : 'Save'}
-      </button>
+      <div className="flex border-b border-indigo-500 py-2">
+        <input
+          ref={textInput}
+          type="text"
+          className="appearance-none bg-transparent border-none w-full mr-3 py-1 px-4 leading-tight focus:outline-none"
+          name="casts"
+        />
+        <button
+          onClick={textInputHandler}
+          type="button"
+          className="flex-shrink-0 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 py-1 px-2"
+        >
+          Add
+        </button>
+      </div>
+      {castFetcher.state === 'loading' && (
+        <p className="text-indigo-500 mt-3">Loading...</p>
+      )}
       <span>{castFetcher.data?.error}</span>
-    </Form>
+    </form>
   )
 }
 

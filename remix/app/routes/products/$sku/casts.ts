@@ -1,4 +1,4 @@
-import { LoaderFunction } from 'remix'
+import { ActionFunction, LoaderFunction } from 'remix'
 import { formatter } from '~/utils/sku'
 import {
   Casts,
@@ -8,6 +8,8 @@ import {
   searchSlow
 } from '~/utils/casts.server'
 import { cacheable } from '~/utils/kv.server'
+import { productFromDB } from '~/utils/product.server'
+import { supabaseClient } from '~/utils/supabase.server'
 
 export type CastsData = {
   error?: string
@@ -47,4 +49,28 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
       error: e instanceof Error ? e.message : 'occurred unexpected error'
     }
   }
+}
+
+export const action: ActionFunction = async ({ request, params, context }) => {
+  const code = params.sku as string
+  const formData = await request.formData()
+  const cast = formData.get('cast')
+  const { casts } = await productFromDB(code)
+
+  if (cast) {
+    const newCasts =
+      request.method === 'DELETE'
+        ? casts.filter((c) => c !== cast)
+        : [...casts, cast]
+
+    await supabaseClient
+      .from('Product')
+      .update({
+        casts: newCasts,
+        updatedAt: new Date().toISOString()
+      })
+      .match({ code })
+  }
+
+  return loader({ request, params, context })
 }
