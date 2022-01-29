@@ -1,5 +1,5 @@
 import { json, Link, LoaderFunction, useLoaderData } from 'remix'
-import { RefObject, useReducer, useRef, VFC } from 'react'
+import { useReducer, useRef, VFC } from 'react'
 import {
   ProductListItem,
   productsFromDB,
@@ -15,6 +15,8 @@ type Data = {
     provider: 'm' | 'f' | null
     order: string
     sort: string
+    fSort: string
+    mSort: string
     casts: string | null
     maker: string | null
     series: string | null
@@ -36,10 +38,12 @@ export const loader: LoaderFunction = async ({ request }) => {
   const series = params.get('series')
   const order = params.get('order') ?? cookie.order ?? 'createdAt'
   const sort = params.get('sort') ?? cookie.sort ?? 'desc'
+  const fSort = params.get('fSort') ?? 'date'
+  const mSort = params.get('mSort') ?? 'new'
   const items = await (provider === 'm'
-    ? productsFromM(page)
+    ? productsFromM(page, mSort)
     : provider === 'f'
-    ? productsFromF(page)
+    ? productsFromF(page, fSort)
     : productsFromDB(
         page,
         { column: order, sort },
@@ -53,6 +57,8 @@ export const loader: LoaderFunction = async ({ request }) => {
         provider,
         order,
         sort,
+        fSort,
+        mSort,
         casts,
         isDownloaded,
         maker,
@@ -150,21 +156,38 @@ const downloadedOptions = {
 
 const Filter: VFC = () => {
   const {
-    params: { order, sort, casts, isDownloaded, provider, maker, series }
+    params: {
+      order,
+      fSort,
+      mSort,
+      sort,
+      casts,
+      isDownloaded,
+      provider,
+      maker,
+      series
+    }
   } = useLoaderData<Data>()
   const [open, toggle] = useReducer((s) => !s, false)
   const form = useRef<HTMLFormElement>(null)
-  if (provider) return null
   return !open ? (
     <p className="text-indigo-500 mb-4" onClick={toggle}>
-      <span className="px-1">{order}</span>
-      <span className="px-1">{sort}</span>
-      <span className="px-1">
-        {downloadedOptions[isDownloaded as keyof typeof downloadedOptions]}
-      </span>
-      {casts && <span className="px-1">{casts}</span>}
-      {maker && <span className="px-1">{maker}</span>}
-      {series && <span className="px-1">{series}</span>}
+      {provider === 'f' ? (
+        <span className="px-1">{fSort}</span>
+      ) : provider === 'm' ? (
+        <span className="px-1">{mSort}</span>
+      ) : (
+        <>
+          <span className="px-1">{order}</span>
+          <span className="px-1">{sort}</span>
+          <span className="px-1">
+            {downloadedOptions[isDownloaded as keyof typeof downloadedOptions]}
+          </span>
+          {casts && <span className="px-1">{casts}</span>}
+          {maker && <span className="px-1">{maker}</span>}
+          {series && <span className="px-1">{series}</span>}
+        </>
+      )}
     </p>
   ) : (
     <form
@@ -172,97 +195,139 @@ const Filter: VFC = () => {
       className="w-full max-w-lg mb-8"
       onChange={(e) => e.currentTarget.submit()}
     >
-      <div className="flex flex-wrap mb-4">
-        <div className="w-full w-1/2 px-3">
-          <label className="block text-xs">Order</label>
-          <select
-            className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
-            name="order"
-            defaultValue={order}
-          >
-            {['createdAt', 'releasedAt'].map((opt) => (
-              <option value={opt} key={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
+      {provider === 'f' && (
+        <div className="flex flex-wrap mb-4">
+          <div className="w-full w-1/2 px-3">
+            <label className="block text-xs">Order</label>
+            <select
+              className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
+              name="fSort"
+              defaultValue={fSort}
+            >
+              {['date', 'rank'].map((opt) => (
+                <option value={opt} key={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            <input type="hidden" name="provider" value="f" />
+          </div>
         </div>
-        <div className="w-full w-1/2 px-3">
-          <label className="block text-xs">Sort</label>
-          <select
-            className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
-            name="sort"
-            defaultValue={sort}
-          >
-            {['asc', 'desc'].map((opt) => (
-              <option value={opt} key={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
+      )}
+      {provider === 'm' && (
+        <div className="flex flex-wrap mb-4">
+          <div className="w-full w-1/2 px-3">
+            <label className="block text-xs">Order</label>
+            <select
+              className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
+              name="mSort"
+              defaultValue={mSort}
+            >
+              {['new', 'popular'].map((opt) => (
+                <option value={opt} key={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            <input type="hidden" name="provider" value="m" />
+          </div>
         </div>
-      </div>
-
-      <div className="flex flex-wrap mb-4">
-        <div className="w-full px-3">
-          <label className="block text-xs">downloaded</label>
-          <select
-            className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
-            name="isDownloaded"
-            defaultValue={isDownloaded}
-          >
-            {Object.entries(downloadedOptions).map(([value, name]) => (
-              <option value={value} key={value}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {[
-        { type: 'cast', value: casts },
-        { type: 'maker', value: maker },
-        { type: 'series', value: series }
-      ]
-        .filter(
-          (
-            item
-          ): item is {
-            type: string
-            value: string
-          } => !!item.value
-        )
-        .map(({ type, value }) => (
-          <div className="flex flex-wrap mb-4" key={type}>
-            <div className="w-full px-3">
-              <label className="block text-xs">{type}</label>
-              <div className="flex border-b border-indigo-500 py-2">
-                <input
-                  type="text"
-                  defaultValue={value}
-                  className="appearance-none bg-transparent border-none w-full mr-3 py-2 px-4 leading-tight focus:outline-none"
-                  name="casts"
-                  readOnly
-                />
-                <button
-                  type="button"
-                  className="flex-shrink-0 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 py-2 px-2"
-                  onClick={(e) => {
-                    if (
-                      e.currentTarget.previousElementSibling instanceof
-                      HTMLInputElement
-                    )
-                      e.currentTarget.previousElementSibling.value = ''
-                    form.current?.submit()
-                  }}
-                >
-                  Clear
-                </button>
-              </div>
+      )}
+      {!provider && (
+        <>
+          <div className="flex flex-wrap mb-4">
+            <div className="w-full w-1/2 px-3">
+              <label className="block text-xs">Order</label>
+              <select
+                className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
+                name="order"
+                defaultValue={order}
+              >
+                {['createdAt', 'releasedAt'].map((opt) => (
+                  <option value={opt} key={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full w-1/2 px-3">
+              <label className="block text-xs">Sort</label>
+              <select
+                className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
+                name="sort"
+                defaultValue={sort}
+              >
+                {['asc', 'desc'].map((opt) => (
+                  <option value={opt} key={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
-        ))}
+
+          <div className="flex flex-wrap mb-4">
+            <div className="w-full px-3">
+              <label className="block text-xs">downloaded</label>
+              <select
+                className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
+                name="isDownloaded"
+                defaultValue={isDownloaded}
+              >
+                {Object.entries(downloadedOptions).map(([value, name]) => (
+                  <option value={value} key={value}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {[
+            { type: 'cast', value: casts },
+            { type: 'maker', value: maker },
+            { type: 'series', value: series }
+          ]
+            .filter(
+              (
+                item
+              ): item is {
+                type: string
+                value: string
+              } => !!item.value
+            )
+            .map(({ type, value }) => (
+              <div className="flex flex-wrap mb-4" key={type}>
+                <div className="w-full px-3">
+                  <label className="block text-xs">{type}</label>
+                  <div className="flex border-b border-indigo-500 py-2">
+                    <input
+                      type="text"
+                      defaultValue={value}
+                      className="appearance-none bg-transparent border-none w-full mr-3 py-2 px-4 leading-tight focus:outline-none"
+                      name="casts"
+                      readOnly
+                    />
+                    <button
+                      type="button"
+                      className="flex-shrink-0 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 py-2 px-2"
+                      onClick={(e) => {
+                        if (
+                          e.currentTarget.previousElementSibling instanceof
+                          HTMLInputElement
+                        )
+                          e.currentTarget.previousElementSibling.value = ''
+                        form.current?.submit()
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </>
+      )}
     </form>
   )
 }

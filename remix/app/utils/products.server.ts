@@ -16,10 +16,15 @@ const HOST = 'https://sp.mgstage.com'
 const IMAGE_HOST = 'https://image.mgstage.com'
 
 export const productsFromM = async (
-  page: number
+  page: number,
+  sort?: string
 ): Promise<ProductListItem[]> => {
   const res = await fetch(
-    HOST + `/api/n/search/index.php?sort=new&page=${page}`,
+    HOST +
+      `/api/n/search/index.php?${new URLSearchParams({
+        page: String(page),
+        sort: sort ?? 'new'
+      }).toString()}`,
     {
       headers: {
         'User-Agent':
@@ -70,18 +75,20 @@ export const productsFromDB = async (
 }
 
 export const productsFromF = async (
-  page: number
+  page: number,
+  sort?: string
 ): Promise<ProductListItem[]> => {
   const res = await productsSearchFromF({
     offset: String((page - 1) * 100 + 1),
     floor: 'videoc',
-    hits: 100
+    hits: 100,
+    sort: sort ?? 'date'
   })
 
   return (
     res.items
       ?.filter(({ iteminfo: { maker } }) =>
-        /ホイホイ|ION|AREA/.test(maker[0].name)
+        sort === 'date' ? /ホイホイ|ION|AREA/.test(maker[0].name) : true
       )
       ?.map<ProductListItem>(({ title, content_id, imageURL, iteminfo }) => ({
         name: title,

@@ -47,6 +47,7 @@ export const productsSearchFromF = async (params: {
   offset?: string
   floor?: 'videoc' | 'video'
   hits?: number
+  sort?: string
 }): Promise<Result> => {
   const res: { result: Result } = await fetch(
     `https://api.dmm.com/affiliate/v3/ItemList?${new URLSearchParams({
