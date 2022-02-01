@@ -102,12 +102,9 @@ const Products: VFC = () => {
             key={sku}
             className="flex items-center flex-row mb-1 py-1 hover:bg-gray-800"
           >
-            <img
-              className="object-cover w-full h-96 h-auto w-32"
-              src={image_path}
-            />
+            <img className="object-cover w-full h-auto w-28" src={image_path} />
             <div className="flex flex-col justify-between px-2 leading-normal">
-              <h2 className="mb-1 text-xs tracking-tight truncate w-52">
+              <h2 className="mb-1 text-xs tracking-tight truncate w-56">
                 {isProcessing ? (
                   <span className="text-yellow-600 pr-1">●</span>
                 ) : isDownloaded ? (
@@ -115,9 +112,9 @@ const Products: VFC = () => {
                 ) : null}
                 {name}
               </h2>
-              <p className="mb-1 text-xs text-gray-600">{sku}</p>
+              <p className="mb-1 text-xs tracking-tight text-gray-600">{sku}</p>
               {maker && (
-                <p className="mb-1 text-xs text-gray-400">
+                <p className="mb-1 text-xs tracking-tight text-gray-400">
                   {
                     <>
                       {maker}
@@ -132,7 +129,7 @@ const Products: VFC = () => {
                 </p>
               )}
               {!!casts?.length && (
-                <p className="mb-1 text-xs text-gray-400">
+                <p className="mb-1 text-xs tracking-tight text-gray-400 truncate w-56">
                   {casts.map((cast) => (
                     <span key={cast} className="pr-1">
                       {cast}

@@ -91,8 +91,8 @@ export const productsFromF = async (
       ({ title, content_id, imageURL, iteminfo }) => ({
         name: title,
         sku: content_id,
-        image_path: imageURL.large,
-        casts: [],
+        image_path: floor === 'videoc' ? imageURL.large : imageURL.list,
+        casts: iteminfo.actress?.map(({ name }) => name),
         maker: iteminfo.maker?.[0].name,
         series: iteminfo.label?.[0].name
       })
