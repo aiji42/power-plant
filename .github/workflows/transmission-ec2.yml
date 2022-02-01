@@ -31,7 +31,7 @@ jobs:
           terraform_version: 1.1.3
 
       - name: Run
-        if: ${{ github.event.inputs.mode }} == 'run'
+        if: ${{ github.event.inputs.mode == 'run' }}
         working-directory: ./terraform/transmission
         run: | 
           terraform init
@@ -39,7 +39,7 @@ jobs:
           terraform apply -auto-approve
 
       - name: Stop
-        if: ${{ github.event.inputs.mode }} == 'stop'
+        if: ${{ github.event.inputs.mode == 'stop' }}
         working-directory: ./terraform/transmission
         run: |
           terraform init
