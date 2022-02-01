@@ -35,6 +35,13 @@ jobs:
           terraform validate
           terraform plan
 
+      - name: Terraform Plan on batch dir
+        working-directory: ./terraform/transmission/repository
+        run: |
+          terraform init
+          terraform validate
+          terraform plan
+
       - name: Terraform validate on transmission dir
         working-directory: ./terraform/transmission
         run: |
