@@ -76,27 +76,26 @@ export const productsFromDB = async (
 
 export const productsFromF = async (
   page: number,
-  sort?: string
+  sort = 'date',
+  floor = 'videoc'
 ): Promise<ProductListItem[]> => {
   const res = await productsSearchFromF({
     offset: String((page - 1) * 100 + 1),
-    floor: 'videoc',
+    floor,
     hits: 100,
-    sort: sort ?? 'date'
+    sort
   })
 
   return (
-    res.items
-      ?.filter(({ iteminfo: { maker } }) =>
-        sort === 'date' ? /ホイホイ|ION|AREA/.test(maker[0].name) : true
-      )
-      ?.map<ProductListItem>(({ title, content_id, imageURL, iteminfo }) => ({
+    res.items.map<ProductListItem>(
+      ({ title, content_id, imageURL, iteminfo }) => ({
         name: title,
         sku: content_id,
         image_path: imageURL.large,
         casts: [],
         maker: iteminfo.maker?.[0].name,
         series: iteminfo.label?.[0].name
-      })) ?? []
+      })
+    ) ?? []
   )
 }

@@ -17,6 +17,7 @@ type Data = {
     sort: string
     fSort: string
     mSort: string
+    floor: string
     casts: string | null
     maker: string | null
     series: string | null
@@ -38,12 +39,13 @@ export const loader: LoaderFunction = async ({ request }) => {
   const series = params.get('series')
   const order = params.get('order') ?? cookie.order ?? 'createdAt'
   const sort = params.get('sort') ?? cookie.sort ?? 'desc'
+  const floor = params.get('floor') ?? 'videoc'
   const fSort = params.get('fSort') ?? 'date'
   const mSort = params.get('mSort') ?? 'new'
   const items = await (provider === 'm'
     ? productsFromM(page, mSort)
     : provider === 'f'
-    ? productsFromF(page, fSort)
+    ? productsFromF(page, fSort, floor)
     : productsFromDB(
         page,
         { column: order, sort },
@@ -62,7 +64,8 @@ export const loader: LoaderFunction = async ({ request }) => {
         casts,
         isDownloaded,
         maker,
-        series
+        series,
+        floor
       }
     } as Data,
     {
@@ -158,6 +161,7 @@ const Filter: VFC = () => {
   const {
     params: {
       order,
+      floor,
       fSort,
       mSort,
       sort,
@@ -173,7 +177,10 @@ const Filter: VFC = () => {
   return !open ? (
     <p className="text-indigo-500 mb-4" onClick={toggle}>
       {provider === 'f' ? (
-        <span className="px-1">{fSort}</span>
+        <>
+          <span className="px-1">{fSort}</span>
+          <span className="px-1">{floor}</span>
+        </>
       ) : provider === 'm' ? (
         <span className="px-1">{mSort}</span>
       ) : (
@@ -211,6 +218,20 @@ const Filter: VFC = () => {
               ))}
             </select>
             <input type="hidden" name="provider" value="f" />
+          </div>
+          <div className="w-full w-1/2 px-3">
+            <label className="block text-xs">Floor</label>
+            <select
+              className="appearance-none bg-transparent w-full border-b border-indigo-500 py-2 px-4 focus:outline-none"
+              name="floor"
+              defaultValue={floor}
+            >
+              {['videoc', 'videoa'].map((opt) => (
+                <option value={opt} key={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       )}

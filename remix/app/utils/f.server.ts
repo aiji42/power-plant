@@ -45,7 +45,7 @@ type Result = {
 export const productsSearchFromF = async (params: {
   cid?: string
   offset?: string
-  floor?: 'videoc' | 'video'
+  floor?: string
   hits?: number
   sort?: string
 }): Promise<Result> => {
