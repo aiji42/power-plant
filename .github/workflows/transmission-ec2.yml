@@ -33,9 +33,15 @@ jobs:
       - name: Run
         if: ${{ github.event.inputs.mode }} == 'run'
         working-directory: ./terraform/transmission
-        run: terraform apply -auto-approve
+        run: | 
+          terraform init
+          terraform validate
+          terraform apply -auto-approve
 
       - name: Stop
         if: ${{ github.event.inputs.mode }} == 'stop'
         working-directory: ./terraform/transmission
-        run: terraform destory -auto-approve
+        run: |
+          terraform init
+          terraform validate
+          terraform destory -auto-approve
