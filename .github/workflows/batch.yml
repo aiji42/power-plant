@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - terraform/batch/**
+      - batch/**
 
 jobs:
   build-and-push:
