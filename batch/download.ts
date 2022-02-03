@@ -12,7 +12,7 @@ const prisma = new PrismaClient()
 
 const main = async () => {
   const id = process.argv[2]
-  const minSize = Number(process.argv[3] || '500')
+  const minSize = Number(process.argv[3] || '300')
 
   if (!id) throw new Error('pass product record id for args')
   if (!(minSize > 0)) throw new Error('pass min file size number for args')
