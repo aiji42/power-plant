@@ -92,20 +92,26 @@ export const upload = async (
 const scan = async (
   path: string
 ): Promise<Record<string, number | string | undefined>> => {
-  const {
-    streams: [res]
-  } = await ffprobe(path, { path: '/usr/bin/ffprobe' })
+  try {
+    const {
+      streams: [res]
+    } = await ffprobe(path, { path: '/usr/bin/ffprobe' })
 
-  const [n1, n2] = res.avg_frame_rate.split('/')
-  const frameRate = Number(n1) / Number(n2)
+    const [n1, n2] = res.avg_frame_rate.split('/')
+    const frameRate = Number(n1) / Number(n2)
 
-  return {
-    codec: res.codec_name,
-    width: res.width,
-    height: res.height,
-    frameRate,
-    duration: res.duration,
-    bitRate: res.bit_rate
+    return {
+      codec: res.codec_name,
+      width: res.width,
+      height: res.height,
+      frameRate,
+      duration: res.duration,
+      bitRate: res.bit_rate
+    }
+  } catch (e) {
+    if (e instanceof Error) console.error(e.message)
+    else console.error(`Unexpected error on scanning media: ${path}`)
+    return {}
   }
 }
 
