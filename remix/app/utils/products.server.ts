@@ -83,7 +83,8 @@ export const productsFromF = async (
     offset: String((page - 1) * 100 + 1),
     floor,
     hits: 100,
-    sort
+    sort,
+    lte_date: new Date().toISOString().slice(0, 19)
   })
 
   return (
