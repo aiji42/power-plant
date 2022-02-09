@@ -9,3 +9,24 @@ resource "aws_ecr_repository" "power-plant" {
   }
   timeouts {}
 }
+
+resource "aws_ecr_lifecycle_policy" "expire-policy" {
+  repository = aws_ecr_repository.power-plant.name
+
+  policy = jsonencode({
+    "rules": [
+      {
+        "rulePriority": 1,
+        "description": "Keep last 2 images",
+        "selection": {
+          "tagStatus": "any",
+          "countType": "imageCountMoreThan",
+          "countNumber": 2
+        },
+        "action": {
+          "type": "expire"
+        }
+      }
+    ]
+  })
+}
