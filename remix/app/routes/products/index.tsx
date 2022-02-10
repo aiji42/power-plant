@@ -18,9 +18,7 @@ type Data = {
     fSort: string
     mSort: string
     floor: string
-    casts: string | null
-    maker: string | null
-    series: string | null
+    keyword: string | null
     isDownloaded: string
   }
 }
@@ -34,23 +32,17 @@ export const loader: LoaderFunction = async ({ request }) => {
     (await filterConditionStore.parse(request.headers.get('Cookie'))) || {}
 
   const isDownloaded = params.get('isDownloaded') ?? cookie.isDownloaded ?? ''
-  const casts = params.get('casts')
-  const maker = params.get('maker')
-  const series = params.get('series')
+  const keyword = params.get('keyword')
   const order = params.get('order') ?? cookie.order ?? 'createdAt'
   const sort = params.get('sort') ?? cookie.sort ?? 'desc'
   const floor = params.get('floor') ?? 'videoc'
   const fSort = params.get('fSort') ?? 'date'
   const mSort = params.get('mSort') ?? 'new'
   const items = await (provider === 'm'
-    ? productsFromM(page, mSort)
+    ? productsFromM(page, mSort, keyword)
     : provider === 'f'
-    ? productsFromF(page, fSort, floor)
-    : productsFromDB(
-        page,
-        { column: order, sort },
-        { casts, isDownloaded, maker, series }
-      ))
+    ? productsFromF(page, fSort, floor, keyword)
+    : productsFromDB(page, { column: order, sort }, { isDownloaded, keyword }))
   return json(
     {
       items,
@@ -61,10 +53,8 @@ export const loader: LoaderFunction = async ({ request }) => {
         sort,
         fSort,
         mSort,
-        casts,
         isDownloaded,
-        maker,
-        series,
+        keyword,
         floor
       }
     } as Data,
@@ -162,11 +152,9 @@ const Filter: VFC = () => {
       fSort,
       mSort,
       sort,
-      casts,
       isDownloaded,
       provider,
-      maker,
-      series
+      keyword
     }
   } = useLoaderData<Data>()
   const [open, toggle] = useReducer((s) => !s, false)
@@ -187,18 +175,12 @@ const Filter: VFC = () => {
           <span className="px-1">
             {downloadedOptions[isDownloaded as keyof typeof downloadedOptions]}
           </span>
-          {casts && <span className="px-1">{casts}</span>}
-          {maker && <span className="px-1">{maker}</span>}
-          {series && <span className="px-1">{series}</span>}
         </>
       )}
+      <span className="px-1">{keyword}</span>
     </p>
   ) : (
-    <form
-      ref={form}
-      className="w-full max-w-lg mb-8"
-      onChange={(e) => e.currentTarget.submit()}
-    >
+    <form ref={form} className="w-full max-w-lg mb-8">
       {provider === 'f' && (
         <div className="flex flex-wrap mb-4">
           <div className="w-full w-1/2 px-3">
@@ -300,52 +282,27 @@ const Filter: VFC = () => {
               </select>
             </div>
           </div>
-
-          {[
-            { type: 'cast', value: casts },
-            { type: 'maker', value: maker },
-            { type: 'series', value: series }
-          ]
-            .filter(
-              (
-                item
-              ): item is {
-                type: string
-                value: string
-              } => !!item.value
-            )
-            .map(({ type, value }) => (
-              <div className="flex flex-wrap mb-4" key={type}>
-                <div className="w-full px-3">
-                  <label className="block text-xs">{type}</label>
-                  <div className="flex border-b border-indigo-500 py-2">
-                    <input
-                      type="text"
-                      defaultValue={value}
-                      className="appearance-none bg-transparent border-none w-full mr-3 py-2 px-4 leading-tight focus:outline-none"
-                      name="casts"
-                      readOnly
-                    />
-                    <button
-                      type="button"
-                      className="flex-shrink-0 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 py-2 px-2"
-                      onClick={(e) => {
-                        if (
-                          e.currentTarget.previousElementSibling instanceof
-                          HTMLInputElement
-                        )
-                          e.currentTarget.previousElementSibling.value = ''
-                        form.current?.submit()
-                      }}
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
         </>
       )}
+      <div className="flex flex-wrap mb-4">
+        <div className="w-full px-3">
+          <label className="block text-xs">keyword</label>
+          <div className="flex border-b border-indigo-500 py-2">
+            <input
+              type="text"
+              defaultValue={keyword ?? ''}
+              className="appearance-none bg-transparent border-none w-full mr-3 py-2 px-4 leading-tight focus:outline-none"
+              name="keyword"
+            />
+            <button
+              type="submit"
+              className="flex-shrink-0 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 py-2 px-2"
+            >
+              Search
+            </button>
+          </div>
+        </div>
+      </div>
     </form>
   )
 }

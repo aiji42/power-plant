@@ -135,7 +135,8 @@ export const productFromDB = async (
     casts: data?.casts ?? [],
     downloadUrl: data?.downloadUrl ?? null,
     isDownloaded: data?.isDownloaded ?? false,
-    isProcessing: data?.isProcessing ?? false
+    isProcessing: data?.isProcessing ?? false,
+    genres: data?.genres ?? []
   }
 }
 
@@ -147,6 +148,7 @@ export type DBData = {
   downloadUrl: string | null
   isDownloaded: boolean
   isProcessing: boolean
+  genres: string[]
 }
 
 export const searchProductFromSite = async (code: string) => {

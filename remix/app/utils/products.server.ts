@@ -17,13 +17,15 @@ const IMAGE_HOST = 'https://image.mgstage.com'
 
 export const productsFromM = async (
   page: number,
-  sort?: string
+  sort?: string,
+  keyword?: string | null
 ): Promise<ProductListItem[]> => {
   const res = await fetch(
     HOST +
       `/api/n/search/index.php?${new URLSearchParams({
         page: String(page),
-        sort: sort ?? 'new'
+        sort: sort ?? 'new',
+        ...(keyword ? { search_word: keyword } : {})
       }).toString()}`,
     {
       headers: {
@@ -48,9 +50,7 @@ export const productsFromDB = async (
     sort: 'asc' | 'desc' | string | null
   },
   filter?: {
-    casts?: string | null
-    maker?: string | null
-    series?: string | null
+    keyword?: string | null
     isDownloaded: string | null
   }
 ) => {
@@ -61,9 +61,10 @@ export const productsFromDB = async (
     )
     .order(order.column ?? 'createdAt', { ascending: order.sort === 'asc' })
     .range((page - 1) * 40, page * 40 - 1)
-  if (filter?.casts) query = query.contains('casts', `{${filter.casts}}`)
-  if (filter?.maker) query = query.eq('maker', filter.maker)
-  if (filter?.series) query = query.eq('series', filter.series)
+  if (filter?.keyword)
+    query = query.or(
+      `maker.eq.${filter.keyword},series.eq.${filter.keyword},casts.cs.{${filter.keyword}}`
+    )
   if (filter?.isDownloaded)
     query = query.is('isDownloaded', filter.isDownloaded === '1')
 
@@ -77,26 +78,32 @@ export const productsFromDB = async (
 export const productsFromF = async (
   page: number,
   sort = 'date',
-  floor = 'videoc'
+  floor = 'videoc',
+  keyword?: string | null
 ): Promise<ProductListItem[]> => {
   const res = await productsSearchFromF({
     offset: String((page - 1) * 100 + 1),
     floor,
     hits: 100,
     sort,
-    lte_date: new Date().toISOString().slice(0, 19)
+    lte_date: new Date().toISOString().slice(0, 19),
+    keyword
   })
-
   return (
-    res.items.map<ProductListItem>(
-      ({ title, content_id, imageURL, iteminfo }) => ({
+    res.items
+      .filter(({ iteminfo: { genre } }) =>
+        genre.every(
+          ({ id }) =>
+            ![3036, 6793, 4060, 35, 6996, 1014, 1032, 4002].includes(id)
+        )
+      )
+      .map<ProductListItem>(({ title, content_id, imageURL, iteminfo }) => ({
         name: title,
         sku: content_id,
         image_path: floor === 'videoc' ? imageURL.large : imageURL.list,
         casts: iteminfo.actress?.map(({ name }) => name),
         maker: iteminfo.maker?.[0].name,
         series: iteminfo.label?.[0].name
-      })
-    ) ?? []
+      })) ?? []
   )
 }

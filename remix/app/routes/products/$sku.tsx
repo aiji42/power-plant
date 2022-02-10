@@ -40,7 +40,7 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   if (data.code !== sku) return redirect(`/products/${data.code}`)
   const dbData = await db
 
-  return { ...data, ...dbData }
+  return { ...dbData, ...data }
 }
 
 const Product = () => {
@@ -56,6 +56,7 @@ const Product = () => {
     mediaUrls,
     ...data
   } = useLoaderData<Data>()
+  console.log(data)
 
   const dbFetcher = useFetcher<DBData>()
 
@@ -101,7 +102,7 @@ const Product = () => {
       <div className="mb-4 px-1">
         {casts.map((cast) => (
           <Link
-            to={`/products?casts=${cast}`}
+            to={`/products?keyword=${cast}`}
             key={cast}
             className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-600 bg-indigo-200  hover:text-indigo-500 hover:bg-indigo-100 last:mr-0 mr-1 mb-1"
           >
@@ -129,7 +130,7 @@ const Product = () => {
               'series',
               'releasedAt',
               'code',
-              'genre'
+              'genres'
             ].includes(key)
           )
           .map(([key, val], index) => (
@@ -143,7 +144,7 @@ const Product = () => {
               <dd className="text-sm mt-0 col-span-2">
                 {['maker', 'series'].includes(key) ? (
                   <Link
-                    to={`/products?${key}=${val}`}
+                    to={`/products?keyword=${val}`}
                     className="text-indigo-400 hover:text-indigo-300 w-full block"
                   >
                     {val}
