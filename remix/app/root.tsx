@@ -23,10 +23,13 @@ import {
 } from 'react'
 import { supabaseClient } from '~/utils/supabase.server'
 import { getSession } from '~/utils/session.server'
+import { getJsonObject } from '~/utils/aws.server'
 
 export let links: LinksFunction = () => {
   return [{ rel: 'stylesheet', href: style }]
 }
+
+type Data = { transmissionIP?: string | null }
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
@@ -38,7 +41,12 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect('/')
   if (url.pathname === '/' && user) return redirect('/products')
 
-  return { user }
+  const { outputs } = (await getJsonObject(
+    'power-plant-terraform',
+    'global/s3/transmission/terraform.tfstate'
+  )) as { outputs: { 'transmission-ec2-ip'?: { value: string } } }
+
+  return { user, transmissionIP: outputs['transmission-ec2-ip']?.value ?? null }
 }
 
 export default function App() {
@@ -138,6 +146,7 @@ function Document({
 }
 
 function Layout({ children }: { children: React.ReactNode }) {
+  const { transmissionIP } = useLoaderData<Data>()
   const [open, toggle] = useReducer((s) => !s, false)
   const [value, onChange] = useReducer(
     (s: string, e: ChangeEvent<HTMLInputElement>) => {
@@ -198,6 +207,17 @@ function Layout({ children }: { children: React.ReactNode }) {
                   >
                     Stocks
                   </Link>
+                  {transmissionIP && (
+                    <a
+                      href={`http://${transmissionIP}:9091`}
+                      className="block py-2 active:text-white active:bg-gray-800"
+                    >
+                      Transmission
+                    </a>
+                  )}
+                  <a href="https://github.com/aiji42/power-plant/actions/workflows/transmission-ec2.yml">
+                    Transmission controller
+                  </a>
                 </div>
                 <form className="w-full" onSubmit={onSubmit}>
                   <div className="flex items-center border-b border-indigo-500 py-2">

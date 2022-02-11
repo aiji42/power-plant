@@ -74,6 +74,13 @@ export const deleteMedia = async (bucket: string, key: string) => {
   )
 }
 
+export const getJsonObject = async (bucket: string, key: string) => {
+  const res = await aws.fetch(
+    `https://s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${bucket}/${key}`
+  )
+  return await res.json()
+}
+
 export type JobSummaryBase = {
   jobArn: string
   jobId: string
