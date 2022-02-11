@@ -90,7 +90,7 @@ const Products: VFC = () => {
           <Link
             to={`/products/${sku}`}
             key={sku}
-            className="flex items-center flex-row mb-1 py-1 hover:bg-gray-800"
+            className="flex items-center flex-row mb-1 py-1 active:bg-gray-800"
           >
             <img className="object-cover w-full h-auto w-28" src={image_path} />
             <div className="flex flex-col justify-between px-2 leading-normal">
@@ -296,7 +296,7 @@ const Filter: VFC = () => {
             />
             <button
               type="submit"
-              className="flex-shrink-0 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 py-2 px-2"
+              className="flex-shrink-0 text-sm text-indigo-500 active:text-indigo-400 active:bg-gray-800 py-2 px-2"
             >
               Search
             </button>
@@ -322,7 +322,7 @@ const Pagination: VFC = () => {
             page: String(Math.max(page - 1, 1)),
             ...filter
           }).toString()}`}
-          className="relative inline-flex items-center py-2 px-8 text-xl font-medium hover:bg-gray-800"
+          className="relative inline-flex items-center py-2 px-8 text-xl font-medium active:bg-gray-800"
         >
           &larr;
         </Link>
@@ -334,7 +334,7 @@ const Pagination: VFC = () => {
             page: String(page + 1),
             ...filter
           }).toString()}`}
-          className="relative inline-flex items-center py-2 px-8 text-xl font-medium hover:bg-gray-800"
+          className="relative inline-flex items-center py-2 px-8 text-xl font-medium active:bg-gray-800"
         >
           &rarr;
         </Link>

@@ -104,7 +104,7 @@ const Product = () => {
           <Link
             to={`/products?keyword=${cast}`}
             key={cast}
-            className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-600 bg-indigo-200  hover:text-indigo-500 hover:bg-indigo-100 last:mr-0 mr-1 mb-1"
+            className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-600 bg-indigo-200  active:text-indigo-500 active:bg-indigo-100 last:mr-0 mr-1 mb-1"
           >
             {cast}
           </Link>
@@ -112,7 +112,7 @@ const Product = () => {
         {!castFormOpen ? (
           <span
             onClick={openCastForm}
-            className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-200 hover:text-indigo-100 last:mr-0 mr-1 mb-1"
+            className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-200 active:text-indigo-100 last:mr-0 mr-1 mb-1"
           >
             edit
           </span>
@@ -145,7 +145,7 @@ const Product = () => {
                 {['maker', 'series'].includes(key) ? (
                   <Link
                     to={`/products?keyword=${val}`}
-                    className="text-indigo-400 hover:text-indigo-300 w-full block"
+                    className="text-indigo-400 active:text-indigo-300 w-full block"
                   >
                     {val}
                   </Link>
@@ -168,7 +168,7 @@ const Product = () => {
       {!mediaDownloadOpen ? (
         <p
           onClick={openMediaForm}
-          className="px-1 py-2 text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 mb-4"
+          className="px-1 py-2 text-indigo-500 active:text-indigo-400 active:bg-gray-800 mb-4"
         >
           Media Download Form
         </p>
@@ -272,7 +272,7 @@ const CastsForm: VFC = () => {
         <button
           onClick={textInputHandler}
           type="button"
-          className="flex-shrink-0 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 py-1 px-2"
+          className="flex-shrink-0 text-sm text-indigo-500 active:text-indigo-400 active:bg-gray-800 py-1 px-2"
         >
           Add
         </button>
@@ -443,19 +443,19 @@ const Media: VFC<{ url: string }> = ({ url }) => {
       <video src={url} controls key={url} className="w-full mb-1" />
       <a
         href={url}
-        className="p-1 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 block w-full"
+        className="p-1 text-sm text-indigo-500 active:text-indigo-400 active:bg-gray-800 block w-full"
       >
         {meta.size}/{meta.resolution}/{meta.bitRate}/{meta.frameRate}/
         {meta.duration}/{meta.codec}
       </a>
       <button
-        className="p-1 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800"
+        className="p-1 text-sm text-indigo-500 active:text-indigo-400 active:bg-gray-800"
         onClick={compression}
       >
         compress
       </button>
       <button
-        className="p-1 text-sm text-red-500 hover:text-red-400 hover:bg-gray-800"
+        className="p-1 text-sm text-red-500 active:text-red-400 active:bg-gray-800"
         onClick={remove}
       >
         remove

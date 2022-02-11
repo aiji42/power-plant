@@ -164,7 +164,7 @@ function Layout({ children }: { children: React.ReactNode }) {
           <div className="block">
             <button
               onClick={toggle}
-              className="flex items-center px-3 py-2 border rounded border-gray-400 hover:text-white hover:border-white"
+              className="flex items-center px-3 py-2 border rounded border-gray-400 active:text-white active:border-white"
             >
               <svg
                 className="fill-current h-3 w-3"
@@ -182,19 +182,19 @@ function Layout({ children }: { children: React.ReactNode }) {
                 <div className="mb-2">
                   <Link
                     to="/products?provider=m"
-                    className="block py-2 hover:text-white hover:bg-gray-800"
+                    className="block py-2 active:text-white active:bg-gray-800"
                   >
                     Provider | M
                   </Link>
                   <Link
                     to="/products?provider=f"
-                    className="block py-2 hover:text-white hover:bg-gray-800"
+                    className="block py-2 active:text-white active:bg-gray-800"
                   >
                     Provider | F
                   </Link>
                   <Link
                     to="/products"
-                    className="block py-2 hover:text-white hover:bg-gray-800"
+                    className="block py-2 active:text-white active:bg-gray-800"
                   >
                     Stocks
                   </Link>
@@ -206,7 +206,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                       type="text"
                       onChange={onChange}
                     />
-                    <button className="flex-shrink-0 text-sm text-indigo-500 hover:text-indigo-400 hover:bg-gray-800 py-1 px-2">
+                    <button className="flex-shrink-0 text-sm text-indigo-500 active:text-indigo-400 active:bg-gray-800 py-1 px-2">
                       Jump
                     </button>
                   </div>

@@ -83,7 +83,7 @@ export default function Index() {
                 className="w-full px-4 py-2 mt-2 border rounded-md text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-600"
               />
             </div>
-            <button className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-900 w-full">
+            <button className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg active:bg-blue-900 w-full">
               Login
             </button>
           </div>
