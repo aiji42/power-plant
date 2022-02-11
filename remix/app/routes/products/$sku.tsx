@@ -56,7 +56,6 @@ const Product = () => {
     mediaUrls,
     ...data
   } = useLoaderData<Data>()
-  console.log(data)
 
   const dbFetcher = useFetcher<DBData>()
 
