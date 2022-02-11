@@ -60,7 +60,7 @@ export const productsFromDB = async (
       'sku:code, name:title, image_path:mainImageUrl, isDownloaded, isProcessing, casts, maker, series'
     )
     .order(order.column ?? 'createdAt', { ascending: order.sort === 'asc' })
-    .range((page - 1) * 40, page * 40 - 1)
+    .range((page - 1) * 100, page * 100 - 1)
   if (filter?.keyword)
     query = query.or(
       `maker.eq.${filter.keyword},series.eq.${filter.keyword},casts.cs.{${filter.keyword}}`
