@@ -2,11 +2,8 @@ import { ActionFunction } from 'remix'
 import { supabaseClient } from '~/utils/supabase.server'
 import { DBData, searchProductFromSite } from '~/utils/product.server'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  deleteMedia,
-  getBucketAndKeyFromURL,
-  submitDownloadJob
-} from '~/utils/aws.server'
+import { deleteMedia, submitDownloadJob } from '~/utils/aws.server'
+import { getBucketAndKeyFromURL } from '~/utils/aws'
 import { cacheable } from '~/utils/kv.server'
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -29,7 +26,8 @@ export const action: ActionFunction = async ({ request, params }) => {
       casts: [],
       downloadUrl: null,
       isDownloaded: false,
-      isProcessing: false
+      isProcessing: false,
+      genres: []
     } as DBData
   }
   if (request.method === 'PATCH') {
@@ -96,7 +94,8 @@ export const action: ActionFunction = async ({ request, params }) => {
     casts: [],
     downloadUrl: null,
     isDownloaded: false,
-    isProcessing: false
+    isProcessing: false,
+    genres: []
   } as DBData
 }
 

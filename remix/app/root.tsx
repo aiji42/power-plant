@@ -207,12 +207,18 @@ const Layout: FC = ({ children }) => {
                   >
                     Stocks
                   </Link>
+                  <Link
+                    to="/transmission"
+                    className="block py-2 active:text-white active:bg-gray-800"
+                  >
+                    Transmission
+                  </Link>
                   {transmissionIP && (
                     <a
                       href={`http://${transmissionIP}:9091`}
                       className="block py-2 active:text-white active:bg-gray-800"
                     >
-                      Transmission
+                      Transmission client
                     </a>
                   )}
                   <a href="https://github.com/aiji42/power-plant/actions/workflows/transmission-ec2.yml">

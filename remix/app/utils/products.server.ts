@@ -70,7 +70,7 @@ export const productsFromDB = async (
 
   const { data, error } = await query
 
-  console.log(error)
+  if (error) console.log(error)
 
   return data
 }

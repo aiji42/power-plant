@@ -1,11 +1,8 @@
 import { ActionFunction, json, LoaderFunction } from 'remix'
 import { getMediaMeta, MediaMetaData } from '~/utils/media.server'
 import { productFromDB } from '~/utils/product.server'
-import {
-  deleteMedia,
-  getBucketAndKeyFromURL,
-  submitCompressionJob
-} from '~/utils/aws.server'
+import { deleteMedia, submitCompressionJob } from '~/utils/aws.server'
+import { getBucketAndKeyFromURL } from '~/utils/aws'
 import { supabaseClient } from '~/utils/supabase.server'
 
 export type MediaData = MediaMetaData | null

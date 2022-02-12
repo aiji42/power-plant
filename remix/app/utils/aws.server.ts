@@ -1,4 +1,6 @@
 import { AwsClient } from 'aws4fetch'
+import { XMLParser } from 'fast-xml-parser'
+import { getURLFromBucketAndKey } from './aws'
 
 const aws = new AwsClient({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? '',
@@ -60,14 +62,17 @@ export const listCompressionJobs = async (
   )
 }
 
-export const getBucketAndKeyFromURL = (url: string): [string, string] => {
-  const [, bucket, key] = url.match(/https:\/\/(.+)\.s3.+?\/(.+)/) ?? []
-  return [bucket, key]
+export const listMedias = async (bucket: string, key: string) => {
+  const res = await aws.fetch(
+    `https://${bucket}.s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/?list-type=2&prefix=${key}`
+  )
+  const parser = new XMLParser()
+  return parser.parse(await res.text()).ListBucketResult.Contents
 }
 
 export const deleteMedia = async (bucket: string, key: string) => {
   await aws.fetch(
-    `https://s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${bucket}/${key}`,
+    getURLFromBucketAndKey(bucket, key, process.env.AWS_DEFAULT_REGION),
     {
       method: 'DELETE'
     }
@@ -76,7 +81,7 @@ export const deleteMedia = async (bucket: string, key: string) => {
 
 export const getJsonObject = async (bucket: string, key: string) => {
   const res = await aws.fetch(
-    `https://s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${bucket}/${key}`
+    getURLFromBucketAndKey(bucket, key, process.env.AWS_DEFAULT_REGION)
   )
   return await res.json()
 }
