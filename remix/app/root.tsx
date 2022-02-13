@@ -9,7 +9,6 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
-  useLoaderData,
   useLocation
 } from 'remix'
 import type { LinksFunction } from 'remix'
@@ -20,18 +19,14 @@ import {
   FormEventHandler,
   useCallback,
   useEffect,
-  useReducer,
-  VFC
+  useReducer
 } from 'react'
 import { supabaseClient } from '~/utils/supabase.server'
 import { getSession } from '~/utils/session.server'
-import { getJsonObject } from '~/utils/aws.server'
 
 export let links: LinksFunction = () => {
   return [{ rel: 'stylesheet', href: style }]
 }
-
-type Data = { transmissionIP?: string | null }
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
@@ -43,12 +38,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect('/')
   if (url.pathname === '/' && user) return redirect('/products')
 
-  const { outputs } = (await getJsonObject(
-    'power-plant-terraform',
-    'global/s3/transmission/terraform.tfstate'
-  )) as { outputs: { 'transmission-ec2-ip'?: { value: string } } }
-
-  return { user, transmissionIP: outputs['transmission-ec2-ip']?.value ?? null }
+  return { user }
 }
 
 export default function App() {
@@ -146,7 +136,6 @@ function Document({
 }
 
 const Layout: FC = ({ children }) => {
-  const { transmissionIP } = useLoaderData<Data>()
   const [open, toggle] = useReducer((s) => !s, false)
   const [value, onChange] = useReducer(
     (s: string, e: ChangeEvent<HTMLInputElement>) => {
@@ -213,17 +202,6 @@ const Layout: FC = ({ children }) => {
                   >
                     Transmission
                   </Link>
-                  {transmissionIP && (
-                    <a
-                      href={`http://${transmissionIP}:9091`}
-                      className="block py-2 active:text-white active:bg-gray-800"
-                    >
-                      Transmission client
-                    </a>
-                  )}
-                  <a href="https://github.com/aiji42/power-plant/actions/workflows/transmission-ec2.yml">
-                    Transmission controller
-                  </a>
                 </div>
                 <form className="w-full" onSubmit={onSubmit}>
                   <div className="flex items-center border-b border-indigo-500 py-2">
@@ -242,44 +220,7 @@ const Layout: FC = ({ children }) => {
           )}
         </nav>
       </header>
-      <div className="p-1">
-        <TransmissionSnackBar running={!!transmissionIP} />
-        {children}
-      </div>
-    </div>
-  )
-}
-
-const TransmissionSnackBar: VFC<{ running: boolean }> = ({ running }) => {
-  const [show, hide] = useReducer(() => {
-    sessionStorage.setItem('hideTransmissionSnackBar', 'true')
-    return false
-  }, running)
-  useEffect(() => {
-    sessionStorage.getItem('hideTransmissionSnackBar') && hide()
-  }, [])
-  if (!show) return null
-
-  return (
-    <div
-      className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 mb-2 rounded relative"
-      role="alert"
-    >
-      <strong className="font-bold">Transmission is launching.</strong>
-      <span
-        className="absolute top-0 bottom-0 right-0 px-4 py-3"
-        onClick={hide}
-      >
-        <svg
-          className="fill-current h-6 w-6 text-blue-500"
-          role="button"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-        >
-          <title>Close</title>
-          <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
-        </svg>
-      </span>
+      <div className="p-1">{children}</div>
     </div>
   )
 }
