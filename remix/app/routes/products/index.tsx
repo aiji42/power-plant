@@ -1,5 +1,5 @@
 import { json, Link, LoaderFunction, useLoaderData } from 'remix'
-import { Ref, useReducer, useRef, VFC } from 'react'
+import { Ref, useReducer, useRef, useState, VFC } from 'react'
 import {
   ProductListItem,
   productsFromDB,
@@ -7,7 +7,7 @@ import {
   productsFromM
 } from '~/utils/products.server'
 import { filterConditionStore } from '~/utils/cookie.server'
-import { useSwipeable } from 'react-swipeable'
+import { useSwipeable, SwipeDirections } from 'react-swipeable'
 
 type Data = {
   items: ProductListItem[]
@@ -75,12 +75,18 @@ const Products: VFC = () => {
   const { items } = useLoaderData<Data>()
   const prevRef = useRef<HTMLAnchorElement>(null)
   const nextRef = useRef<HTMLAnchorElement>(null)
+  const [swipingDir, setSwipingDir] = useState<null | SwipeDirections>(null)
   const handler = useSwipeable({
     onSwipedLeft: () => {
+      setSwipingDir(null)
       nextRef.current?.click()
     },
     onSwipedRight: () => {
+      setSwipingDir(null)
       prevRef.current?.click()
+    },
+    onSwiping: ({ dir }) => {
+      setSwipingDir(dir)
     },
     delta: 100
   })
@@ -144,6 +150,15 @@ const Products: VFC = () => {
         )
       )}
       <Pagination nextRef={nextRef} prevRef={prevRef} />
+      {swipingDir === 'Right' ? (
+        <div className="absolute top-1/2 left-0 p-4 rounded-lg bg-indigo-800 text-2xl">
+          &larr;
+        </div>
+      ) : swipingDir === 'Left' ? (
+        <div className="absolute top-1/2 right-0 p-4 rounded-lg bg-indigo-800 text-2xl">
+          &rarr;
+        </div>
+      ) : null}
     </div>
   )
 }
