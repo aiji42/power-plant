@@ -151,11 +151,11 @@ const Products: VFC = () => {
       )}
       <Pagination nextRef={nextRef} prevRef={prevRef} />
       {swipingDir === 'Right' ? (
-        <div className="absolute top-1/2 left-0 p-4 rounded-lg bg-indigo-800 text-2xl">
+        <div className="fixed top-1/2 left-0 p-4 rounded-lg bg-indigo-800 text-2xl">
           &larr;
         </div>
       ) : swipingDir === 'Left' ? (
-        <div className="absolute top-1/2 right-0 p-4 rounded-lg bg-indigo-800 text-2xl">
+        <div className="fixed top-1/2 right-0 p-4 rounded-lg bg-indigo-800 text-2xl">
           &rarr;
         </div>
       ) : null}
