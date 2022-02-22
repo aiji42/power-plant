@@ -136,7 +136,7 @@ function Document({
 }
 
 const Layout: FC = ({ children }) => {
-  const [open, toggle] = useReducer((s) => !s, false)
+  const [open, handleOpen] = useReducer((s: boolean, a: boolean) => a, false)
   const [value, onChange] = useReducer(
     (s: string, e: ChangeEvent<HTMLInputElement>) => {
       return e.target.value
@@ -152,15 +152,16 @@ const Layout: FC = ({ children }) => {
   )
   const href = useLocation()
   useEffect(() => {
-    open && toggle()
+    open && handleOpen(false)
   }, [href.key])
   return (
     <div className="bg-gray-900 text-gray-200 min-h-screen">
-      <header className="sticky top-0 mb-2 bg-gray-900" onClick={toggle}>
+      <header
+        className="sticky top-0 mb-2 bg-gray-900"
+        onClick={() => handleOpen(true)}
+      >
         <nav className="flex items-center justify-between flex-wrap p-2 px-4 border-b border-gray-500">
-          <div className="flex items-center m-auto text-xl">
-            POWER PLANT
-          </div>
+          <div className="flex items-center m-auto text-xl">POWER PLANT</div>
           {open && (
             <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
               <div className="text-sm lg:flex-grow">
