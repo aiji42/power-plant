@@ -1,4 +1,4 @@
-import parse from 'node-html-parser'
+import { parse } from 'node-html-parser'
 
 const HOST = 'https://sukebei.nyaa.si'
 

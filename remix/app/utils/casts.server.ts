@@ -1,4 +1,4 @@
-import parse from 'node-html-parser'
+import { parse } from 'node-html-parser'
 
 export type Casts = {
   link: string

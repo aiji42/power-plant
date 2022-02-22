@@ -1,4 +1,4 @@
-import parse, { HTMLElement } from 'node-html-parser'
+import { HTMLElement, parse } from 'node-html-parser'
 import chunk from 'chunk'
 import { productsSearchFromF } from '~/utils/f.server'
 import { supabaseClient } from '~/utils/supabase.server'
