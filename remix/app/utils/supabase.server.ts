@@ -1,7 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 
-export const supabaseClient = createClient(
-  process.env.SUPABASE_URL ?? '',
-  process.env.SUPABASE_API_KEY ?? '',
-  { fetch: (...args) => fetch(...args) }
-)
+export const supabaseClient = createClient(SUPABASE_URL, SUPABASE_API_KEY, {
+  fetch: fetch.bind(globalThis)
+})

@@ -23,6 +23,17 @@ jobs:
       - run: |
           yarn install
           yarn global add @cloudflare/wrangler
+          echo $SUPABASE_URL | wrangler secret put SUPABASE_URL
+          echo $SUPABASE_API_KEY | wrangler secret put SUPABASE_API_KEY
+          echo $PROVIDER_F_API_ID | wrangler secret put PROVIDER_F_API_ID
+          echo $PROVIDER_F_AFF_ID | wrangler secret put PROVIDER_F_AFF_ID
+          echo $AWS_ACCESS_KEY_ID | wrangler secret put AWS_ACCESS_KEY_ID
+          echo $AWS_SECRET_ACCESS_KEY | wrangler secret put AWS_SECRET_ACCESS_KEY
+          echo $AWS_DEFAULT_REGION | wrangler secret put AWS_DEFAULT_REGION
+          echo $JOB_DEFINITION_FOR_DOWNLOAD | wrangler secret put JOB_DEFINITION_FOR_DOWNLOAD
+          echo $JOB_DEFINITION_FOR_COMPRESSION | wrangler secret put JOB_DEFINITION_FOR_COMPRESSION
+          echo $JOB_QUEUE | wrangler secret put JOB_QUEUE
+          echo $JOB_QUEUE_FOR_HIGH | wrangler secret put JOB_QUEUE_FOR_HIGH
           yarn deploy
         working-directory: './remix'
         env:

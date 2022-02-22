@@ -53,8 +53,8 @@ export const productsSearchFromF = async (params: {
 }): Promise<Result> => {
   const res: { result: Result } = await fetch(
     `https://api.dmm.com/affiliate/v3/ItemList?${new URLSearchParams({
-      api_id: process.env.PROVIDER_F_API_ID ?? '',
-      affiliate_id: process.env.PROVIDER_F_AFF_ID ?? '',
+      api_id: PROVIDER_F_API_ID,
+      affiliate_id: PROVIDER_F_AFF_ID,
       site: 'FANZA',
       service: 'digital',
       sort: 'date',
