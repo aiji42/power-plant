@@ -156,9 +156,9 @@ const Layout: FC = ({ children }) => {
   }, [href.key])
   return (
     <div className="bg-gray-900 text-gray-200 min-h-screen">
-      <header className="sticky top-0 mb-2 bg-gray-900">
+      <header className="sticky top-0 mb-2 bg-gray-900" onClick={toggle}>
         <nav className="flex items-center justify-between flex-wrap p-2 px-4 border-b border-gray-500">
-          <div className="flex items-center m-auto text-xl" onClick={toggle}>
+          <div className="flex items-center m-auto text-xl">
             POWER PLANT
           </div>
           {open && (
