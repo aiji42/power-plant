@@ -94,61 +94,68 @@ const Products: VFC = () => {
   return (
     <div {...handler}>
       <Filter />
-      {items.map(
-        ({
-          sku,
-          image_path,
-          name,
-          isProcessing,
-          isDownloaded,
-          casts,
-          maker,
-          series
-        }) => (
-          <Link
-            to={`/products/${sku}`}
-            key={sku}
-            className="flex items-center flex-row mb-1 py-1 active:bg-gray-800"
-          >
-            <img className="object-cover w-full h-auto w-28" src={image_path} />
-            <div className="flex flex-col justify-between px-2 leading-normal">
-              <h2 className="mb-1 text-xs tracking-tight truncate w-56">
-                {isProcessing ? (
-                  <span className="text-yellow-600 pr-1">●</span>
-                ) : isDownloaded ? (
-                  <span className="text-green-500 pr-1">●</span>
-                ) : null}
-                {name}
-              </h2>
-              <p className="mb-1 text-xs tracking-tight text-gray-600">{sku}</p>
-              {maker && (
-                <p className="mb-1 text-xs tracking-tight text-gray-400">
-                  {
-                    <>
-                      {maker}
-                      {series && maker !== series && (
-                        <>
-                          <br />
-                          {series}
-                        </>
-                      )}
-                    </>
-                  }
+      <div className="min-h-screen">
+        {items.map(
+          ({
+            sku,
+            image_path,
+            name,
+            isProcessing,
+            isDownloaded,
+            casts,
+            maker,
+            series
+          }) => (
+            <Link
+              to={`/products/${sku}`}
+              key={sku}
+              className="flex items-center flex-row mb-1 py-1 active:bg-gray-800"
+            >
+              <img
+                className="object-cover w-full h-auto w-28"
+                src={image_path}
+              />
+              <div className="flex flex-col justify-between px-2 leading-normal">
+                <h2 className="mb-1 text-xs tracking-tight truncate w-56">
+                  {isProcessing ? (
+                    <span className="text-yellow-600 pr-1">●</span>
+                  ) : isDownloaded ? (
+                    <span className="text-green-500 pr-1">●</span>
+                  ) : null}
+                  {name}
+                </h2>
+                <p className="mb-1 text-xs tracking-tight text-gray-600">
+                  {sku}
                 </p>
-              )}
-              {!!casts?.length && (
-                <p className="mb-1 text-xs tracking-tight text-gray-400 truncate w-56">
-                  {casts.map((cast) => (
-                    <span key={cast} className="pr-1">
-                      {cast}
-                    </span>
-                  ))}
-                </p>
-              )}
-            </div>
-          </Link>
-        )
-      )}
+                {maker && (
+                  <p className="mb-1 text-xs tracking-tight text-gray-400">
+                    {
+                      <>
+                        {maker}
+                        {series && maker !== series && (
+                          <>
+                            <br />
+                            {series}
+                          </>
+                        )}
+                      </>
+                    }
+                  </p>
+                )}
+                {!!casts?.length && (
+                  <p className="mb-1 text-xs tracking-tight text-gray-400 truncate w-56">
+                    {casts.map((cast) => (
+                      <span key={cast} className="pr-1">
+                        {cast}
+                      </span>
+                    ))}
+                  </p>
+                )}
+              </div>
+            </Link>
+          )
+        )}
+      </div>
       <Pagination nextRef={nextRef} prevRef={prevRef} />
       {swipingDir === 'Right' ? (
         <div className="fixed top-1/2 left-0 p-4 rounded-lg bg-indigo-800 text-2xl">
