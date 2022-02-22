@@ -73,10 +73,14 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 const Products: VFC = () => {
   const { items } = useLoaderData<Data>()
+  const prevRef = useRef<HTMLAnchorElement>(null)
   const nextRef = useRef<HTMLAnchorElement>(null)
   const handler = useSwipeable({
     onSwipedLeft: () => {
       nextRef.current?.click()
+    },
+    onSwipedRight: () => {
+      prevRef.current?.click()
     },
     delta: 100
   })
@@ -139,7 +143,7 @@ const Products: VFC = () => {
           </Link>
         )
       )}
-      <Pagination nextRef={nextRef} />
+      <Pagination nextRef={nextRef} prevRef={prevRef} />
     </div>
   )
 }
