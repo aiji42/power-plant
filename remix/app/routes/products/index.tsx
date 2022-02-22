@@ -1,5 +1,5 @@
 import { json, Link, LoaderFunction, useLoaderData } from 'remix'
-import { useReducer, useRef, VFC } from 'react'
+import { Ref, useReducer, useRef, VFC } from 'react'
 import {
   ProductListItem,
   productsFromDB,
@@ -7,6 +7,7 @@ import {
   productsFromM
 } from '~/utils/products.server'
 import { filterConditionStore } from '~/utils/cookie.server'
+import { useSwipeable } from 'react-swipeable'
 
 type Data = {
   items: ProductListItem[]
@@ -72,9 +73,16 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 const Products: VFC = () => {
   const { items } = useLoaderData<Data>()
+  const nextRef = useRef<HTMLAnchorElement>(null)
+  const handler = useSwipeable({
+    onSwipedLeft: () => {
+      nextRef.current?.click()
+    },
+    delta: 100
+  })
 
   return (
-    <>
+    <div {...handler}>
       <Filter />
       {items.map(
         ({
@@ -131,8 +139,8 @@ const Products: VFC = () => {
           </Link>
         )
       )}
-      <Pagination />
-    </>
+      <Pagination nextRef={nextRef} />
+    </div>
   )
 }
 
@@ -307,7 +315,10 @@ const Filter: VFC = () => {
   )
 }
 
-const Pagination: VFC = () => {
+const Pagination: VFC<{
+  prevRef?: Ref<HTMLAnchorElement>
+  nextRef?: Ref<HTMLAnchorElement>
+}> = ({ nextRef, prevRef }) => {
   const { page, params } = useLoaderData<Data>()
   const filter = Object.entries(params).reduce(
     (res, [key, val]) => (!val ? res : { ...res, [key]: val }),
@@ -318,6 +329,7 @@ const Pagination: VFC = () => {
     <div className="bg-gray-900 flex items-center justify-between border-t border-gray-500 sticky bottom-0 w-full">
       <div className="flex-1 flex justify-between">
         <Link
+          ref={prevRef}
           to={`/products?${new URLSearchParams({
             page: String(Math.max(page - 1, 1)),
             ...filter
@@ -330,6 +342,7 @@ const Pagination: VFC = () => {
         <p className="py-2">{page}</p>
 
         <Link
+          ref={nextRef}
           to={`/products?${new URLSearchParams({
             page: String(page + 1),
             ...filter
