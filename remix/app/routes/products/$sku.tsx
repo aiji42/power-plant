@@ -8,10 +8,12 @@ import {
 import {
   ChangeEvent,
   ChangeEventHandler,
+  RefObject,
   useCallback,
   useEffect,
   useReducer,
   useRef,
+  MouseEvent,
   VFC
 } from 'react'
 import { TorrentsData } from './$sku/torrent'
@@ -100,13 +102,7 @@ const Product = () => {
 
       <div className="mb-4 px-1">
         {casts.map((cast) => (
-          <Link
-            to={`/products?keyword=${cast}`}
-            key={cast}
-            className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-600 bg-indigo-200  active:text-indigo-500 active:bg-indigo-100 last:mr-0 mr-1 mb-1"
-          >
-            {cast}
-          </Link>
+          <CastLink cast={cast} key={cast} />
         ))}
         {!castFormOpen ? (
           <span
@@ -461,4 +457,87 @@ const Media: VFC<{ url: string }> = ({ url }) => {
       </button>
     </div>
   )
+}
+
+const CastLink: VFC<{ cast: string }> = ({ cast }) => {
+  const ref = useRef<HTMLParagraphElement>(null)
+  const [clickedPosition, handleClick] = useReducer(
+    (s: { x: number; y: number } | null, e: MouseEvent<HTMLElement> | null) => {
+      if (!e) return null
+      return { x: e.pageX, y: e.pageY }
+    },
+    null
+  )
+  useClickOutside(ref, () => handleClick(null))
+  return (
+    <>
+      <p
+        onClick={handleClick}
+        ref={ref}
+        key={cast}
+        className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-600 bg-indigo-200  active:text-indigo-500 active:bg-indigo-100 last:mr-0 mr-1 mb-1"
+      >
+        {cast}
+      </p>
+      <div
+        className="absolute left-0 w-40 py-2 mt-1 bg-indigo-200 rounded-md shadow-xl text-xs"
+        style={{
+          display: !clickedPosition ? 'none' : 'block',
+          left: Math.min(clickedPosition?.x ?? 0, 220)
+        }}
+      >
+        <Link
+          to={`/products?keyword=${cast}`}
+          className="block px-4 py-2 text-indigo-600 active:text-indigo-300"
+        >
+          Power Plant
+        </Link>
+        <a
+          href={`https://av-wiki.net/?s=${cast}&post_type=product`}
+          className="block px-4 py-2 text-indigo-600 active:text-indigo-300"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          av-wiki.net
+        </a>
+        <a
+          href={`https://shiroutoname.com/?s=${cast}`}
+          className="block px-4 py-2 text-indigo-600 active:text-indigo-300"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          shiroutoname.com
+        </a>
+        <a
+          href={`https://av-actress-star.com/?s=${cast}`}
+          className="block px-4 py-2 text-indigo-600 active:text-indigo-300"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          av-actress-star.com
+        </a>
+      </div>
+    </>
+  )
+}
+
+const useClickOutside = (
+  ref: RefObject<HTMLElement>,
+  callback: (...args: unknown[]) => void
+) => {
+  const handleClick: EventListenerOrEventListenerObject = (e) => {
+    if (
+      ref.current &&
+      e.target instanceof Node &&
+      !ref.current.contains(e.target)
+    ) {
+      callback()
+    }
+  }
+  useEffect(() => {
+    document.addEventListener('click', handleClick)
+    return () => {
+      document.removeEventListener('click', handleClick)
+    }
+  })
 }
