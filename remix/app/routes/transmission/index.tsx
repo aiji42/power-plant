@@ -4,8 +4,9 @@ import {
   useFetcher,
   useLoaderData
 } from 'remix'
-import { deleteMedia, getJsonObject, listMedias } from '~/utils/aws.server'
+import { deleteMedia, listMedias } from '~/utils/aws.server'
 import { getURLFromBucketAndKey } from '~/utils/aws'
+import { getTransmissionIp } from '~/utils/transmission.server'
 
 type Data = {
   medias: {
@@ -21,14 +22,9 @@ type Data = {
 export const loader: LoaderFunction = async () => {
   const list = await listMedias('transmission-project', 'downloads/complete/')
 
-  const { outputs } = (await getJsonObject(
-    'power-plant-terraform',
-    'global/s3/transmission/terraform.tfstate'
-  )) as { outputs: { 'transmission-ec2-ip'?: { value: string } } }
-
   return {
     medias: Array.isArray(list) ? list : [],
-    transmissionIP: outputs['transmission-ec2-ip']?.value ?? null
+    transmissionIP: await getTransmissionIp()
   }
 }
 

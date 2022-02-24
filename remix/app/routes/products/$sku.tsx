@@ -345,6 +345,16 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
   useEffect(() => {
     dbFetcher.state === 'idle' && handleInputValue('')
   }, [dbFetcher.state])
+  const torrentFileUpload = useFetcher()
+  const addToTransmission = useCallback(
+    (url: string) => {
+      torrentFileUpload.submit(
+        { fileUrl: url },
+        { method: 'post', action: '/transmission/torrent-file' }
+      )
+    },
+    [torrentFileUpload.submit]
+  )
 
   const Form = dbFetcher.Form
 
@@ -375,30 +385,45 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
           </div>
         </Form>
       )}
+      {torrentFileUpload.data?.result === 'success' && (
+        <div className="flex items-center bg-blue-500 text-white text-sm font-bold px-4 py-3 mb-2">
+          <p>Added to transmission</p>
+        </div>
+      )}
       {torrentsFetcher.state === 'loading' ? (
         <div className="text-center mb-4">Loading</div>
       ) : (
         <dl className="mb-4">
-          {torrentsFetcher.data?.map(
+          {torrentsFetcher.data?.items?.map(
             ({ title, link, completed, size, registeredAt }, index) => (
               <div
                 key={index}
                 className={`${
                   index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
                 }  px-4 py-5 text-sm`}
-                onClick={() => handleInputValue(link)}
               >
-                <p className="truncate">
-                  {link === inputValue ? (
-                    <span className="text-indigo-500 pr-1">○</span>
-                  ) : downloadUrl === link ? (
-                    <span className="text-indigo-500 pr-1">●</span>
-                  ) : null}
-                  {title}
-                </p>
-                <p>completed: {completed}</p>
-                <p>size: {size}</p>
-                <p>registered: {registeredAt}</p>
+                <div onClick={() => handleInputValue(link)}>
+                  <p className="truncate">
+                    {link === inputValue ? (
+                      <span className="text-indigo-500 pr-1">○</span>
+                    ) : downloadUrl === link ? (
+                      <span className="text-indigo-500 pr-1">●</span>
+                    ) : null}
+                    {title}
+                  </p>
+                  <p>completed: {completed}</p>
+                  <p>size: {size}</p>
+                  <p>registered: {registeredAt}</p>
+                </div>
+                {torrentsFetcher.data?.transmissionIp && (
+                  <button
+                    className="mt-2 text-indigo-500 active:text-indigo-400"
+                    type="button"
+                    onClick={() => addToTransmission(link)}
+                  >
+                    Add to transmission
+                  </button>
+                )}
               </div>
             )
           )}
