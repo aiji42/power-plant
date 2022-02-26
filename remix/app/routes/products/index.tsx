@@ -1,5 +1,15 @@
 import { json, Link, LoaderFunction, useLoaderData } from 'remix'
-import {ReactEventHandler, Ref, useCallback, useEffect, useReducer, useRef, useState, VFC} from 'react'
+import { useInView } from 'react-intersection-observer'
+import {
+  ReactEventHandler,
+  Ref,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+  VFC
+} from 'react'
 import {
   ProductListItem,
   productsFromDB,
@@ -96,22 +106,25 @@ const Products: VFC = () => {
       <Filter />
       <div className="min-h-screen">
         {items.map(
-          ({
-            sku,
-            image_path,
-            name,
-            isProcessing,
-            isDownloaded,
-            casts,
-            maker,
-            series
-          }) => (
+          (
+            {
+              sku,
+              image_path,
+              name,
+              isProcessing,
+              isDownloaded,
+              casts,
+              maker,
+              series
+            },
+            index
+          ) => (
             <Link
               to={`/products/${sku}`}
               key={sku}
               className="flex items-center flex-row mb-1 py-1 active:bg-gray-800"
             >
-              <Thumbnail src={image_path} />
+              <Thumbnail src={image_path} priority={index < 6} />
               <div className="flex flex-col justify-between px-2 leading-normal">
                 <h2 className="mb-1 text-xs tracking-tight truncate w-56">
                   {isProcessing ? (
@@ -169,7 +182,10 @@ const Products: VFC = () => {
 
 export default Products
 
-const Thumbnail: VFC<{ src: string }> = ({ src }) => {
+const Thumbnail: VFC<{ src: string; priority?: boolean }> = ({
+  src,
+  priority = false
+}) => {
   const [mounted, setMounted] = useState(false)
   const [naturalWidth, setNaturalWidth] = useState(70)
   const [naturalHeight, setNaturalHeight] = useState(100)
@@ -180,16 +196,25 @@ const Thumbnail: VFC<{ src: string }> = ({ src }) => {
   useEffect(() => {
     setMounted(true)
   }, [])
+  const { ref, inView } = useInView({ triggerOnce: true, rootMargin: '100px' })
   const isSquare = naturalWidth === naturalHeight
 
-  if (!mounted) return <div style={{ height: 70*1.9, width: 70*1.9 }} />
+  if (!mounted || !inView)
+    return <div ref={ref} style={{ height: 70 * 1.9, width: 70 * 1.9 }} />
 
-  return (<img
-    style={{ height: isSquare ? 70*1.9 : 100*1.9, width: 70*1.9, objectFit: 'cover', objectPosition: '100% 100%' }}
-    onLoad={onLoad}
-    src={src}
-    loading="lazy"
-  />)
+  return (
+    <img
+      style={{
+        height: isSquare ? 70 * 1.9 : 100 * 1.9,
+        width: 70 * 1.9,
+        objectFit: 'cover',
+        objectPosition: '100% 100%'
+      }}
+      onLoad={onLoad}
+      src={src}
+      loading={priority ? 'eager' : 'lazy'}
+    />
+  )
 }
 
 const downloadedOptions = {
