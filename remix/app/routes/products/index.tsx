@@ -200,13 +200,13 @@ const Thumbnail: VFC<{ src: string; priority?: boolean }> = ({
   const isSquare = naturalWidth === naturalHeight
 
   if (!mounted || !inView)
-    return <div ref={ref} style={{ height: 70 * 1.9, width: 70 * 1.9 }} />
+    return <div ref={ref} style={{ height: 70 * 1.6, width: 70 * 1.6 }} />
 
   return (
     <img
       style={{
-        height: isSquare ? 70 * 1.9 : 100 * 1.9,
-        width: 70 * 1.9,
+        height: isSquare ? 70 * 1.6 : 100 * 1.6,
+        width: 70 * 1.6,
         objectFit: 'cover',
         objectPosition: '100% 100%'
       }}
