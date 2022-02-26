@@ -15,10 +15,6 @@ export const addTorrentFile = async (fileUrl: string) => {
     body: JSON.stringify({ method: 'session-get' }),
     method: 'POST'
   })
-  console.log('session status: ', session.status)
-  console.log('session head: ', session.headers)
-  console.log('session body: ', await session.text())
-
   const res = await fetch(`http://${ip}:9091/transmission/rpc`, {
     headers: {
       'x-transmission-session-id':
@@ -34,9 +30,6 @@ export const addTorrentFile = async (fileUrl: string) => {
     }),
     method: 'POST'
   })
-  console.log('res status: ', res.status)
-  console.log('res head: ', res.headers)
-  console.log('res body: ', await res.text())
 
   return res
 }
