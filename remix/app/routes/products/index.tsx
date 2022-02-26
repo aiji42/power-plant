@@ -1,5 +1,5 @@
 import { json, Link, LoaderFunction, useLoaderData } from 'remix'
-import { Ref, useReducer, useRef, useState, VFC } from 'react'
+import {ReactEventHandler, Ref, useCallback, useEffect, useReducer, useRef, useState, VFC} from 'react'
 import {
   ProductListItem,
   productsFromDB,
@@ -111,10 +111,7 @@ const Products: VFC = () => {
               key={sku}
               className="flex items-center flex-row mb-1 py-1 active:bg-gray-800"
             >
-              <img
-                className="object-cover w-full h-auto w-28"
-                src={image_path}
-              />
+              <Thumbnail src={image_path} />
               <div className="flex flex-col justify-between px-2 leading-normal">
                 <h2 className="mb-1 text-xs tracking-tight truncate w-56">
                   {isProcessing ? (
@@ -171,6 +168,29 @@ const Products: VFC = () => {
 }
 
 export default Products
+
+const Thumbnail: VFC<{ src: string }> = ({ src }) => {
+  const [mounted, setMounted] = useState(false)
+  const [naturalWidth, setNaturalWidth] = useState(70)
+  const [naturalHeight, setNaturalHeight] = useState(100)
+  const onLoad = useCallback<ReactEventHandler<HTMLImageElement>>((e) => {
+    setNaturalHeight(e.currentTarget.naturalHeight)
+    setNaturalWidth(e.currentTarget.naturalWidth)
+  }, [])
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  const isSquare = naturalWidth === naturalHeight
+
+  if (!mounted) return <div style={{ height: 70*1.9, width: 70*1.9 }} />
+
+  return (<img
+    style={{ height: isSquare ? 70*1.9 : 100*1.9, width: 70*1.9, objectFit: 'cover', objectPosition: '100% 100%' }}
+    onLoad={onLoad}
+    src={src}
+    loading="lazy"
+  />)
+}
 
 const downloadedOptions = {
   '': 'any',
