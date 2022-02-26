@@ -5,7 +5,8 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
   const fileURL = formData.get('fileUrl')
   if (request.method === 'POST' && typeof fileURL === 'string') {
-    return await addTorrentFile(fileURL)
+    const res = await addTorrentFile(fileURL)
+    if (res.ok) return { status: 'ok' }
   }
 
   return null

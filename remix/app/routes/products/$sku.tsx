@@ -345,7 +345,7 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
   useEffect(() => {
     dbFetcher.state === 'idle' && handleInputValue('')
   }, [dbFetcher.state])
-  const torrentFileUpload = useFetcher()
+  const torrentFileUpload = useFetcher<null | { status: 'ok' }>()
   const addToTransmission = useCallback(
     (url: string) => {
       torrentFileUpload.submit(
@@ -385,9 +385,16 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
           </div>
         </Form>
       )}
-      {torrentFileUpload.data?.result === 'success' && (
+      {torrentFileUpload.data?.status && (
         <div className="flex items-center bg-blue-500 text-white text-sm font-bold px-4 py-3 mb-2">
-          <p>Added to transmission</p>
+          <a
+            href={`http://${torrentsFetcher.data?.transmissionIp}:9091`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-indigo-700 active:text-indigo-600"
+          >
+            Added to transmission
+          </a>
         </div>
       )}
       {torrentsFetcher.state === 'loading' ? (
