@@ -126,7 +126,7 @@ const Products: VFC = () => {
                   {sku}
                 </p>
                 {maker && (
-                  <p className="mb-1 text-xs tracking-tight text-gray-400">
+                  <p className="mb-1 text-xs tracking-tight text-gray-400 truncate w-56">
                     {
                       <>
                         {maker}
@@ -189,7 +189,7 @@ const Thumbnail: VFC<{ src: string }> = ({ src }) => {
           width: 70 * 1.6,
           height: 100 * 1.6,
           objectFit: isSquare ? 'contain' : 'cover',
-          objectPosition: '100% 100%'
+          ...(!isSquare && { objectPosition: '100% 100%' })
         }}
         src={src}
         loading="lazy"
