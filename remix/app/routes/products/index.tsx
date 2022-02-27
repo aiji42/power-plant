@@ -1,15 +1,6 @@
 import { json, Link, LoaderFunction, useLoaderData } from 'remix'
 import { useInView } from 'react-intersection-observer'
-import {
-  ReactEventHandler,
-  Ref,
-  useCallback,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-  VFC
-} from 'react'
+import { Ref, useEffect, useReducer, useRef, useState, VFC } from 'react'
 import {
   ProductListItem,
   productsFromDB,
@@ -106,25 +97,22 @@ const Products: VFC = () => {
       <Filter />
       <div className="min-h-screen">
         {items.map(
-          (
-            {
-              sku,
-              image_path,
-              name,
-              isProcessing,
-              isDownloaded,
-              casts,
-              maker,
-              series
-            },
-            index
-          ) => (
+          ({
+            sku,
+            image_path,
+            name,
+            isProcessing,
+            isDownloaded,
+            casts,
+            maker,
+            series
+          }) => (
             <Link
               to={`/products/${sku}`}
               key={sku}
               className="flex items-center flex-row mb-1 py-1 active:bg-gray-800"
             >
-              <Thumbnail src={image_path} priority={index < 6} />
+              <Thumbnail src={image_path} />
               <div className="flex flex-col justify-between px-2 leading-normal">
                 <h2 className="mb-1 text-xs tracking-tight truncate w-56">
                   {isProcessing ? (
@@ -182,38 +170,32 @@ const Products: VFC = () => {
 
 export default Products
 
-const Thumbnail: VFC<{ src: string; priority?: boolean }> = ({
-  src,
-  priority = false
-}) => {
-  const [mounted, setMounted] = useState(false)
-  const [naturalWidth, setNaturalWidth] = useState(70)
-  const [naturalHeight, setNaturalHeight] = useState(100)
-  const onLoad = useCallback<ReactEventHandler<HTMLImageElement>>((e) => {
-    setNaturalHeight(e.currentTarget.naturalHeight)
-    setNaturalWidth(e.currentTarget.naturalWidth)
-  }, [])
+const Thumbnail: VFC<{ src: string }> = ({ src }) => {
+  const [isSquare, setIsSquare] = useState(false)
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    rootMargin: '100px'
+  })
+  const imgRef = useRef<HTMLImageElement>(null)
   useEffect(() => {
-    setMounted(true)
-  }, [])
-  const { ref, inView } = useInView({ triggerOnce: true, rootMargin: '100px' })
-  const isSquare = naturalWidth === naturalHeight
-
-  if (!mounted || !inView)
-    return <div ref={ref} style={{ height: 70 * 1.6, width: 70 * 1.6 }} />
+    if (imgRef.current)
+      setIsSquare(imgRef.current.naturalHeight === imgRef.current.naturalWidth)
+  }, [inView])
 
   return (
-    <img
-      style={{
-        height: isSquare ? 70 * 1.6 : 100 * 1.6,
-        width: 70 * 1.6,
-        objectFit: 'cover',
-        objectPosition: '100% 100%'
-      }}
-      onLoad={onLoad}
-      src={src}
-      loading={priority ? 'eager' : 'lazy'}
-    />
+    <span ref={ref}>
+      <img
+        ref={imgRef}
+        style={{
+          objectFit: isSquare ? 'scale-down' : 'cover',
+          objectPosition: '100% 100%'
+        }}
+        width={70 * 1.6}
+        height={100 * 1.6}
+        src={src}
+        loading="lazy"
+      />
+    </span>
   )
 }
 
