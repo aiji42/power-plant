@@ -173,12 +173,11 @@ export default Products
 const Thumbnail: VFC<{ src: string }> = ({ src }) => {
   const [isSquare, setIsSquare] = useState(false)
   const { ref, inView } = useInView({
-    triggerOnce: true,
-    rootMargin: '100px'
+    triggerOnce: true
   })
   const imgRef = useRef<HTMLImageElement>(null)
   useEffect(() => {
-    if (imgRef.current)
+    if (imgRef.current && imgRef.current.naturalHeight > 0)
       setIsSquare(imgRef.current.naturalHeight === imgRef.current.naturalWidth)
   }, [inView])
 
@@ -187,11 +186,11 @@ const Thumbnail: VFC<{ src: string }> = ({ src }) => {
       <img
         ref={imgRef}
         style={{
-          objectFit: isSquare ? 'scale-down' : 'cover',
+          width: 70 * 1.6,
+          height: 100 * 1.6,
+          objectFit: isSquare ? 'contain' : 'cover',
           objectPosition: '100% 100%'
         }}
-        width={70 * 1.6}
-        height={100 * 1.6}
         src={src}
         loading="lazy"
       />
