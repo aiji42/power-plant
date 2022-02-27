@@ -6,7 +6,7 @@ import {
 } from 'remix'
 import { deleteMedia, listMedias } from '~/utils/aws.server'
 import { getURLFromBucketAndKey } from '~/utils/aws'
-import { getTransmissionIp } from '~/utils/transmission.server'
+import { getTransmissionEndpoint } from '~/utils/transmission.server'
 
 type Data = {
   medias: {
@@ -16,7 +16,7 @@ type Data = {
     Size: number
     StorageClass: string
   }[]
-  transmissionIP: string | null
+  transmissionEndpoint: string | null
 }
 
 export const loader: LoaderFunction = async () => {
@@ -24,8 +24,8 @@ export const loader: LoaderFunction = async () => {
 
   return {
     medias: Array.isArray(list) ? list : [],
-    transmissionIP: await getTransmissionIp()
-  }
+    transmissionEndpoint: await getTransmissionEndpoint()
+  } as Data
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -42,7 +42,7 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 const Transmission = () => {
-  const { medias, transmissionIP } = useLoaderData<Data>()
+  const { medias, transmissionEndpoint } = useLoaderData<Data>()
   const { Form } = useFetcher()
 
   return (
@@ -84,7 +84,7 @@ const Transmission = () => {
           ))}
       </Form>
       <div className="sticky bottom-3 mt-5 text-right">
-        {transmissionIP ? (
+        {transmissionEndpoint ? (
           <>
             <div className="mb-2">
               <a
@@ -99,7 +99,7 @@ const Transmission = () => {
             <a
               target="_blank"
               rel="noopener noreferrer"
-              href={`http://${transmissionIP}:9091`}
+              href={transmissionEndpoint}
               className="p-2 bg-indigo-800 active:bg-indigo-600 items-center text-indigo-100 leading-none rounded-full flex inline-flex"
             >
               <span className="flex rounded-full bg-red-500 uppercase px-2 py-1 text-xs font-bold mr-3">

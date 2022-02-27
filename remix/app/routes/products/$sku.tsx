@@ -345,15 +345,15 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
   useEffect(() => {
     dbFetcher.state === 'idle' && handleInputValue('')
   }, [dbFetcher.state])
-  const torrentFileUpload = useFetcher<null | { status: 'ok' }>()
   const addToTransmission = useCallback(
     (url: string) => {
-      torrentFileUpload.submit(
-        { fileUrl: url },
-        { method: 'post', action: '/transmission/torrent-file' }
-      )
+      if (torrentsFetcher.data?.transmissionEndpoint)
+        navigator.clipboard.writeText(url).then(() => {
+          torrentsFetcher.data?.transmissionEndpoint &&
+            open(torrentsFetcher.data.transmissionEndpoint, '_blank')
+        })
     },
-    [torrentFileUpload.submit]
+    [torrentsFetcher.data?.transmissionEndpoint]
   )
 
   const Form = dbFetcher.Form
@@ -385,18 +385,6 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
           </div>
         </Form>
       )}
-      {torrentFileUpload.data?.status && (
-        <div className="flex items-center bg-blue-500 text-white text-sm font-bold px-4 py-3 mb-2">
-          <a
-            href={`http://${torrentsFetcher.data?.transmissionIp}:9091`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-indigo-700 active:text-indigo-600"
-          >
-            Added to transmission
-          </a>
-        </div>
-      )}
       {torrentsFetcher.state === 'loading' ? (
         <div className="text-center mb-4">Loading</div>
       ) : (
@@ -422,7 +410,7 @@ const MediaDownloadForm: VFC<{ dbFetcher: ReturnType<typeof useFetcher> }> = ({
                   <p>size: {size}</p>
                   <p>registered: {registeredAt}</p>
                 </div>
-                {torrentsFetcher.data?.transmissionIp && (
+                {torrentsFetcher.data?.transmissionEndpoint && (
                   <button
                     className="mt-2 text-indigo-500 active:text-indigo-400"
                     type="button"

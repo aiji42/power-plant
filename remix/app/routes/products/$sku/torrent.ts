@@ -2,16 +2,16 @@ import { LoaderFunction } from 'remix'
 import { searchTorrents, SearchedResult } from '~/utils/torrents.server'
 import { formatter } from '~/utils/sku'
 import { cacheable } from '~/utils/kv.server'
-import { getTransmissionIp } from '~/utils/transmission.server'
+import { getTransmissionEndpoint } from '~/utils/transmission.server'
 
 export type TorrentsData = {
-  transmissionIp: string | null
+  transmissionEndpoint: string | null
   items: SearchedResult[]
 }
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   const codes = formatter(sku)
-  const transmissionIp = await getTransmissionIp()
+  const transmissionEndpoint = await getTransmissionEndpoint()
   console.log('torrent search', 'original sku: ', sku, '; search by: ', codes)
   const dataList = await Promise.all(
     codes.map((q) =>
@@ -22,7 +22,7 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   )
 
   return {
-    transmissionIp,
+    transmissionEndpoint,
     items: Object.values(
       dataList.flat().reduce<Record<string, SearchedResult>>(
         (res, item) => ({
