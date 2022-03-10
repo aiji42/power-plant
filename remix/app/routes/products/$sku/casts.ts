@@ -31,9 +31,9 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
       expirationTtl: res.length > 0 ? 3600 * 24 * 3 : 3600
     })
     const searchResults = await Promise.all([
-      cacheable(castFastPromise, `castSearchFast-${code}`, cacheController),
-      cacheable(castMiddlePromise, `castSearchMiddle-${code}`, cacheController),
-      cacheable(castSlowPromise, `castSearchSlow-${code}`, cacheController)
+      cacheable(`castSearchFast-${code}`, castFastPromise, cacheController),
+      cacheable(`castSearchMiddle-${code}`, castMiddlePromise, cacheController),
+      cacheable(`castSearchSlow-${code}`, castSlowPromise, cacheController)
     ])
 
     return {

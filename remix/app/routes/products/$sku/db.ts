@@ -66,9 +66,9 @@ export const action: ActionFunction = async ({ request, params }) => {
     releasedAt,
     maker
   } = await cacheable(
-    searchProductFromSite(code),
     `searchProductFromSite-${code}`,
-    { cacheable: false }
+    searchProductFromSite(code),
+    { cacheable: false } // FIXME: I dont know why cacheable is false
   )
 
   await supabaseClient.from('Product').insert([

@@ -20,6 +20,7 @@
     "aws4fetch": "^1.0.13",
     "chunk": "^0.0.3",
     "fast-xml-parser": "^4.0.3",
+    "kv-cacheable": "^1.1.1",
     "node-html-parser": "^5.2.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

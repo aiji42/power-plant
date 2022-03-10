@@ -33,8 +33,8 @@ type Data = ProductFromSite & DBData
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
   const db = productFromDB(sku)
   const data = await cacheable(
-    searchProductFromSite(sku),
     `searchProductFromSite-${sku}`,
+    searchProductFromSite(sku),
     (res) => ({
       expirationTtl: res.code.length > 0 ? 3600 * 24 * 3 : 0
     })
