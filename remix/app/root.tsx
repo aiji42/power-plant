@@ -166,30 +166,30 @@ const Layout: FC = ({ children }) => {
             <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
               <div className="text-sm lg:flex-grow">
                 <div className="mb-2">
-                  <Link
-                    to="/products?provider=m"
+                  <a
+                    href="/products?provider=m"
                     className="block py-2 active:text-white active:bg-gray-800"
                   >
                     Provider | M
-                  </Link>
-                  <Link
-                    to="/products?provider=f"
+                  </a>
+                  <a
+                    href="/products?provider=f"
                     className="block py-2 active:text-white active:bg-gray-800"
                   >
                     Provider | F
-                  </Link>
-                  <Link
-                    to="/products"
+                  </a>
+                  <a
+                    href="/products"
                     className="block py-2 active:text-white active:bg-gray-800"
                   >
                     Stocks
-                  </Link>
-                  <Link
-                    to="/transmission"
+                  </a>
+                  <a
+                    href="/transmission"
                     className="block py-2 active:text-white active:bg-gray-800"
                   >
                     Transmission
-                  </Link>
+                  </a>
                 </div>
                 <form className="w-full" onSubmit={onSubmit}>
                   <div className="flex items-center border-b border-indigo-500 py-2">
