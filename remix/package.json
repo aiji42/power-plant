@@ -5,7 +5,7 @@
   "license": "",
   "scripts": {
     "build": "cross-env NODE_ENV=production tailwindcss -o ./app/tailwind.css && remix build",
-    "postinstall": "remix setup cloudflare-workers && npx patch-package",
+    "postinstall": "remix setup cloudflare-workers && remix-esbuild-override",
     "dev:remix": "cross-env NODE_ENV=development remix watch",
     "dev:miniflare": "cross-env NODE_ENV=development miniflare ./build/index.js --watch",
     "dev:css": "tailwindcss -o ./app/tailwind.css --watch",
@@ -14,34 +14,34 @@
     "deploy": "npm run build && wrangler publish"
   },
   "dependencies": {
-    "@remix-run/cloudflare-workers": "^1.2.2",
-    "@remix-run/react": "^1.2.2",
-    "@supabase/supabase-js": "^1.30.5",
+    "@remix-run/cloudflare-workers": "^1.3.2",
+    "@remix-run/react": "^1.3.2",
+    "@supabase/supabase-js": "^1.31.1",
     "aws4fetch": "^1.0.13",
     "chunk": "^0.0.3",
-    "fast-xml-parser": "^4.0.3",
+    "fast-xml-parser": "^4.0.7",
     "kv-cacheable": "^1.1.1",
-    "node-html-parser": "^5.2.0",
+    "node-html-parser": "^5.3.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-intersection-observer": "^8.33.1",
-    "react-swipeable": "^6.2.0",
-    "remix": "^1.2.2",
+    "react-swipeable": "^6.2.1",
+    "remix": "^1.3.2",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.4.0",
-    "@remix-run/dev": "^1.2.2",
+    "@remix-run/dev": "^1.3.2",
     "@types/chunk": "^0.0.0",
-    "@types/react": "^17.0.39",
-    "@types/react-dom": "^17.0.9",
+    "@types/react": "^17.0.41",
+    "@types/react-dom": "^17.0.14",
     "@types/uuid": "^8.3.4",
     "cross-env": "^7.0.3",
     "miniflare": "^2.1.0",
     "npm-run-all": "^4.1.5",
-    "patch-package": "^6.4.7",
+    "remix-esbuild-override": "^1.2.0",
     "tailwindcss": "^3.0.23",
-    "typescript": "^4.5.5"
+    "typescript": "^4.6.2"
   },
   "engines": {
     "node": ">=14"
