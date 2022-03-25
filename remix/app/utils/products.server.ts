@@ -92,7 +92,7 @@ export const productsFromF = async (
   return (
     res.items
       .filter(({ iteminfo: { genre } }) =>
-        genre.every(
+        genre?.every(
           ({ id }) =>
             ![3036, 6793, 4060, 35, 6996, 1014, 1032, 4002].includes(id)
         )

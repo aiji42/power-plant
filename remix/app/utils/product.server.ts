@@ -105,7 +105,7 @@ export const productFromF = async (
     length: item.volume.includes(':')
       ? Number(new Date(`1970-01-01T${item.volume.padStart(8, '0')}Z`)) / 60000
       : Number(item.volume),
-    genres: item.iteminfo.genre.map(({ name }) => name)
+    genres: item.iteminfo.genre?.map(({ name }) => name) ?? []
   }
 }
 
