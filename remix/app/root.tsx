@@ -14,6 +14,8 @@ import { useEffect, useContext, ReactNode } from 'react'
 import { withEmotionCache } from '@emotion/react'
 import { Box, ChakraProvider, Heading } from '@chakra-ui/react'
 import { ServerStyleContext, ClientStyleContext } from '~/styles/context'
+import { ColorModeScript } from '@chakra-ui/color-mode/src/color-mode-script'
+import theme from '~/styles/theme'
 
 export let links: LinksFunction = () => {
   return [
@@ -113,6 +115,7 @@ const Document = withEmotionCache(
           ))}
         </head>
         <body>
+          <ColorModeScript initialColorMode={theme.config.initialColorMode} />
           {children}
           <ScrollRestoration />
           <Scripts />

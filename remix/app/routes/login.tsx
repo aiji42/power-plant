@@ -1,5 +1,15 @@
+import {
+  Flex,
+  Box,
+  FormControl,
+  FormLabel,
+  Input,
+  Stack,
+  Button,
+  useColorModeValue
+} from '@chakra-ui/react'
 import { ActionFunction, LoaderFunction } from '@remix-run/cloudflare'
-import { useActionData, Form } from '@remix-run/react'
+import { Form } from '@remix-run/react'
 import { authenticator, supabaseStrategy } from '~/utils/auth.server'
 
 export const loader: LoaderFunction = async ({ request }) =>
@@ -14,45 +24,51 @@ export const action: ActionFunction = async ({ request }) =>
   })
 
 export default function Login() {
-  const actionData = useActionData()
-
   return (
-    <div className="bg-gray-800 w-full h-hull">
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="px-8 py-6 mt-4 text-left bg-gray-800 shadow-lg text-gray-200">
-          <h3 className="text-2xl font-bold text-center">
-            Login to your account
-          </h3>
-          <Form method="post">
-            <div className="mt-4">
-              <div>
-                <label className="block" htmlFor="email">
-                  Email
-                </label>
-                <input
-                  name="email"
-                  type="text"
-                  placeholder="Email"
-                  className="w-full px-4 py-2 mt-2 border rounded-md text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-600"
-                />
-              </div>
-              <div className="mt-4">
-                <label className="block">Password</label>
-                <input
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  className="w-full px-4 py-2 mt-2 border rounded-md text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-600"
-                />
-              </div>
-              <button className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg active:bg-blue-900 w-full">
-                Login
-              </button>
-            </div>
-            <p className="text-gray-200">{actionData?.error}</p>
-          </Form>
-        </div>
-      </div>
-    </div>
+    <Flex
+      minH={'100vh'}
+      align={'center'}
+      justify={'center'}
+      bg={useColorModeValue('gray.50', 'gray.800')}
+      p={8}
+    >
+      <Box
+        w="full"
+        maxW={'2xl'}
+        rounded={'lg'}
+        bg={useColorModeValue('white', 'gray.700')}
+        boxShadow={'lg'}
+        p={8}
+      >
+        <Form method="post">
+          <Stack spacing={4}>
+            <FormControl id="email">
+              <FormLabel>Email address</FormLabel>
+              <Input type="email" name="email" />
+            </FormControl>
+            <FormControl id="password">
+              <FormLabel>Password</FormLabel>
+              <Input type="password" name="password" />
+            </FormControl>
+            <Button
+              type="submit"
+              w={'full'}
+              bg={'green.400'}
+              color={'white'}
+              rounded={'md'}
+              boxShadow={'0 5px 20px 0px rgb(72 187 120 / 43%)'}
+              _hover={{
+                bg: 'green.500'
+              }}
+              _focus={{
+                bg: 'green.500'
+              }}
+            >
+              Sign in
+            </Button>
+          </Stack>
+        </Form>
+      </Box>
+    </Flex>
   )
 }
