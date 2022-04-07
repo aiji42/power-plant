@@ -1,4 +1,5 @@
-import { json, Link, LoaderFunction, useLoaderData } from 'remix'
+import { json, LoaderFunction } from '@remix-run/cloudflare'
+import { Link, useLoaderData } from '@remix-run/react'
 import { useInView } from 'react-intersection-observer'
 import { Ref, useEffect, useReducer, useRef, useState, VFC } from 'react'
 import {

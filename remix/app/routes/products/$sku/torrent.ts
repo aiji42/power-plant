@@ -1,4 +1,4 @@
-import { LoaderFunction } from 'remix'
+import { LoaderFunction } from '@remix-run/cloudflare'
 import { searchTorrents, SearchedResult } from '~/utils/torrents.server'
 import { formatter } from '~/utils/sku'
 import { cacheable } from '~/utils/kv.server'

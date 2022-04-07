@@ -1,11 +1,5 @@
-import {
-  useActionData,
-  Form,
-  ActionFunction,
-  redirect,
-  useLocation,
-  useSubmit
-} from 'remix'
+import { ActionFunction, redirect } from '@remix-run/cloudflare'
+import { useActionData, Form, useLocation, useSubmit } from '@remix-run/react'
 import { supabaseClient } from '~/utils/supabase.server'
 import { commitSession, getSession } from '~/utils/session.server'
 import { useEffect } from 'react'

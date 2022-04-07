@@ -1,9 +1,5 @@
-import {
-  ActionFunction,
-  LoaderFunction,
-  useFetcher,
-  useLoaderData
-} from 'remix'
+import { ActionFunction, LoaderFunction } from '@remix-run/cloudflare'
+import { useFetcher, useLoaderData } from '@remix-run/react'
 import { deleteMedia, listMedias } from '~/utils/aws.server'
 import { getURLFromBucketAndKey } from '~/utils/aws'
 import { getTransmissionEndpoint } from '~/utils/transmission.server'

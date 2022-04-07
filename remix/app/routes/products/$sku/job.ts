@@ -1,4 +1,4 @@
-import { LoaderFunction } from 'remix'
+import { LoaderFunction } from '@remix-run/cloudflare'
 import { productFromDB } from '~/utils/product.server'
 import {
   JobSummary,

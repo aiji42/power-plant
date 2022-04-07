@@ -1,4 +1,4 @@
-import { ActionFunction } from 'remix'
+import { ActionFunction } from '@remix-run/cloudflare'
 import { supabaseClient } from '~/utils/supabase.server'
 import { DBData, searchProductFromSite } from '~/utils/product.server'
 import { v4 as uuidv4 } from 'uuid'

@@ -1,4 +1,4 @@
-import { ActionFunction, LoaderFunction } from 'remix'
+import { ActionFunction, LoaderFunction } from '@remix-run/cloudflare'
 import { formatter } from '~/utils/sku'
 import {
   Casts,

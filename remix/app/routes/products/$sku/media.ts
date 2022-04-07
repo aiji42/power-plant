@@ -1,4 +1,4 @@
-import { ActionFunction, json, LoaderFunction } from 'remix'
+import { ActionFunction, json, LoaderFunction } from '@remix-run/cloudflare'
 import { getMediaMeta, MediaMetaData } from '~/utils/media.server'
 import { productFromDB } from '~/utils/product.server'
 import { deleteMedia, submitCompressionJob } from '~/utils/aws.server'

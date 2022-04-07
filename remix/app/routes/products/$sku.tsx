@@ -1,10 +1,5 @@
-import {
-  LoaderFunction,
-  useFetcher,
-  useLoaderData,
-  redirect,
-  Link
-} from 'remix'
+import { useFetcher, useLoaderData, Link } from '@remix-run/react'
+import { LoaderFunction, redirect } from '@remix-run/cloudflare'
 import {
   ChangeEvent,
   ChangeEventHandler,

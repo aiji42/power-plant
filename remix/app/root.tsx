@@ -1,17 +1,16 @@
+import { LoaderFunction, MetaFunction, redirect } from '@remix-run/cloudflare'
 import {
-  Link,
   Links,
   LiveReload,
-  LoaderFunction,
   Meta,
   Outlet,
-  redirect,
   Scripts,
   ScrollRestoration,
   useCatch,
   useLocation
-} from 'remix'
-import type { LinksFunction } from 'remix'
+} from '@remix-run/react'
+
+import { LinksFunction } from '@remix-run/react/routeModules'
 import style from '~/tailwind.css'
 import {
   ChangeEvent,
@@ -27,6 +26,13 @@ import { getSession } from '~/utils/session.server'
 export let links: LinksFunction = () => {
   return [{ rel: 'stylesheet', href: style }]
 }
+
+export const meta: MetaFunction = () => ({
+  charset: 'utf-8',
+  title: 'Frontend Performance Contest 2022',
+  viewport: 'width=device-width,initial-scale=1',
+  robots: 'noindex,nofollow'
+})
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
@@ -115,12 +121,6 @@ function Document({
   return (
     <html lang="ja">
       <head>
-        <meta charSet="utf-8" />
-        <meta
-          name="viewport"
-          content="width=device-width,initial-scale=1,maximum-scale=1.0"
-        />
-        <meta name="robots" content="noindex,nofollow" />
         {title ?? <title>{title}</title>}
         <Meta />
         <Links />
