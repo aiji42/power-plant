@@ -103,7 +103,7 @@ const Document = withEmotionCache(
     return (
       <html lang="ja">
         <head>
-          {title ?? <title>{title}</title>}
+          {title ? <title>{title}</title> : null}
           <Meta />
           <Links />
           {serverStyleData?.map(({ key, ids, css }) => (
