@@ -18,10 +18,10 @@ import {
   DBData,
   searchProductFromSite
 } from '~/utils/product.server'
-import { CastsData } from '~/routes/products/$sku/casts'
+import { CastsData } from '~/routes/__layout/products/$sku/casts'
 import { cacheable } from '~/utils/kv.server'
-import { JobListData } from '~/routes/products/$sku/job'
-import { MediaData } from '~/routes/products/$sku/media'
+import { JobListData } from '~/routes/__layout/products/$sku/job'
+import { MediaData } from '~/routes/__layout/products/$sku/media'
 
 type Data = ProductFromSite & DBData
 

@@ -1,4 +1,4 @@
-import { LoaderFunction, MetaFunction, redirect } from '@remix-run/cloudflare'
+import { MetaFunction } from '@remix-run/cloudflare'
 import {
   Links,
   LiveReload,
@@ -6,209 +6,122 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useCatch,
-  useLocation
+  useCatch
 } from '@remix-run/react'
-
 import { LinksFunction } from '@remix-run/react/routeModules'
 import style from '~/tailwind.css'
-import {
-  ChangeEvent,
-  FC,
-  FormEventHandler,
-  useCallback,
-  useEffect,
-  useReducer
-} from 'react'
-import { supabaseClient } from '~/utils/supabase.server'
-import { getSession } from '~/utils/session.server'
+import { useEffect, useContext, ReactNode } from 'react'
+import { withEmotionCache } from '@emotion/react'
+import { Box, ChakraProvider, Heading } from '@chakra-ui/react'
+import { ServerStyleContext, ClientStyleContext } from '~/styles/context'
+import { ColorModeScript } from '@chakra-ui/color-mode/src/color-mode-script'
+import theme from '~/styles/theme'
 
 export let links: LinksFunction = () => {
-  return [{ rel: 'stylesheet', href: style }]
+  return [
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    { rel: 'preconnect', href: 'https://fonts.gstaticom' },
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap'
+    },
+    { rel: 'stylesheet', href: style }
+  ]
 }
 
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
-  title: 'Frontend Performance Contest 2022',
+  title: 'Power Plant',
   viewport: 'width=device-width,initial-scale=1',
   robots: 'noindex,nofollow'
 })
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const url = new URL(request.url)
-  const session = await getSession(request.headers.get('Cookie'))
-  const { user } = await supabaseClient.auth.api.getUser(
-    session.get('access_token')
-  )
-  if (url.pathname !== '/' && !user && process.env.NODE_ENV === 'production')
-    return redirect('/')
-  if (url.pathname === '/' && user) return redirect('/products')
-
-  return { user }
-}
-
 export default function App() {
   return (
     <Document>
-      <Layout>
+      <ChakraProvider>
         <Outlet />
-      </Layout>
+      </ChakraProvider>
     </Document>
   )
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
-  console.error(error)
   return (
     <Document title="Error!">
-      <Layout>
-        <div>
-          <h1>There was an error</h1>
-          <p>{error.message}</p>
-          <hr />
-          <p>
-            Hey, developer, you should replace this with what you want your
-            users to see.
-          </p>
-        </div>
-      </Layout>
+      <ChakraProvider>
+        <Box>
+          <Heading as="h1" bg="blue.500">
+            [ErrorBoundary]: There was an error: {error.message}
+          </Heading>
+        </Box>
+      </ChakraProvider>
     </Document>
   )
 }
 
 export function CatchBoundary() {
-  let caught = useCatch()
-
-  let message
-  switch (caught.status) {
-    case 401:
-      message = (
-        <p>
-          Oops! Looks like you tried to visit a page that you do not have access
-          to.
-        </p>
-      )
-      break
-    case 404:
-      message = (
-        <p>Oops! Looks like you tried to visit a page that does not exist.</p>
-      )
-      break
-
-    default:
-      throw new Error(caught.data || caught.statusText)
-  }
+  const caught = useCatch()
 
   return (
     <Document title={`${caught.status} ${caught.statusText}`}>
-      <Layout>
-        <h1>
-          {caught.status}: {caught.statusText}
-        </h1>
-        {message}
-      </Layout>
+      <ChakraProvider>
+        <Box>
+          <Heading as="h1" bg="purple.600">
+            [CatchBoundary]: {caught.status} {caught.statusText}
+          </Heading>
+        </Box>
+      </ChakraProvider>
     </Document>
   )
 }
 
-function Document({
-  children,
-  title
-}: {
-  children: React.ReactNode
+interface DocumentProps {
+  children: ReactNode
   title?: string
-}) {
-  return (
-    <html lang="ja">
-      <head>
-        {title ?? <title>{title}</title>}
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
-      </body>
-    </html>
-  )
 }
 
-const Layout: FC = ({ children }) => {
-  const [open, handleOpen] = useReducer((s: boolean, a: boolean) => a, false)
-  const [value, onChange] = useReducer(
-    (s: string, e: ChangeEvent<HTMLInputElement>) => {
-      return e.target.value
-    },
-    ''
-  )
-  const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
-    (e) => {
-      e.preventDefault()
-      location.href = `/products/${value.trim()}`
-    },
-    [value]
-  )
-  const href = useLocation()
-  useEffect(() => {
-    open && handleOpen(false)
-  }, [href.key])
-  return (
-    <div className="bg-gray-900 text-gray-200 min-h-screen">
-      <header
-        className="sticky top-0 mb-2 bg-gray-900"
-        onClick={() => handleOpen(true)}
-      >
-        <nav className="flex items-center justify-between flex-wrap p-2 px-4 border-b border-gray-500">
-          <div className="flex items-center m-auto text-xl">POWER PLANT</div>
-          {open && (
-            <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
-              <div className="text-sm lg:flex-grow">
-                <div className="mb-2">
-                  <a
-                    href="/products?provider=m"
-                    className="block py-2 active:text-white active:bg-gray-800"
-                  >
-                    Provider | M
-                  </a>
-                  <a
-                    href="/products?provider=f"
-                    className="block py-2 active:text-white active:bg-gray-800"
-                  >
-                    Provider | F
-                  </a>
-                  <a
-                    href="/products"
-                    className="block py-2 active:text-white active:bg-gray-800"
-                  >
-                    Stocks
-                  </a>
-                  <a
-                    href="/transmission"
-                    className="block py-2 active:text-white active:bg-gray-800"
-                  >
-                    Transmission
-                  </a>
-                </div>
-                <form className="w-full" onSubmit={onSubmit}>
-                  <div className="flex items-center border-b border-indigo-500 py-2">
-                    <input
-                      className="appearance-none bg-transparent border-none w-full mr-3 py-2 px-2 leading-tight focus:outline-none"
-                      type="text"
-                      onChange={onChange}
-                    />
-                    <button className="flex-shrink-0 text-sm text-indigo-500 active:text-indigo-400 active:bg-gray-800 py-1 px-2">
-                      Jump
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-        </nav>
-      </header>
-      <div className="p-1">{children}</div>
-    </div>
-  )
-}
+const Document = withEmotionCache(
+  ({ children, title }: DocumentProps, emotionCache) => {
+    const serverStyleData = useContext(ServerStyleContext)
+    const clientStyleData = useContext(ClientStyleContext)
+
+    // Only executed on client
+    useEffect(() => {
+      // re-link sheet container
+      emotionCache.sheet.container = document.head
+      // re-inject tags
+      const tags = emotionCache.sheet.tags
+      emotionCache.sheet.flush()
+      tags.forEach((tag) => {
+        ;(emotionCache.sheet as any)._insertTag(tag)
+      })
+      // reset cache to reapply global styles
+      clientStyleData?.reset()
+    }, [])
+
+    return (
+      <html lang="ja">
+        <head>
+          {title ? <title>{title}</title> : null}
+          <Meta />
+          <Links />
+          {serverStyleData?.map(({ key, ids, css }) => (
+            <style
+              key={key}
+              data-emotion={`${key} ${ids.join(' ')}`}
+              dangerouslySetInnerHTML={{ __html: css }}
+            />
+          ))}
+        </head>
+        <body>
+          <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </body>
+      </html>
+    )
+  }
+)
