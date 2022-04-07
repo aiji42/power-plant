@@ -1,32 +1,17 @@
-import { ActionFunction, redirect } from '@remix-run/cloudflare'
+import { ActionFunction, LoaderFunction } from '@remix-run/cloudflare'
 import { useActionData, Form } from '@remix-run/react'
-import { supabaseClient } from '~/utils/supabase.server'
-import { commitSession, getSession } from '~/utils/session.server'
+import { authenticator, supabaseStrategy } from '~/utils/auth.server'
 
-export const action: ActionFunction = async ({ request }) => {
-  const form = await request.formData()
-  let token: string | null = null
-  if (form.has('email') && form.has('password')) {
-    const email = form.get('email') as string
-    const password = form.get('password') as string
-
-    const { session: user, error } = await supabaseClient.auth.signIn({
-      email,
-      password
-    })
-
-    if (!user || error) return { user, error: error?.message }
-    token = user.access_token
-  }
-
-  const session = await getSession(request.headers.get('Cookie'))
-  session.set('access_token', token)
-  return redirect('/products', {
-    headers: {
-      'Set-Cookie': await commitSession(session)
-    }
+export const loader: LoaderFunction = async ({ request }) =>
+  supabaseStrategy.checkSession(request, {
+    successRedirect: '/products'
   })
-}
+
+export const action: ActionFunction = async ({ request }) =>
+  authenticator.authenticate('sb', request, {
+    successRedirect: '/products',
+    failureRedirect: '/login'
+  })
 
 export default function Login() {
   const actionData = useActionData()

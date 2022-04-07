@@ -7,19 +7,13 @@ import {
   useReducer
 } from 'react'
 import { useLocation, Outlet } from '@remix-run/react'
-import { LoaderFunction, redirect } from '@remix-run/cloudflare'
-import { getSession } from '~/utils/session.server'
-import { supabaseClient } from '~/utils/supabase.server'
+import { LoaderFunction } from '@remix-run/cloudflare'
+import { supabaseStrategy } from '~/utils/auth.server'
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const session = await getSession(request.headers.get('Cookie'))
-  const { user } = await supabaseClient.auth.api.getUser(
-    session.get('access_token')
-  )
-  if (!user) return redirect('/login')
-
-  return { user }
-}
+export const loader: LoaderFunction = async ({ request }) =>
+  supabaseStrategy.checkSession(request, {
+    failureRedirect: '/login'
+  })
 
 const Layout: FC = ({ children }) => {
   const [open, handleOpen] = useReducer((s: boolean, a: boolean) => a, false)

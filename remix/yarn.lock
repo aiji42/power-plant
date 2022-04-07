@@ -3473,12 +3473,22 @@ internal-slot@^1.0.3:
     has "^1.0.3"
     side-channel "^1.0.4"
 
+intl-parse-accept-language@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/intl-parse-accept-language/-/intl-parse-accept-language-1.0.0.tgz#204d1bc0b13c5baea7775f5eeb95bef2b795675c"
+  integrity sha512-YFMSV91JNBOSjw1cOfw2tup6hDP7mkz+2AUV7W1L1AM6ntgI75qC1ZeFpjPGMrWp+upmBRTX2fJWQ8c7jsUWpA==
+
 invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
   integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
   dependencies:
     loose-envify "^1.0.0"
+
+ip-regex@^4.0.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-4.3.0.tgz#687275ab0f57fa76978ff8f4dddc8a23d5990db5"
+  integrity sha512-B9ZWJxHHOHUhUjCPrMpLD4xEq35bUTClHM1S6CBU5ixQnkZmwipwgc96vAd7AAGM9TGHvJR+Uss+/Ak6UphK+Q==
 
 ipaddr.js@1.9.1:
   version "1.9.1"
@@ -3597,6 +3607,13 @@ is-interactive@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/is-interactive/-/is-interactive-1.0.0.tgz#cea6e6ae5c870a7b0a0004070b7b587e0252912e"
   integrity sha512-2HvIEKRoqS62guEC+qBjpvRubdX910WCMuJTZ+I9yvqKU2/12eSL549HMwtabb4oupdj2sMP50k+XJfB/8JE6w==
+
+is-ip@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/is-ip/-/is-ip-3.1.0.tgz#2ae5ddfafaf05cb8008a62093cf29734f657c5d8"
+  integrity sha512-35vd5necO7IitFPjd/YBeqwWnyDWbuLH9ZXQdMfDA8TEo7pv5X8yfrvVO3xbJbLUlERCMvf6X0hTUamQxCYJ9Q==
+  dependencies:
+    ip-regex "^4.0.0"
 
 is-negative-zero@^2.0.1:
   version "2.0.2"
@@ -5326,10 +5343,36 @@ remark-rehype@^9.0.0:
     mdast-util-to-hast "^11.0.0"
     unified "^10.0.0"
 
+remix-auth-supabase@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/remix-auth-supabase/-/remix-auth-supabase-3.1.0.tgz#1e1bb420d1ff614ed44579599f8a033d70db8d05"
+  integrity sha512-tRlnVkxJG3H72E1Ed2ylJCBWL6zwXKlMzj1bl1Gc7mYrFvO3jTrg25x6uBKSv9G962j877MktWiRk1abKyu+9w==
+  dependencies:
+    remix-auth "^3.2.1"
+
+remix-auth@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/remix-auth/-/remix-auth-3.2.1.tgz#6252246eef1016de2c9f426b1fd8c5a2689dfb09"
+  integrity sha512-5N5ZjKCYGjbRmMi9PQwngKuuGkBEfny0Q4iXyTrDxQhSzAbQ/+wHX+ZKGdneYWHULZJCRZbjSmyrjk/rJxGFlw==
+  dependencies:
+    remix-utils "^2.2.0"
+    uuid "^8.3.2"
+
 remix-esbuild-override@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/remix-esbuild-override/-/remix-esbuild-override-3.0.2.tgz#1e1bf43de48c5b685774f3af71241c10bafeb87c"
   integrity sha512-LmL1moauiNTVZheUOXos8QIlj+yNRyJVwpNAPtlF0BpmB1WWpvAiIYwdf7ewiJRnOKTFDqEExVtwB+4iUDN83Q==
+
+remix-utils@^2.2.0:
+  version "2.11.1"
+  resolved "https://registry.yarnpkg.com/remix-utils/-/remix-utils-2.11.1.tgz#a4e6d61c594f166e8bdc78ba089a2e1b55802654"
+  integrity sha512-6Nvb2v/vL4UjHeMO/KbJ73t4jr48qdH1nKAWAuGqCly+3Dcrj8Gt8ITOQ0Di7IL4R5o3kgWchdx520Hcr9ICKg==
+  dependencies:
+    intl-parse-accept-language "^1.0.0"
+    is-ip "^3.1.0"
+    schema-dts "^1.1.0"
+    type-fest "^2.5.2"
+    uuid "^8.3.2"
 
 resolve-alpn@^1.0.0:
   version "1.2.1"
@@ -5460,6 +5503,11 @@ scheduler@^0.21.0:
   integrity sha512-1r87x5fz9MXqswA2ERLo0EbOAU74DpIUO090gIasYTqlVoJeMcl+Z1Rg7WHz+qtPujhS/hGIt9kxZOYBV3faRQ==
   dependencies:
     loose-envify "^1.1.0"
+
+schema-dts@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/schema-dts/-/schema-dts-1.1.0.tgz#33227971076ef1daa33e56a3127a8aae030e81c9"
+  integrity sha512-vdmbs/5ycj4zyKpZIDqTcy+IZi4s7c38RVAYuDmRi7zgxUT8wRWPMLzg0jr7FjdVunYu9yZ00F3+XcZTTFcTOQ==
 
 selfsigned@^2.0.0:
   version "2.0.0"
@@ -6001,6 +6049,11 @@ type-fest@^0.8.1:
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.8.1.tgz#09e249ebde851d3b1e48d27c105444667f17b83d"
   integrity sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==
+
+type-fest@^2.5.2:
+  version "2.12.2"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.12.2.tgz#80a53614e6b9b475eb9077472fb7498dc7aa51d0"
+  integrity sha512-qt6ylCGpLjZ7AaODxbpyBZSs9fCI9SkL3Z9q2oxMBQhs/uyY+VD8jHA8ULCGmWQJlBgqvO3EJeAngOHD8zQCrQ==
 
 type-is@~1.6.18:
   version "1.6.18"
