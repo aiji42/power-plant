@@ -1,12 +1,21 @@
+import { useEffect, ReactNode } from 'react'
 import {
-  ChangeEvent,
-  FC,
-  FormEventHandler,
-  useCallback,
-  useEffect,
-  useReducer
-} from 'react'
-import { useLocation, Outlet } from '@remix-run/react'
+  useLocation,
+  Outlet,
+  Link as RemixLink,
+  useFetcher
+} from '@remix-run/react'
+import {
+  Box,
+  useDisclosure,
+  useColorModeValue,
+  Center,
+  Stack,
+  Container,
+  FormControl,
+  Input,
+  Button
+} from '@chakra-ui/react'
 import { LoaderFunction } from '@remix-run/cloudflare'
 import { supabaseStrategy } from '~/utils/auth.server'
 
@@ -15,84 +24,80 @@ export const loader: LoaderFunction = async ({ request }) =>
     failureRedirect: '/login'
   })
 
-const Layout: FC = ({ children }) => {
-  const [open, handleOpen] = useReducer((s: boolean, a: boolean) => a, false)
-  const [value, onChange] = useReducer(
-    (s: string, e: ChangeEvent<HTMLInputElement>) => {
-      return e.target.value
-    },
-    ''
-  )
-  const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
-    (e) => {
-      e.preventDefault()
-      location.href = `/products/${value.trim()}`
-    },
-    [value]
-  )
-  const href = useLocation()
+const Links = [
+  { href: '/products', children: 'Products' },
+  { href: '/transmission', children: 'Transmission' }
+]
+
+const NavLink = (props: { children: ReactNode; href: string }) => (
+  <RemixLink to={props.href}>
+    <Box
+      px={2}
+      py={1}
+      rounded={'md'}
+      _hover={{
+        textDecoration: 'none',
+        bg: useColorModeValue('gray.200', 'gray.700')
+      }}
+    >
+      {props.children}
+    </Box>
+  </RemixLink>
+)
+
+export default function Layout() {
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const location = useLocation()
   useEffect(() => {
-    open && handleOpen(false)
-  }, [href.key])
+    onClose()
+  }, [location, onClose])
+  const { Form } = useFetcher()
+
   return (
-    <div className="bg-gray-900 text-gray-200 min-h-screen">
-      <header
-        className="sticky top-0 mb-2 bg-gray-900"
-        onClick={() => handleOpen(true)}
+    <Container p={0}>
+      <Box
+        position="sticky"
+        top={0}
+        bg={useColorModeValue('gray.100', 'gray.900')}
       >
-        <nav className="flex items-center justify-between flex-wrap p-2 px-4 border-b border-gray-500">
-          <div className="flex items-center m-auto text-xl">POWER PLANT</div>
-          {open && (
-            <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
-              <div className="text-sm lg:flex-grow">
-                <div className="mb-2">
-                  <a
-                    href="/products?provider=m"
-                    className="block py-2 active:text-white active:bg-gray-800"
-                  >
-                    Provider | M
-                  </a>
-                  <a
-                    href="/products?provider=f"
-                    className="block py-2 active:text-white active:bg-gray-800"
-                  >
-                    Provider | F
-                  </a>
-                  <a
-                    href="/products"
-                    className="block py-2 active:text-white active:bg-gray-800"
-                  >
-                    Stocks
-                  </a>
-                  <a
-                    href="/transmission"
-                    className="block py-2 active:text-white active:bg-gray-800"
-                  >
-                    Transmission
-                  </a>
-                </div>
-                <form className="w-full" onSubmit={onSubmit}>
-                  <div className="flex items-center border-b border-indigo-500 py-2">
-                    <input
-                      className="appearance-none bg-transparent border-none w-full mr-3 py-2 px-2 leading-tight focus:outline-none"
-                      type="text"
-                      onChange={onChange}
-                    />
-                    <button className="flex-shrink-0 text-sm text-indigo-500 active:text-indigo-400 active:bg-gray-800 py-1 px-2">
-                      Jump
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-        </nav>
-      </header>
-      <div className="p-1">
+        <Center h={12}>
+          <Box onClick={isOpen ? onClose : onOpen}>POWER PLANT</Box>
+        </Center>
+
+        {isOpen ? (
+          <Box pb={4} px={2}>
+            <Stack as={'nav'} spacing={2}>
+              {Links.map((link) => (
+                <NavLink {...link} key={link.href} />
+              ))}
+              <Form method="post" action="/products/search-code">
+                <FormControl>
+                  <Input
+                    placeholder="code"
+                    _placeholder={{ color: 'gray.500' }}
+                    type="text"
+                    name="code"
+                    required
+                  />
+                </FormControl>
+                <Button
+                  mt={2}
+                  w="full"
+                  type="submit"
+                  colorScheme="purple"
+                  color={'white'}
+                >
+                  Jump
+                </Button>
+              </Form>
+            </Stack>
+          </Box>
+        ) : null}
+      </Box>
+
+      <Box>
         <Outlet />
-      </div>
-    </div>
+      </Box>
+    </Container>
   )
 }
-
-export default Layout
