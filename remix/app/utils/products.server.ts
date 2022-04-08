@@ -7,7 +7,7 @@ export type ProductListItem = {
   name: string
   casts?: string[]
   isDownloaded?: boolean
-  isProcessing?: string
+  isProcessing?: boolean
   maker?: string
   series?: string
 }
