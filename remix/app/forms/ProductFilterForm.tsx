@@ -15,12 +15,10 @@ export const handler: ActionFunction = async ({ request }) => {
   const download = data.get('download') as string
   const sort = data.get('sort') as 'newer' | 'older'
   const keyword = data.get('keyword') as string
-  const page = data.get('page') as string
 
   throw redirect(
     `/products?${new URLSearchParams({
       provider,
-      page,
       download,
       sort,
       keyword
@@ -34,13 +32,12 @@ export type Data = {
     download: string
     sort: string
     keyword: string
-    page: string
   }
 }
 
 const Form = forwardRef<HTMLFormElement>(({}, ref) => {
   const {
-    filterFormData: { provider, download, sort, keyword, page }
+    filterFormData: { provider, download, sort, keyword }
   } = useLoaderData<Data>()
 
   return (
@@ -88,8 +85,6 @@ const Form = forwardRef<HTMLFormElement>(({}, ref) => {
           defaultValue={keyword}
         />
       </FormControl>
-
-      <input type="hidden" name="page" value={page} />
     </RemixForm>
   )
 })
