@@ -53,7 +53,12 @@ export const loader: LoaderFunction = async ({ request }) => {
   } as Data
 }
 
-export const action: ActionFunction = (params) => handler(params)
+export const action: ActionFunction = async ({ request }) => {
+  const data = await request.formData()
+  handler(data)
+
+  return null
+}
 
 const Products: VFC = () => {
   const { items } = useLoaderData<Data>()

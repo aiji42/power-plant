@@ -1,23 +1,16 @@
 import { useEffect, ReactNode } from 'react'
-import {
-  useLocation,
-  Outlet,
-  Link as RemixLink,
-  useFetcher
-} from '@remix-run/react'
+import { useLocation, Outlet, Link as RemixLink } from '@remix-run/react'
 import {
   Box,
   useDisclosure,
   useColorModeValue,
   Center,
   Stack,
-  Container,
-  FormControl,
-  Input,
-  Button
+  Container
 } from '@chakra-ui/react'
 import { LoaderFunction } from '@remix-run/cloudflare'
 import { supabaseStrategy } from '~/utils/auth.server'
+import SearchCodeForm from '~/forms/SearchCode'
 
 export const loader: LoaderFunction = async ({ request }) =>
   supabaseStrategy.checkSession(request, {
@@ -51,7 +44,6 @@ export default function Layout() {
   useEffect(() => {
     onClose()
   }, [location, onClose])
-  const { Form } = useFetcher()
 
   return (
     <Container p={0}>
@@ -70,26 +62,7 @@ export default function Layout() {
               {Links.map((link) => (
                 <NavLink {...link} key={link.href} />
               ))}
-              <Form method="post" action="/products/search-code">
-                <FormControl>
-                  <Input
-                    placeholder="code"
-                    _placeholder={{ color: 'gray.500' }}
-                    type="text"
-                    name="code"
-                    required
-                  />
-                </FormControl>
-                <Button
-                  mt={2}
-                  w="full"
-                  type="submit"
-                  colorScheme="purple"
-                  color={'white'}
-                >
-                  Jump
-                </Button>
-              </Form>
+              <SearchCodeForm action="/products/code" />
             </Stack>
           </Box>
         ) : null}

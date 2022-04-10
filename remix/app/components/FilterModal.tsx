@@ -15,10 +15,10 @@ import ProductFilterForm from '~/forms/ProductFilterForm'
 
 export const FilterModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const locatiion = useLocation()
+  const location = useLocation()
   useEffect(() => {
     onClose()
-  }, [locatiion, onClose])
+  }, [location, onClose])
   const fetcher = useFetcher()
   const ref = useRef<HTMLFormElement>(null)
   return (
@@ -45,7 +45,6 @@ export const FilterModal = () => {
           <ModalFooter>
             <Button
               colorScheme="purple"
-              color="white"
               mr={3}
               onClick={() => ref.current && fetcher.submit(ref.current)}
             >

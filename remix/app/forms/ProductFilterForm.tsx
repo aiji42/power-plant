@@ -6,11 +6,11 @@ import {
   SimpleGrid
 } from '@chakra-ui/react'
 import { useLoaderData, Form as RemixForm } from '@remix-run/react'
-import { ActionFunction, redirect } from '@remix-run/cloudflare'
+import { redirect } from '@remix-run/cloudflare'
 import { forwardRef } from 'react'
 
-export const handler: ActionFunction = async ({ request }) => {
-  const data = await request.formData()
+export const handler = (data: FormData) => {
+  if (!data.has('provider')) return
   const provider = data.get('provider') as string
   const download = data.get('download') as string
   const sort = data.get('sort') as 'newer' | 'older'
