@@ -14,7 +14,7 @@ import { useEffect, useContext, ReactNode } from 'react'
 import { withEmotionCache } from '@emotion/react'
 import { Box, ChakraProvider, Heading } from '@chakra-ui/react'
 import { ServerStyleContext, ClientStyleContext } from '~/styles/context'
-import { ColorModeScript } from '@chakra-ui/color-mode/src/color-mode-script'
+import { ColorModeScript } from '@chakra-ui/react/dist/chakra-ui-react.cjs'
 import theme from '~/styles/theme'
 
 export let links: LinksFunction = () => {
