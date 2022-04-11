@@ -14,7 +14,6 @@ import { useEffect, useContext, ReactNode } from 'react'
 import { withEmotionCache } from '@emotion/react'
 import { Box, ChakraProvider, Heading } from '@chakra-ui/react'
 import { ServerStyleContext, ClientStyleContext } from '~/styles/context'
-import { ColorModeScript } from '@chakra-ui/react/dist/chakra-ui-react.cjs'
 import theme from '~/styles/theme'
 
 export let links: LinksFunction = () => {
@@ -39,7 +38,7 @@ export const meta: MetaFunction = () => ({
 export default function App() {
   return (
     <Document>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <Outlet />
       </ChakraProvider>
     </Document>
@@ -49,7 +48,7 @@ export default function App() {
 export function ErrorBoundary({ error }: { error: Error }) {
   return (
     <Document title="Error!">
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <Box>
           <Heading as="h1" bg="blue.500">
             [ErrorBoundary]: There was an error: {error.message}
@@ -65,7 +64,7 @@ export function CatchBoundary() {
 
   return (
     <Document title={`${caught.status} ${caught.statusText}`}>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <Box>
           <Heading as="h1" bg="purple.600">
             [CatchBoundary]: {caught.status} {caught.statusText}
@@ -115,7 +114,6 @@ const Document = withEmotionCache(
           ))}
         </head>
         <body>
-          <ColorModeScript initialColorMode={theme.config.initialColorMode} />
           {children}
           <ScrollRestoration />
           <Scripts />
