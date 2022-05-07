@@ -58,10 +58,9 @@ const relationMapping = {
 const tableMapping = {
   Product: 'Product'
 }
-
 prepare({
-  endpoint: process.env.SUPABASE_URL ?? '',
-  apikey: process.env.SUPABASE_API_KEY ?? '',
+  endpoint: process.env.SUPABASE_URL,
+  apikey: process.env.SUPABASE_API_KEY,
   //@ts-ignore
   fetch,
   modelMap: {
