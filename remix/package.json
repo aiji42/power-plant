@@ -25,7 +25,7 @@
     "@remix-run/cloudflare": "^1.4.3",
     "@remix-run/cloudflare-workers": "^1.4.3",
     "@remix-run/react": "^1.4.3",
-    "@sb-prisma/client": "^1.0.3",
+    "@sb-prisma/client": "^1.2.1",
     "@supabase/supabase-js": "^1.35.2",
     "aws4fetch": "^1.0.13",
     "chunk": "^0.0.3",
@@ -38,8 +38,7 @@
     "react-intersection-observer": "^9.1.0",
     "react-swipeable": "^7.0.0",
     "remix-auth": "^3.2.1",
-    "remix-auth-supabase": "^4.0.0",
-    "uuid": "^8.3.2"
+    "remix-auth-supabase": "^4.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.9.0",
@@ -48,7 +47,6 @@
     "@types/chunk": "^0.0.0",
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.3",
-    "@types/uuid": "^8.3.4",
     "cross-env": "^7.0.3",
     "esbuild-plugin-alias": "^0.2.1",
     "miniflare": "^2.4.0",

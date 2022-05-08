@@ -3,7 +3,7 @@ import { getMediaMeta, MediaMetaData } from '~/utils/media.server'
 import { productFromDB } from '~/utils/product.server'
 import { deleteMedia, submitCompressionJob } from '~/utils/aws.server'
 import { getBucketAndKeyFromURL } from '~/utils/aws'
-import { supabaseClient } from '~/utils/supabase.server'
+import { db, sb } from '~/utils/prisma.server'
 
 export type MediaData = MediaMetaData | null
 
@@ -24,14 +24,12 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   if (request.method === 'DELETE') {
     const newMediaUrls = mediaUrls.filter((src) => src !== url)
-    await supabaseClient
-      .from('Product')
-      .update({
-        mediaUrls: newMediaUrls,
-        isDownloaded: newMediaUrls.length > 0,
-        updatedAt: new Date().toISOString()
+    await sb(
+      db().product.update({
+        where: { code },
+        data: { mediaUrls: newMediaUrls, isDownloaded: newMediaUrls.length > 0 }
       })
-      .match({ code })
+    )
     await deleteMedia(...getBucketAndKeyFromURL(url))
     return null
   }

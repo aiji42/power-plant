@@ -1,5 +1,5 @@
-import { supabaseClient } from '~/utils/supabase.server'
 import { productsSearchFromF } from '~/utils/f.server'
+import { db, sb } from '~/utils/prisma.server'
 
 export type ProductListItem = {
   sku: string
@@ -47,32 +47,57 @@ export const productsFromDB = async (
   page: number,
   order: {
     column: 'releasedAt' | 'createdAt' | string | null
-    sort: 'asc' | 'desc' | string | null
+    sort: 'asc' | 'desc' | null
   },
   filter?: {
     keyword?: string | null
     isDownloaded: string | null
   }
 ) => {
-  let query = supabaseClient
-    .from('Product')
-    .select(
-      'sku:code, name:title, image_path:mainImageUrl, isDownloaded, isProcessing, casts, maker, series'
+  try {
+    const data = await sb(
+      db().product.findMany({
+        select: {
+          code: true,
+          title: true,
+          mainImageUrl: true,
+          isDownloaded: true,
+          isProcessing: true,
+          casts: true,
+          maker: true,
+          series: true
+        },
+        orderBy: { createdAt: order.sort ?? 'desc' },
+        take: 100,
+        skip: (page - 1) * 100,
+        where: {
+          ...(filter?.keyword
+            ? {
+                OR: [
+                  { maker: filter.keyword },
+                  { series: filter.keyword },
+                  { casts: { has: filter.keyword } }
+                ]
+              }
+            : {}),
+          ...(filter?.isDownloaded
+            ? { isDownloaded: filter.isDownloaded === '1' }
+            : {})
+        }
+      })
     )
-    .order(order.column ?? 'createdAt', { ascending: order.sort === 'asc' })
-    .range((page - 1) * 100, page * 100 - 1)
-  if (filter?.keyword)
-    query = query.or(
-      `maker.eq.${filter.keyword},series.eq.${filter.keyword},casts.cs.{${filter.keyword}}`
+    return data.map(
+      ({ code: sku, title: name, mainImageUrl: image_path, ...rest }) => ({
+        sku,
+        name,
+        image_path,
+        ...rest
+      })
     )
-  if (filter?.isDownloaded)
-    query = query.is('isDownloaded', filter.isDownloaded === '1')
-
-  const { data, error } = await query
-
-  if (error) console.log(error)
-
-  return data
+  } catch (e) {
+    console.log(e)
+    return []
+  }
 }
 
 export const productsFromF = async (

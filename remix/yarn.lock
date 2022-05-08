@@ -1599,17 +1599,18 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@sb-prisma/client@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@sb-prisma/client/-/client-1.0.3.tgz#45648744c3f5b0eb445fd6a995af54d9b1cfa1ca"
-  integrity sha512-WMxAbnLVkJNiYUq4kKPSpBx/41qxuZWM27R9WNBSdRSM3XaQ0/ATkkqy/EswAqQVkH12Lt8T33SHZUzpbljYDQ==
+"@sb-prisma/client@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@sb-prisma/client/-/client-1.2.1.tgz#75a9b835e93fbf6005fbd3bffa3ec4995d2490b1"
+  integrity sha512-qwc655Uk0jsWcBNxe9o0sZsxCNXuArmDlJ23CU+wCZPK+OlurLs66wwqYZYO72zKMAj+FJ268mEdArdRXogBLQ==
   dependencies:
-    "@sb-prisma/generator" "1.1.1"
+    "@sb-prisma/generator" "1.2.0"
+    uuid "^8.3.2"
 
-"@sb-prisma/generator@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@sb-prisma/generator/-/generator-1.1.1.tgz#3aceab37f45f371237bee60f790188b62d482a52"
-  integrity sha512-sMaE0/guds8sD/Az9EeFNGLMkb2uuXX2LhWz7vw4RFUSPaVkgRE2AVoL5r279nJzo2iJ+QiHTF/S8+Jb+Bu+vw==
+"@sb-prisma/generator@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@sb-prisma/generator/-/generator-1.2.0.tgz#cc481968588291c7a27dcec9b5952e680d339bf3"
+  integrity sha512-KAkdk7TPxqBP2ZeMOW50uyPw6tsAvtnQFXPgnU+Hkl+oZbuwQAmivDYsolRfBXVEVdoNNb18yg+c+AtF2fOkpA==
   dependencies:
     "@prisma/generator-helper" "3.13.0"
     "@prisma/sdk" "3.13.0"

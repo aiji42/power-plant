@@ -21,7 +21,7 @@ model Product {
   isDownloaded Boolean   @default(false)
   isLiked      Boolean   @default(false)
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
   title        String
   maker        String?
   series       String?
