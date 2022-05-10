@@ -9,7 +9,7 @@ import {
 } from '~/utils/casts.server'
 import { cacheable } from '~/utils/kv.server'
 import { productFromDB } from '~/utils/product.server'
-import { supabaseClient } from '~/utils/supabase.server'
+import { db } from '~/utils/prisma.server'
 
 export type CastsData = {
   error?: string
@@ -57,19 +57,13 @@ export const action: ActionFunction = async ({ request, params, context }) => {
   const cast = formData.get('cast')
   const { casts } = await productFromDB(code)
 
-  if (cast) {
+  if (cast && typeof cast === 'string') {
     const newCasts =
       request.method === 'DELETE'
         ? casts.filter((c) => c !== cast)
         : [...new Set([...casts, cast])]
 
-    await supabaseClient
-      .from('Product')
-      .update({
-        casts: newCasts,
-        updatedAt: new Date().toISOString()
-      })
-      .match({ code })
+    await db.product.update({ where: { code }, data: { casts: newCasts } })
   }
 
   return loader({ request, params, context })
