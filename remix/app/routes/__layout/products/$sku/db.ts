@@ -3,12 +3,12 @@ import { DBData, searchProductFromSite } from '~/utils/product.server'
 import { deleteMedia, submitDownloadJob } from '~/utils/aws.server'
 import { getBucketAndKeyFromURL } from '~/utils/aws'
 import { cacheable } from '~/utils/kv.server'
-import { db, sb } from '~/utils/prisma.server'
+import { db } from '~/utils/prisma.server'
 
 export const action: ActionFunction = async ({ request, params }) => {
   const code = params.sku as string
   if (request.method === 'DELETE') {
-    const data = await sb(db().product.delete({ where: { code } }))
+    const data = await db.product.delete({ where: { code } })
     if (process.env.NODE_ENV === 'production')
       await Promise.all(
         data.mediaUrls.map((url: string) =>
@@ -36,7 +36,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       isDownloaded,
       isProcessing,
       id
-    } = await sb(db().product.update({ where: { code }, data: formData }))
+    } = await db.product.update({ where: { code }, data: formData })
     if (formData.downloadUrl && process.env.NODE_ENV === 'production')
       await submitDownloadJob(id)
     return {
@@ -65,22 +65,20 @@ export const action: ActionFunction = async ({ request, params }) => {
     { cacheable: false } // FIXME: I dont know why cacheable is false
   )
 
-  await sb(
-    db().product.create({
-      data: {
-        code,
-        title,
-        mainImageUrl,
-        subImageUrls,
-        casts: [],
-        length,
-        genres,
-        series,
-        releasedAt: releasedAt ? new Date(releasedAt) : releasedAt,
-        maker
-      }
-    })
-  )
+  await db.product.create({
+    data: {
+      code,
+      title,
+      mainImageUrl,
+      subImageUrls,
+      casts: [],
+      length,
+      genres,
+      series,
+      releasedAt: releasedAt ? new Date(releasedAt) : releasedAt,
+      maker
+    }
+  })
 
   return {
     isSaved: true,

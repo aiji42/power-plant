@@ -1,7 +1,7 @@
 import { HTMLElement, parse } from 'node-html-parser'
 import chunk from 'chunk'
 import { productsSearchFromF } from '~/utils/f.server'
-import { db, sb } from '~/utils/prisma.server'
+import { db } from '~/utils/prisma.server'
 
 const HOST = 'https://sp.mgstage.com'
 
@@ -121,7 +121,7 @@ const sampleMovieFromF = async (cid: string) => {
 export const productFromDB = async (
   code: string
 ): Promise<DBData & { id: string }> => {
-  const data = await sb(db().product.findUnique({ where: { code } }))
+  const data = await db.product.findUnique({ where: { code } })
 
   return {
     id: data?.id ?? '',

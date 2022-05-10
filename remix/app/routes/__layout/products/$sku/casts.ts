@@ -9,7 +9,7 @@ import {
 } from '~/utils/casts.server'
 import { cacheable } from '~/utils/kv.server'
 import { productFromDB } from '~/utils/product.server'
-import { db, sb } from '~/utils/prisma.server'
+import { db } from '~/utils/prisma.server'
 
 export type CastsData = {
   error?: string
@@ -63,9 +63,7 @@ export const action: ActionFunction = async ({ request, params, context }) => {
         ? casts.filter((c) => c !== cast)
         : [...new Set([...casts, cast])]
 
-    await sb(
-      db().product.update({ where: { code }, data: { casts: newCasts } })
-    )
+    await db.product.update({ where: { code }, data: { casts: newCasts } })
   }
 
   return loader({ request, params, context })

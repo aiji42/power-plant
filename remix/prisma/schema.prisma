@@ -1,8 +1,5 @@
-generator sb_prisma {
+generator sb {
   provider       = "sb-prisma"
-  output         = "../app/sb-prisma"
-  endpoint       = "SUPABASE_URL"
-  apikey         = "SUPABASE_API_KEY"
 }
 
 generator client {

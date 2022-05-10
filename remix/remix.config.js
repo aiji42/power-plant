@@ -2,7 +2,6 @@ const { withEsbuildOverride } = require('remix-esbuild-override')
 const GlobalsPolyfills =
   require('@esbuild-plugins/node-globals-polyfill').default
 const alias = require('esbuild-plugin-alias')
-require('dotenv').config()
 
 withEsbuildOverride((option, { isServer }) => {
   if (isServer)
@@ -15,14 +14,6 @@ withEsbuildOverride((option, { isServer }) => {
       }),
       ...option.plugins
     ]
-
-  option.define = {
-    'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL),
-    'process.env.SUPABASE_API_KEY': JSON.stringify(
-      process.env.SUPABASE_API_KEY
-    ),
-    ...option.define
-  }
 
   return option
 })

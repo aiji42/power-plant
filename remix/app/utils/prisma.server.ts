@@ -1,6 +1,6 @@
-import { createClient } from '~/sb-prisma'
+import { makeMiddleware } from '@sb-prisma/client'
 import { PrismaClient } from '@prisma/client'
 
-export { sb } from '~/sb-prisma'
-
-export const db = () => createClient<PrismaClient>(PrismaClient)
+const middleware = makeMiddleware(SUPABASE_URL, SUPABASE_API_KEY)
+export const db = new PrismaClient()
+db.$use(middleware)

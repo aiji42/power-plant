@@ -1,5 +1,5 @@
 import { productsSearchFromF } from '~/utils/f.server'
-import { db, sb } from '~/utils/prisma.server'
+import { db } from '~/utils/prisma.server'
 
 export type ProductListItem = {
   sku: string
@@ -55,37 +55,33 @@ export const productsFromDB = async (
   }
 ) => {
   try {
-    const data = await sb(
-      db().product.findMany({
-        select: {
-          code: true,
-          title: true,
-          mainImageUrl: true,
-          isDownloaded: true,
-          isProcessing: true,
-          casts: true,
-          maker: true,
-          series: true
-        },
-        orderBy: { createdAt: order.sort ?? 'desc' },
-        take: 100,
-        skip: (page - 1) * 100,
-        where: {
-          ...(filter?.keyword
-            ? {
-                OR: [
-                  { maker: filter.keyword },
-                  { series: filter.keyword },
-                  { casts: { has: filter.keyword } }
-                ]
-              }
-            : {}),
-          ...(filter?.isDownloaded
-            ? { isDownloaded: filter.isDownloaded === '1' }
-            : {})
-        }
-      })
-    )
+    const data = await db.product.findMany({
+      select: {
+        code: true,
+        title: true,
+        mainImageUrl: true,
+        isDownloaded: true,
+        isProcessing: true,
+        casts: true,
+        maker: true,
+        series: true
+      },
+      orderBy: { createdAt: order.sort ?? 'desc' },
+      take: 100,
+      skip: (page - 1) * 100,
+      where: {
+        OR: filter?.keyword
+          ? [
+              { maker: filter.keyword },
+              { series: filter.keyword },
+              { casts: { has: filter.keyword } }
+            ]
+          : [],
+        ...(filter?.isDownloaded
+          ? { isDownloaded: filter.isDownloaded === '1' }
+          : {})
+      }
+    })
     return data.map(
       ({ code: sku, title: name, mainImageUrl: image_path, ...rest }) => ({
         sku,
