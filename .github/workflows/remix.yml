@@ -20,16 +20,17 @@ jobs:
         with:
           path: "**/node_modules"
           key: modules-${{ hashFiles('**/yarn.lock') }}
-      - name: Install dependencies
+      - name: Install dependencies and generate
         working-directory: './remix'
-        run: yarn install --frozen-lockfile
+        run: | 
+          yarn install --frozen-lockfile
+          yarn generate
       - name: Deploy 🚀
         uses: cloudflare/wrangler-action@2.0.0
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           workingDirectory: './remix'
           preCommands: |
-            yarn generate
             echo $SUPABASE_URL | wrangler secret put SUPABASE_URL
             echo $SUPABASE_API_KEY | wrangler secret put SUPABASE_API_KEY
             echo $PROVIDER_F_API_ID | wrangler secret put PROVIDER_F_API_ID
