@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - remix/**
+#    paths:
+#      - remix/**
 
 jobs:
   deploy:
@@ -26,7 +26,7 @@ jobs:
           yarn install --frozen-lockfile
           yarn generate
       - name: Deploy 🚀
-        uses: cloudflare/wrangler-action@2.0.0
+        uses: cloudflare/wrangler-action@next
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           workingDirectory: './remix'
