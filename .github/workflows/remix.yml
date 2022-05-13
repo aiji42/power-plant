@@ -26,23 +26,32 @@ jobs:
           yarn install --frozen-lockfile
           yarn generate
       - name: Deploy 🚀
-        uses: cloudflare/wrangler-action@next
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          workingDirectory: './remix'
-          preCommands: |
-            echo $SUPABASE_URL | wrangler secret put SUPABASE_URL
-            echo $SUPABASE_API_KEY | wrangler secret put SUPABASE_API_KEY
-            echo $PROVIDER_F_API_ID | wrangler secret put PROVIDER_F_API_ID
-            echo $PROVIDER_F_AFF_ID | wrangler secret put PROVIDER_F_AFF_ID
-            echo $AWS_ACCESS_KEY_ID | wrangler secret put AWS_ACCESS_KEY_ID
-            echo $AWS_SECRET_ACCESS_KEY | wrangler secret put AWS_SECRET_ACCESS_KEY
-            echo $AWS_DEFAULT_REGION | wrangler secret put AWS_DEFAULT_REGION
-            echo $JOB_DEFINITION_FOR_DOWNLOAD | wrangler secret put JOB_DEFINITION_FOR_DOWNLOAD
-            echo $JOB_DEFINITION_FOR_COMPRESSION | wrangler secret put JOB_DEFINITION_FOR_COMPRESSION
-            echo $JOB_QUEUE | wrangler secret put JOB_QUEUE
-            echo $JOB_QUEUE_FOR_HIGH | wrangler secret put JOB_QUEUE_FOR_HIGH
+        working-directory: './remix'
+        run: |
+          echo $SUPABASE_URL | wrangler secret put SUPABASE_URL
+          echo $SUPABASE_API_KEY | wrangler secret put SUPABASE_API_KEY
+          echo $PROVIDER_F_API_ID | wrangler secret put PROVIDER_F_API_ID
+          echo $PROVIDER_F_AFF_ID | wrangler secret put PROVIDER_F_AFF_ID
+          echo $AWS_ACCESS_KEY_ID | wrangler secret put AWS_ACCESS_KEY_ID
+          echo $AWS_SECRET_ACCESS_KEY | wrangler secret put AWS_SECRET_ACCESS_KEY
+          echo $AWS_DEFAULT_REGION | wrangler secret put AWS_DEFAULT_REGION
+          echo $JOB_DEFINITION_FOR_DOWNLOAD | wrangler secret put JOB_DEFINITION_FOR_DOWNLOAD
+          echo $JOB_DEFINITION_FOR_COMPRESSION | wrangler secret put JOB_DEFINITION_FOR_COMPRESSION
+          echo $JOB_QUEUE | wrangler secret put JOB_QUEUE
+          echo $JOB_QUEUE_FOR_HIGH | wrangler secret put JOB_QUEUE_FOR_HIGH
+          echo $SUPABASE_URL | wrangler secret put SUPABASE_URL -c wrangler.bindee.yml
+          echo $SUPABASE_API_KEY | wrangler secret put SUPABASE_API_KEY -c wrangler.bindee.yml
+          echo $PROVIDER_F_API_ID | wrangler secret put PROVIDER_F_API_ID -c wrangler.bindee.yml
+          echo $PROVIDER_F_AFF_ID | wrangler secret put PROVIDER_F_AFF_ID -c wrangler.bindee.yml
+          echo $AWS_ACCESS_KEY_ID | wrangler secret put AWS_ACCESS_KEY_ID -c wrangler.bindee.yml
+          echo $AWS_SECRET_ACCESS_KEY | wrangler secret put AWS_SECRET_ACCESS_KEY -c wrangler.bindee.yml
+          echo $AWS_DEFAULT_REGION | wrangler secret put AWS_DEFAULT_REGION -c wrangler.bindee.yml
+          echo $JOB_DEFINITION_FOR_DOWNLOAD | wrangler secret put JOB_DEFINITION_FOR_DOWNLOAD -c wrangler.bindee.yml
+          echo $JOB_DEFINITION_FOR_COMPRESSION | wrangler secret put JOB_DEFINITION_FOR_COMPRESSION -c wrangler.bindee.yml
+          echo $JOB_QUEUE | wrangler secret put JOB_QUEUE -c wrangler.bindee.yml
+          echo $JOB_QUEUE_FOR_HIGH | wrangler secret put JOB_QUEUE_FOR_HIGH -c wrangler.bindee.yml
         env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
