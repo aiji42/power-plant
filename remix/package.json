@@ -11,7 +11,9 @@
     "dev:css": "tailwindcss -o ./app/tailwind.css --watch",
     "dev": "remix build && run-p dev:*",
     "start": "cross-env NODE_ENV=production miniflare ./build/index.js",
-    "deploy": "npm run build && wrangler publish",
+    "deploy": "npm run deploy:bindee && npm run deploy:edge",
+    "deploy:edge": "wrangler publish -c wrangler.toml",
+    "deploy:bindee": "wrangler publish -c wrangler.bindee.toml",
     "generate": "PRISMA_CLIENT_ENGINE_TYPE=dataproxy npx prisma generate"
   },
   "dependencies": {
@@ -53,8 +55,10 @@
     "npm-run-all": "^4.1.5",
     "prisma": "^3.14.0",
     "remix-esbuild-override": "^3.0.4",
+    "remix-service-bindings": "^1.0.0",
     "tailwindcss": "^3.0.24",
-    "typescript": "^4.6.4"
+    "typescript": "^4.6.4",
+    "wrangler": "^2.0.5"
   },
   "engines": {
     "node": ">=14"
