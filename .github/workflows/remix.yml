@@ -39,17 +39,17 @@ jobs:
           echo $JOB_DEFINITION_FOR_COMPRESSION | yarn wrangler secret put JOB_DEFINITION_FOR_COMPRESSION
           echo $JOB_QUEUE | yarn wrangler secret put JOB_QUEUE
           echo $JOB_QUEUE_FOR_HIGH | yarn wrangler secret put JOB_QUEUE_FOR_HIGH
-          echo $SUPABASE_URL | yarn wrangler secret put SUPABASE_URL -c wrangler.bindee.yml
-          echo $SUPABASE_API_KEY | yarn wrangler secret put SUPABASE_API_KEY -c wrangler.bindee.yml
-          echo $PROVIDER_F_API_ID | yarn wrangler secret put PROVIDER_F_API_ID -c wrangler.bindee.yml
-          echo $PROVIDER_F_AFF_ID | yarn wrangler secret put PROVIDER_F_AFF_ID -c wrangler.bindee.yml
-          echo $AWS_ACCESS_KEY_ID | yarn wrangler secret put AWS_ACCESS_KEY_ID -c wrangler.bindee.yml
-          echo $AWS_SECRET_ACCESS_KEY | yarn wrangler secret put AWS_SECRET_ACCESS_KEY -c wrangler.bindee.yml
-          echo $AWS_DEFAULT_REGION | yarn wrangler secret put AWS_DEFAULT_REGION -c wrangler.bindee.yml
-          echo $JOB_DEFINITION_FOR_DOWNLOAD | yarn wrangler secret put JOB_DEFINITION_FOR_DOWNLOAD -c wrangler.bindee.yml
-          echo $JOB_DEFINITION_FOR_COMPRESSION | yarn wrangler secret put JOB_DEFINITION_FOR_COMPRESSION -c wrangler.bindee.yml
-          echo $JOB_QUEUE | yarn wrangler secret put JOB_QUEUE -c wrangler.bindee.yml
-          echo $JOB_QUEUE_FOR_HIGH | yarn wrangler secret put JOB_QUEUE_FOR_HIGH -c wrangler.bindee.yml
+          echo $SUPABASE_URL | yarn wrangler secret put SUPABASE_URL -c wrangler.bindee.toml
+          echo $SUPABASE_API_KEY | yarn wrangler secret put SUPABASE_API_KEY -c wrangler.bindee.toml
+          echo $PROVIDER_F_API_ID | yarn wrangler secret put PROVIDER_F_API_ID -c wrangler.bindee.toml
+          echo $PROVIDER_F_AFF_ID | yarn wrangler secret put PROVIDER_F_AFF_ID -c wrangler.bindee.toml
+          echo $AWS_ACCESS_KEY_ID | yarn wrangler secret put AWS_ACCESS_KEY_ID -c wrangler.bindee.toml
+          echo $AWS_SECRET_ACCESS_KEY | yarn wrangler secret put AWS_SECRET_ACCESS_KEY -c wrangler.bindee.toml
+          echo $AWS_DEFAULT_REGION | yarn wrangler secret put AWS_DEFAULT_REGION -c wrangler.bindee.toml
+          echo $JOB_DEFINITION_FOR_DOWNLOAD | yarn wrangler secret put JOB_DEFINITION_FOR_DOWNLOAD -c wrangler.bindee.toml
+          echo $JOB_DEFINITION_FOR_COMPRESSION | yarn wrangler secret put JOB_DEFINITION_FOR_COMPRESSION -c wrangler.bindee.toml
+          echo $JOB_QUEUE | yarn wrangler secret put JOB_QUEUE -c wrangler.bindee.toml
+          echo $JOB_QUEUE_FOR_HIGH | yarn wrangler secret put JOB_QUEUE_FOR_HIGH -c wrangler.bindee.toml
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
