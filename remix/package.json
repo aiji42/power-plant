@@ -11,7 +11,7 @@
     "dev:css": "tailwindcss -o ./app/tailwind.css --watch",
     "dev": "remix build && run-p dev:*",
     "start": "cross-env NODE_ENV=production miniflare ./build/index.js",
-    "deploy": "npm run deploy:bindee && npm run deploy:edge",
+    "deploy": "npm run deploy:bindee && rm -rf public/build && npm run deploy:edge",
     "deploy:edge": "wrangler publish -c wrangler.edge.toml",
     "deploy:bindee": "wrangler publish -c wrangler.bindee.toml",
     "generate": "PRISMA_CLIENT_ENGINE_TYPE=dataproxy npx prisma generate"
