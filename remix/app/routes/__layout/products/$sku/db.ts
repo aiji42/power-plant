@@ -11,7 +11,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     const data = await db.product.delete({ where: { code } })
     if (process.env.NODE_ENV === 'production')
       await Promise.all(
-        data.mediaUrls.map((url: string) =>
+        data.mediaUrls?.map((url: string) =>
           deleteMedia(...getBucketAndKeyFromURL(url))
         ) ?? []
       )

@@ -1623,10 +1623,10 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@sb-prisma/client@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@sb-prisma/client/-/client-2.0.1.tgz#6fc7bfc7027d561a76982582a33c51589bfd6cd9"
-  integrity sha512-Wp5n/f+zsD0cue9TSCckD0DZ9/1wdY/mRBXo1a3mwlhADcHut5BAM9y4qeiEnqvRioY7EfNoef+Pz+KaNRVHOQ==
+"@sb-prisma/client@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@sb-prisma/client/-/client-2.0.2.tgz#e9a81ddb5c03a4cbdcb468892ba7b5b6c2d2d2e4"
+  integrity sha512-DisMiRwxTkQHI/CbSMfCXocqtKdtPadbLgKiOzJ1XvaBzJ5QQOmwhG3hc5OA1U72bQ8H2OVXzuB7rm8RqPeiLQ==
   dependencies:
     "@prisma/client" "^3.13.0"
     "@prisma/generator-helper" "^3.14.0"
@@ -6766,10 +6766,10 @@ remix-esbuild-override@^3.0.4:
   resolved "https://registry.yarnpkg.com/remix-esbuild-override/-/remix-esbuild-override-3.0.4.tgz#e62c7f00af1ea1e3398eaae62497c5faed72872f"
   integrity sha512-nIK9DcPo+bo2G2l8a779KdJhOQ6fs7evWpMVDiEZmKd/rvDRf//5Ygcavrxa4W7hLcJzIXcwh+A3o7QimaJgVQ==
 
-remix-service-bindings@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/remix-service-bindings/-/remix-service-bindings-1.0.0.tgz#7d311453660349dab8987af8805a56e053963bd4"
-  integrity sha512-8fgSjH9aNF8E1BS/O+xpyBh4vZXcuIQvqW8smTPh1CAfoI5LSGAzMyqQZa8s+saDd9lMslloHfTdYWgN5hRrxw==
+remix-service-bindings@^1.0.1:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/remix-service-bindings/-/remix-service-bindings-1.1.0.tgz#84badd935ab1887713c8e2cacd5390305c677b90"
+  integrity sha512-ucYuvo1CJTRccfyOQxNn80KXvlGS/MTqz3UbmrRb/A61rjnVQMhUij14Uc5WocB8bZ2w/iyUvAmfxrvosuJghQ==
   dependencies:
     ts-morph "^14.0.0"
 
