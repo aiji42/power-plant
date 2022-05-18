@@ -1,6 +1,7 @@
 import { ActionFunction, LoaderFunction } from '@remix-run/cloudflare'
 import { formatter } from '~/utils/sku'
 import {
+  CastHasCounts,
   Casts,
   mergeCasts,
   searchFast,
@@ -13,7 +14,7 @@ import { db } from '~/utils/prisma.server'
 
 export type CastsData = {
   error?: string
-  data: Casts
+  data: CastHasCounts
 }
 
 export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
@@ -37,10 +38,17 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
     ])
 
     return {
-      data: mergeCasts(
-        mergeCasts(searchResults[2], searchResults[1]),
-        searchResults[0]
-      )
+      data: (await Promise.all(
+        mergeCasts(
+          mergeCasts(searchResults[2], searchResults[1]),
+          searchResults[0]
+        ).map(async (cast) => ({
+          ...cast,
+          count: await db.product.count({
+            where: { casts: { has: cast.name } }
+          })
+        }))
+      )) as CastHasCounts
     }
   } catch (e) {
     console.error(e)
@@ -60,8 +68,8 @@ export const action: ActionFunction = async ({ request, params, context }) => {
   if (cast && typeof cast === 'string') {
     const newCasts =
       request.method === 'DELETE'
-        ? casts.filter((c) => c !== cast)
-        : [...new Set([...casts, cast])]
+        ? casts.filter(({ name }) => name !== cast).map(({ name }) => name)
+        : [...new Set([...casts.map(({ name }) => name), cast])]
 
     await db.product.update({ where: { code }, data: { casts: newCasts } })
   }

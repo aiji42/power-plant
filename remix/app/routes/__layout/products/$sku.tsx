@@ -96,8 +96,8 @@ const Product = () => {
       </div>
 
       <div className="mb-4 px-1">
-        {casts.map((cast) => (
-          <CastLink cast={cast} key={cast} />
+        {casts.map(({ count, name }) => (
+          <CastLink cast={name} count={count} key={name} />
         ))}
         {!castFormOpen ? (
           <span
@@ -188,7 +188,7 @@ const CastsForm: VFC = () => {
   useEffect(() => {
     castFetcher.load(`/products/${code}/casts`)
   }, [castFetcher.load])
-  const refSelected = useRef(casts)
+  const refSelected = useRef<string[]>(casts.map(({ name }) => name))
   const handler = useCallback<ChangeEventHandler<HTMLInputElement>>(
     (e) => {
       castFetcher.submit(
@@ -218,15 +218,15 @@ const CastsForm: VFC = () => {
 
   const selectableCasts = [
     ...(castFetcher.data?.data ?? []),
-    ...casts.map((name) => ({ name, link: '' }))
-  ].reduce<{ name: string; link: string }[]>((res, item) => {
+    ...casts.map(({ name, count }) => ({ name, count, link: '' }))
+  ].reduce<CastsData['data']>((res, item) => {
     if (res.some(({ name }) => name === item.name)) return res
     return [...res, item]
   }, [])
 
   return (
     <form className="flex flex-col">
-      {selectableCasts.map(({ name, link }) => (
+      {selectableCasts.map(({ name, link, count }) => (
         <div key={name} className="inline-flex items-center mt-3">
           <label className="py-1 mb-1">
             <input
@@ -238,7 +238,9 @@ const CastsForm: VFC = () => {
               defaultChecked={refSelected.current.includes(name)}
               onChange={handler}
             />
-            <span className="ml-2">{name}</span>
+            <span className="ml-2">
+              {name} ({count})
+            </span>
           </label>
           {link && (
             <a
@@ -474,7 +476,7 @@ const Media: VFC<{ url: string }> = ({ url }) => {
   )
 }
 
-const CastLink: VFC<{ cast: string }> = ({ cast }) => {
+const CastLink: VFC<{ cast: string; count: number }> = ({ cast, count }) => {
   const ref = useRef<HTMLParagraphElement>(null)
   const [clickedPosition, handleClick] = useReducer(
     (s: { x: number; y: number } | null, e: MouseEvent<HTMLElement> | null) => {
@@ -492,7 +494,7 @@ const CastLink: VFC<{ cast: string }> = ({ cast }) => {
         key={cast}
         className="text-xs font-semibold inline-block py-1 px-2 rounded-full text-indigo-600 bg-indigo-200  active:text-indigo-500 active:bg-indigo-100 last:mr-0 mr-1 mb-1"
       >
-        {cast}
+        {cast} ({count})
       </p>
       <div
         className="absolute left-0 w-40 py-2 mt-1 bg-indigo-200 rounded-md shadow-xl text-xs"

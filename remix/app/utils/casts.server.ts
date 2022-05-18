@@ -1,21 +1,25 @@
 import { parse } from 'node-html-parser'
 
-export type Casts = {
+type Cast = {
   link: string
   name: string
-}[]
+}
+
+type CastHasCount = Cast & { count: number }
+
+export type Casts = Cast[]
+
+export type CastHasCounts = CastHasCount[]
 
 export const searchFast = async (s: string): Promise<Casts> => {
   console.log('search cast: ', `https://shiroutoname.com/?s=${s}`)
   const res = await fetch(`https://shiroutoname.com/?s=${s}`)
   const html = await res.text()
   const root = parse(html)
-  return root
-    .querySelectorAll('div.actress-name .mlink')
-    .map<Casts[number]>((el) => ({
-      link: el.getAttribute('href') ?? '',
-      name: el.innerText
-    }))
+  return root.querySelectorAll('div.actress-name .mlink').map<Cast>((el) => ({
+    link: el.getAttribute('href') ?? '',
+    name: el.innerText
+  }))
 }
 
 export const searchMiddle = async (s: string): Promise<Casts> => {
@@ -27,7 +31,7 @@ export const searchMiddle = async (s: string): Promise<Casts> => {
     html = await res.text()
   }
   const root = parse(html)
-  return root.querySelectorAll('.actress-name a').map<Casts[number]>((el) => ({
+  return root.querySelectorAll('.actress-name a').map<Cast>((el) => ({
     link: el.getAttribute('href') ?? '',
     name: el.innerText
   }))
@@ -38,7 +42,7 @@ export const searchSlow = async (s: string): Promise<Casts> => {
   const res = await fetch(`https://av-actress-star.com/?s=${s}`)
   const html = await res.text()
   const root = parse(html)
-  return root.querySelectorAll('a.actress').map<Casts[number]>((el) => ({
+  return root.querySelectorAll('a.actress').map<Cast>((el) => ({
     link: el.getAttribute('href') ?? '',
     name: el.innerText
   }))

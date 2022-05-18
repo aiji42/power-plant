@@ -122,13 +122,21 @@ export const productFromDB = async (
   code: string
 ): Promise<DBData & { id: string }> => {
   const data = await db.product.findUnique({ where: { code } })
+  const castCounts = await Promise.all(
+    data?.casts?.map((cast) =>
+      db.product.count({ where: { casts: { has: cast } } })
+    ) ?? []
+  )
 
   return {
     id: data?.id ?? '',
     isSaved: !!data,
     isLiked: data?.isLiked ?? false,
     mediaUrls: data?.mediaUrls ?? [],
-    casts: data?.casts ?? [],
+    casts: (data?.casts ?? []).map((cast, index) => ({
+      name: cast,
+      count: castCounts[index]
+    })),
     downloadUrl: data?.downloadUrl ?? null,
     isDownloaded: data?.isDownloaded ?? false,
     isProcessing: data?.isProcessing ?? false,
@@ -140,7 +148,7 @@ export type DBData = {
   isSaved: boolean
   isLiked: boolean
   mediaUrls: string[]
-  casts: string[]
+  casts: { name: string; count: number }[]
   downloadUrl: string | null
   isDownloaded: boolean
   isProcessing: boolean

@@ -1623,10 +1623,10 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@sb-prisma/client@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@sb-prisma/client/-/client-2.0.2.tgz#e9a81ddb5c03a4cbdcb468892ba7b5b6c2d2d2e4"
-  integrity sha512-DisMiRwxTkQHI/CbSMfCXocqtKdtPadbLgKiOzJ1XvaBzJ5QQOmwhG3hc5OA1U72bQ8H2OVXzuB7rm8RqPeiLQ==
+"@sb-prisma/client@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@sb-prisma/client/-/client-2.1.0.tgz#84e6a602a0a73be66daf26def57d77acd727f367"
+  integrity sha512-NThJnyfXUu9CHI6Zvsx2OMikz0ojSy8DX9qyJ61obujzd7xK7dKxWooKn1yKukivAcV9RGjd2O8e4HShoJwnlQ==
   dependencies:
     "@prisma/client" "^3.13.0"
     "@prisma/generator-helper" "^3.14.0"
