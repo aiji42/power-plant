@@ -20,11 +20,10 @@ jobs:
         with:
           path: "**/node_modules"
           key: modules-${{ hashFiles('**/yarn.lock') }}
-      - name: Install dependencies and generate
+      - name: Install dependencies
         working-directory: './remix'
         run: | 
           yarn install --frozen-lockfile
-          yarn generate
       - name: Deploy 🚀
         working-directory: './remix'
         run: | 
