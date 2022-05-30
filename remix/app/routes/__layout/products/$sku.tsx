@@ -31,7 +31,7 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
     `searchProductFromSite-${sku}`,
     searchProductFromSite(sku),
     (res) => ({
-      expirationTtl: res.code.length > 0 ? 3600 * 24 * 3 : 0
+      expirationTtl: res.code.length > 0 ? 3600 * 24 * 3 : 1
     })
   )
   if (data.code !== sku) return redirect(`/products/${data.code}`)

@@ -53,8 +53,8 @@ jobs:
           rm -rf .cache public/build build
           yarn deploy:edge
         env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
           PROVIDER_F_API_ID: ${{ secrets.PROVIDER_F_API_ID }}
