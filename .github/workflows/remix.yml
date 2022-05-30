@@ -26,50 +26,43 @@ jobs:
           yarn install --frozen-lockfile
       - name: Deploy 🚀
         working-directory: './remix'
-        run: | 
+        run: |
+          echo $SUPABASE_URL | yarn wrangler secret put SUPABASE_URL -c wrangler.edge.toml
+          echo $SUPABASE_API_KEY | yarn wrangler secret put SUPABASE_API_KEY -c wrangler.edge.toml
+          echo $PROVIDER_F_API_ID | yarn wrangler secret put PROVIDER_F_API_ID -c wrangler.edge.toml
+          echo $PROVIDER_F_AFF_ID | yarn wrangler secret put PROVIDER_F_AFF_ID -c wrangler.edge.toml
+          echo $AWS_ACCESS_KEY_ID | yarn wrangler secret put AWS_ACCESS_KEY_ID -c wrangler.edge.toml
+          echo $AWS_SECRET_ACCESS_KEY | yarn wrangler secret put AWS_SECRET_ACCESS_KEY -c wrangler.edge.toml
+          echo $AWS_DEFAULT_REGION | yarn wrangler secret put AWS_DEFAULT_REGION -c wrangler.edge.toml
+          echo $JOB_DEFINITION_FOR_DOWNLOAD | yarn wrangler secret put JOB_DEFINITION_FOR_DOWNLOAD -c wrangler.edge.toml
+          echo $JOB_DEFINITION_FOR_COMPRESSION | yarn wrangler secret put JOB_DEFINITION_FOR_COMPRESSION -c wrangler.edge.toml
+          echo $JOB_QUEUE | yarn wrangler secret put JOB_QUEUE -c wrangler.edge.toml
+          echo $JOB_QUEUE_FOR_HIGH | yarn wrangler secret put JOB_QUEUE_FOR_HIGH -c wrangler.edge.toml
+          echo $SUPABASE_URL | yarn wrangler secret put SUPABASE_URL -c wrangler.bindee.toml
+          echo $SUPABASE_API_KEY | yarn wrangler secret put SUPABASE_API_KEY -c wrangler.bindee.toml
+          echo $PROVIDER_F_API_ID | yarn wrangler secret put PROVIDER_F_API_ID -c wrangler.bindee.toml
+          echo $PROVIDER_F_AFF_ID | yarn wrangler secret put PROVIDER_F_AFF_ID -c wrangler.bindee.toml
+          echo $AWS_ACCESS_KEY_ID | yarn wrangler secret put AWS_ACCESS_KEY_ID -c wrangler.bindee.toml
+          echo $AWS_SECRET_ACCESS_KEY | yarn wrangler secret put AWS_SECRET_ACCESS_KEY -c wrangler.bindee.toml
+          echo $AWS_DEFAULT_REGION | yarn wrangler secret put AWS_DEFAULT_REGION -c wrangler.bindee.toml
+          echo $JOB_DEFINITION_FOR_DOWNLOAD | yarn wrangler secret put JOB_DEFINITION_FOR_DOWNLOAD -c wrangler.bindee.toml
+          echo $JOB_DEFINITION_FOR_COMPRESSION | yarn wrangler secret put JOB_DEFINITION_FOR_COMPRESSION -c wrangler.bindee.toml
+          echo $JOB_QUEUE | yarn wrangler secret put JOB_QUEUE -c wrangler.bindee.toml
+          echo $JOB_QUEUE_FOR_HIGH | yarn wrangler secret put JOB_QUEUE_FOR_HIGH -c wrangler.bindee.toml
           yarn deploy:bindee
           rm -rf .cache public/build build
           yarn deploy:edge
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-#      - name: Deploy 🚀
-#        working-directory: './remix'
-#        run: |
-#          echo $SUPABASE_URL | yarn wrangler secret put SUPABASE_URL -c wrangler.edge.toml
-#          echo $SUPABASE_API_KEY | yarn wrangler secret put SUPABASE_API_KEY -c wrangler.edge.toml
-#          echo $PROVIDER_F_API_ID | yarn wrangler secret put PROVIDER_F_API_ID -c wrangler.edge.toml
-#          echo $PROVIDER_F_AFF_ID | yarn wrangler secret put PROVIDER_F_AFF_ID -c wrangler.edge.toml
-#          echo $AWS_ACCESS_KEY_ID | yarn wrangler secret put AWS_ACCESS_KEY_ID -c wrangler.edge.toml
-#          echo $AWS_SECRET_ACCESS_KEY | yarn wrangler secret put AWS_SECRET_ACCESS_KEY -c wrangler.edge.toml
-#          echo $AWS_DEFAULT_REGION | yarn wrangler secret put AWS_DEFAULT_REGION -c wrangler.edge.toml
-#          echo $JOB_DEFINITION_FOR_DOWNLOAD | yarn wrangler secret put JOB_DEFINITION_FOR_DOWNLOAD -c wrangler.edge.toml
-#          echo $JOB_DEFINITION_FOR_COMPRESSION | yarn wrangler secret put JOB_DEFINITION_FOR_COMPRESSION -c wrangler.edge.toml
-#          echo $JOB_QUEUE | yarn wrangler secret put JOB_QUEUE -c wrangler.edge.toml
-#          echo $JOB_QUEUE_FOR_HIGH | yarn wrangler secret put JOB_QUEUE_FOR_HIGH -c wrangler.edge.toml
-#          echo $SUPABASE_URL | yarn wrangler secret put SUPABASE_URL -c wrangler.bindee.toml
-#          echo $SUPABASE_API_KEY | yarn wrangler secret put SUPABASE_API_KEY -c wrangler.bindee.toml
-#          echo $PROVIDER_F_API_ID | yarn wrangler secret put PROVIDER_F_API_ID -c wrangler.bindee.toml
-#          echo $PROVIDER_F_AFF_ID | yarn wrangler secret put PROVIDER_F_AFF_ID -c wrangler.bindee.toml
-#          echo $AWS_ACCESS_KEY_ID | yarn wrangler secret put AWS_ACCESS_KEY_ID -c wrangler.bindee.toml
-#          echo $AWS_SECRET_ACCESS_KEY | yarn wrangler secret put AWS_SECRET_ACCESS_KEY -c wrangler.bindee.toml
-#          echo $AWS_DEFAULT_REGION | yarn wrangler secret put AWS_DEFAULT_REGION -c wrangler.bindee.toml
-#          echo $JOB_DEFINITION_FOR_DOWNLOAD | yarn wrangler secret put JOB_DEFINITION_FOR_DOWNLOAD -c wrangler.bindee.toml
-#          echo $JOB_DEFINITION_FOR_COMPRESSION | yarn wrangler secret put JOB_DEFINITION_FOR_COMPRESSION -c wrangler.bindee.toml
-#          echo $JOB_QUEUE | yarn wrangler secret put JOB_QUEUE -c wrangler.bindee.toml
-#          echo $JOB_QUEUE_FOR_HIGH | yarn wrangler secret put JOB_QUEUE_FOR_HIGH -c wrangler.bindee.toml
-#          yarn deploy
-#        env:
-#          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-#          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-#          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-#          SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
-#          PROVIDER_F_API_ID: ${{ secrets.PROVIDER_F_API_ID }}
-#          PROVIDER_F_AFF_ID: ${{ secrets.PROVIDER_F_AFF_ID }}
-#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          AWS_DEFAULT_REGION: ap-northeast-1
-#          JOB_DEFINITION_FOR_DOWNLOAD: ${{ secrets.JOB_DEFINITION_FOR_DOWNLOAD }}
-#          JOB_DEFINITION_FOR_COMPRESSION: ${{ secrets.JOB_DEFINITION_FOR_COMPRESSION }}
-#          JOB_QUEUE: ${{ secrets.JOB_QUEUE }}
-#          JOB_QUEUE_FOR_HIGH: ${{ secrets.JOB_QUEUE_FOR_HIGH }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
+          PROVIDER_F_API_ID: ${{ secrets.PROVIDER_F_API_ID }}
+          PROVIDER_F_AFF_ID: ${{ secrets.PROVIDER_F_AFF_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-1
+          JOB_DEFINITION_FOR_DOWNLOAD: ${{ secrets.JOB_DEFINITION_FOR_DOWNLOAD }}
+          JOB_DEFINITION_FOR_COMPRESSION: ${{ secrets.JOB_DEFINITION_FOR_COMPRESSION }}
+          JOB_QUEUE: ${{ secrets.JOB_QUEUE }}
+          JOB_QUEUE_FOR_HIGH: ${{ secrets.JOB_QUEUE_FOR_HIGH }}
