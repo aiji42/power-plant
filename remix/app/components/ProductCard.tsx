@@ -38,7 +38,8 @@ export const ProductCard = ({
   isDownloaded,
   casts,
   maker,
-  series
+  series,
+  stealthMode
 }: {
   sku: string
   image_path: string
@@ -48,12 +49,15 @@ export const ProductCard = ({
   casts?: string[]
   maker?: string
   series?: string
+  stealthMode?: boolean
 }) => {
   return (
     <Box w="full" rounded="xl">
       <Flex>
         <Box w="8rem">
-          <Thumbnail src={image_path} />
+          <Thumbnail
+            src={stealthMode ? 'https://picsum.photos/200/300' : image_path}
+          />
         </Box>
         <Box w={'calc(100% - 8rem)'}>
           <Flex alignItems="center">

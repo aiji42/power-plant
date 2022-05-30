@@ -14,11 +14,16 @@ import {
 import { ProductCard } from '~/components/ProductCard'
 import { FilterModal } from '~/components/FilterModal'
 import { Pageable } from '~/components/Pageable'
+import {
+  LoaderData as StealthData,
+  loaderHandler as stealthLoader
+} from '~/forms/StealthModeToggle'
 
 type Data = {
   items: ProductListItem[]
   page: number
-} & ProductFilterFormData
+} & ProductFilterFormData &
+  StealthData
 
 export const loader: LoaderFunction = async ({ request }) => {
   const params = new URL(request.url).searchParams
@@ -49,7 +54,8 @@ export const loader: LoaderFunction = async ({ request }) => {
       sort,
       download,
       keyword
-    }
+    },
+    ...(await stealthLoader({ request }))
   } as Data
 }
 
@@ -61,14 +67,14 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 const Products: VFC = () => {
-  const { items } = useLoaderData<Data>()
+  const { items, stealthMode } = useLoaderData<Data>()
 
   return (
     <Pageable>
       <FilterModal />
       {items.map((item) => (
         <Link to={`/products/${item.sku}`} key={item.sku}>
-          <ProductCard {...item} />
+          <ProductCard {...item} stealthMode={stealthMode} />
         </Link>
       ))}
     </Pageable>

@@ -1,5 +1,10 @@
 import { useEffect, ReactNode } from 'react'
-import { useLocation, Outlet, Link as RemixLink } from '@remix-run/react'
+import {
+  useLocation,
+  Outlet,
+  Link as RemixLink,
+  useLoaderData
+} from '@remix-run/react'
 import {
   Box,
   useDisclosure,
@@ -11,11 +16,18 @@ import {
 import { LoaderFunction } from '@remix-run/cloudflare'
 import { supabaseStrategy } from '~/utils/auth.server'
 import SearchCodeForm from '~/forms/SearchCode'
+import StealthModeToggle, {
+  loaderHandler,
+  LoaderData
+} from '~/forms/StealthModeToggle'
 
-export const loader: LoaderFunction = async ({ request }) =>
-  supabaseStrategy.checkSession(request, {
+export const loader: LoaderFunction = async ({ request }) => {
+  await supabaseStrategy.checkSession(request, {
     failureRedirect: '/login'
   })
+
+  return await loaderHandler({ request })
+}
 
 const Links = [
   { href: '/products', children: 'Products' },
@@ -39,6 +51,7 @@ const NavLink = (props: { children: ReactNode; href: string }) => (
 )
 
 export default function Layout() {
+  const { stealthMode } = useLoaderData<LoaderData>()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const location = useLocation()
   useEffect(() => {
@@ -63,6 +76,7 @@ export default function Layout() {
                 <NavLink {...link} key={link.href} />
               ))}
               <SearchCodeForm action="/products/code" />
+              <StealthModeToggle stealthMode={stealthMode} action="/stealth" />
             </Stack>
           </Box>
         ) : null}

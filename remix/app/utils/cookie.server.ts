@@ -1,6 +1,9 @@
 import { createCookie } from '@remix-run/cloudflare'
 
-export const filterConditionStore = createCookie('filter-condition', {
-  maxAge: 604_800, // one week
-  path: '/'
+export const stealthModeCookie = createCookie('stealth', {
+  path: '/',
+  sameSite: 'lax',
+  httpOnly: true,
+  secure: true,
+  maxAge: 60 * 60 * 24 * 365
 })

@@ -27,6 +27,7 @@
     "@remix-run/cloudflare": "^1.4.3",
     "@remix-run/cloudflare-workers": "^1.4.3",
     "@remix-run/react": "^1.4.3",
+    "@remix-validated-form/with-zod": "^2.0.1",
     "@sb-prisma/client": "^2.1.0",
     "@supabase/supabase-js": "^1.35.3",
     "aws4fetch": "^1.0.13",
@@ -40,7 +41,9 @@
     "react-intersection-observer": "^9.1.0",
     "react-swipeable": "^7.0.0",
     "remix-auth": "^3.2.1",
-    "remix-auth-supabase": "^4.0.0"
+    "remix-auth-supabase": "^4.0.0",
+    "remix-validated-form": "^4.5.0",
+    "zod": "^3.17.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.9.0",
