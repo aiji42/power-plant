@@ -43,7 +43,14 @@ export const action: ActionFunction = async ({ request, params }) => {
       isSaved: true,
       isLiked,
       mediaUrls,
-      casts,
+      casts: await Promise.all(
+        casts.map(async (cast) => {
+          const count = await db.product.count({
+            where: { casts: { has: cast } }
+          })
+          return { name: cast, count }
+        })
+      ),
       downloadUrl,
       isDownloaded,
       isProcessing
