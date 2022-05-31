@@ -7,7 +7,7 @@ import { stealthModeCookie } from '~/utils/cookie.server'
 import { useFetcher } from '@remix-run/react'
 
 const model = z.object({
-  stealthMode: z.string().regex(/on/).nullable()
+  stealthMode: z.string().regex(/on/).nullish()
 })
 
 const validator = withZod(model)
