@@ -2,9 +2,10 @@ import { ValidatedForm, validationError } from 'remix-validated-form'
 import { withZod } from '@remix-validated-form/with-zod'
 import { z } from 'zod'
 import { Switch } from '@chakra-ui/react'
-import { ActionFunction, json, redirect } from '@remix-run/cloudflare'
+import { ActionFunction, json } from '@remix-run/cloudflare'
 import { stealthModeCookie } from '~/utils/cookie.server'
 import { useFetcher } from '@remix-run/react'
+import { useRef } from 'react'
 
 const model = z.object({
   stealthMode: z.string().regex(/on/).nullish()
@@ -39,12 +40,14 @@ export const actionHandler: ActionFunction = async ({ request }) => {
   const { stealthMode } = result.data
   cookie.stealthMode = !!stealthMode
 
-  // FIXME
-  return redirect('/products', {
-    headers: {
-      'Set-Cookie': await stealthModeCookie.serialize(cookie)
+  return json(
+    { stealthMode },
+    {
+      headers: {
+        'Set-Cookie': await stealthModeCookie.serialize(cookie)
+      }
     }
-  })
+  )
 }
 
 export default function Form({
@@ -55,15 +58,22 @@ export default function Form({
   action?: string
 }) {
   const fetcher = useFetcher()
+  const ref = useRef<HTMLButtonElement>(null)
   return (
     <ValidatedForm
       validator={validator}
       action={action}
       fetcher={fetcher}
       method="post"
-      onChange={(e) => e.currentTarget.submit()}
     >
-      <Switch value="on" name="stealthMode" isChecked={stealthMode} />
+      <Switch
+        value="on"
+        name="stealthMode"
+        defaultChecked={stealthMode}
+        onChange={() => ref.current?.click()}
+        colorScheme="purple"
+      />
+      <button type="submit" ref={ref} />
     </ValidatedForm>
   )
 }
