@@ -22,10 +22,18 @@ import { CastsData } from '~/routes/__layout/products/$sku/casts'
 import { cacheable } from '~/utils/kv.server'
 import { JobListData } from '~/routes/__layout/products/$sku/job'
 import { MediaData } from '~/routes/__layout/products/$sku/media'
+import { SwipeToRandom } from '~/components/SwipeToRandom'
+import {
+  LoaderData as StealthData,
+  loaderHandler as stealthLoader
+} from '~/forms/StealthModeToggle'
 
-type Data = ProductFromSite & DBData
+type Data = ProductFromSite & DBData & StealthData
 
-export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
+export const loader: LoaderFunction = async ({
+  request,
+  params: { sku = '' }
+}) => {
   const db = productFromDB(sku)
   const data = await cacheable(
     `searchProductFromSite-${sku}`,
@@ -39,7 +47,8 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
 
   return {
     ...dbData,
-    ...Object.fromEntries(Object.entries(data).filter(([, v]) => v))
+    ...Object.fromEntries(Object.entries(data).filter(([, v]) => v)),
+    ...(await stealthLoader({ request }))
   }
 }
 
@@ -54,6 +63,7 @@ const Product = () => {
     isDownloaded,
     casts,
     mediaUrls,
+    stealthMode,
     ...data
   } = useLoaderData<Data>()
 
@@ -72,7 +82,7 @@ const Product = () => {
   const [mediaDownloadOpen, openMediaForm] = useReducer(() => true, false)
 
   return (
-    <>
+    <SwipeToRandom disabled={!data.id}>
       <div className="grid grid-cols-8">
         <h1
           className={`px-1 col-span-7 ${truncate ? 'truncate' : ''}`}
@@ -113,6 +123,13 @@ const Product = () => {
           <CastsForm />
         )}
       </div>
+
+      {mainImageUrl && (
+        <img
+          src={stealthMode ? 'https://picsum.photos/200/300' : mainImageUrl}
+          className="w-full mb-2"
+        />
+      )}
 
       <dl className="mb-4">
         {Object.entries(data)
@@ -173,13 +190,10 @@ const Product = () => {
 
       {sample && <video src={sample} controls className="w-full" />}
 
-      {mainImageUrl && (
-        <img src={mainImageUrl} loading="lazy" className="w-full mb-2" />
-      )}
       {subImageUrls.map((src) => (
         <img src={src} loading="lazy" className="w-full mb-2" key={src} />
       ))}
-    </>
+    </SwipeToRandom>
   )
 }
 

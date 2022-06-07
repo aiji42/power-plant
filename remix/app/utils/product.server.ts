@@ -149,6 +149,7 @@ export const productFromDB = async (
 }
 
 export type DBData = {
+  id: string
   title: string
   code: string
   isSaved: boolean
