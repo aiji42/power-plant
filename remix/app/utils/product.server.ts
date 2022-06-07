@@ -129,6 +129,8 @@ export const productFromDB = async (
   )
 
   return {
+    title: data?.title ?? '',
+    code: data?.code ?? '',
     id: data?.id ?? '',
     isSaved: !!data,
     isLiked: data?.isLiked ?? false,
@@ -140,11 +142,15 @@ export const productFromDB = async (
     downloadUrl: data?.downloadUrl ?? null,
     isDownloaded: data?.isDownloaded ?? false,
     isProcessing: data?.isProcessing ?? false,
-    genres: data?.genres ?? []
+    genres: data?.genres ?? [],
+    mainImageUrl: data?.mainImageUrl ?? null,
+    subImageUrls: data?.subImageUrls ?? []
   }
 }
 
 export type DBData = {
+  title: string
+  code: string
   isSaved: boolean
   isLiked: boolean
   mediaUrls: string[]
@@ -153,6 +159,8 @@ export type DBData = {
   isDownloaded: boolean
   isProcessing: boolean
   genres: string[]
+  mainImageUrl: string | null
+  subImageUrls: string[]
 }
 
 export const searchProductFromSite = async (code: string) => {

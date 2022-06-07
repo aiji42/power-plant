@@ -31,13 +31,16 @@ export const loader: LoaderFunction = async ({ params: { sku = '' } }) => {
     `searchProductFromSite-${sku}`,
     searchProductFromSite(sku),
     (res) => ({
-      expirationTtl: res.code.length > 0 ? 3600 * 24 * 3 : 1
+      expirationTtl: res.code.length > 0 ? 3600 * 24 * 3 : 60
     })
   )
-  if (data.code !== sku) return redirect(`/products/${data.code}`)
+  if (data.code && data.code !== sku) return redirect(`/products/${data.code}`)
   const dbData = await db
 
-  return { ...dbData, ...data }
+  return {
+    ...dbData,
+    ...Object.fromEntries(Object.entries(data).filter(([, v]) => v))
+  }
 }
 
 const Product = () => {
