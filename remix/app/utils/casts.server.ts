@@ -31,10 +31,13 @@ export const searchMiddle = async (s: string): Promise<Casts> => {
     html = await res.text()
   }
   const root = parse(html)
-  return root.querySelectorAll('.actress-name a').map<Cast>((el) => ({
-    link: el.getAttribute('href') ?? '',
-    name: el.innerText
-  }))
+  return root
+    .querySelectorAll('.actress-name a')
+    .map<Cast>((el) => ({
+      link: el.getAttribute('href') ?? '',
+      name: el.innerText
+    }))
+    .filter(({ name }) => name !== '(≥o≤)')
 }
 
 export const searchSlow = async (s: string): Promise<Casts> => {
