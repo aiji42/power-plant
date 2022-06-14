@@ -1,10 +1,5 @@
-generator sb {
-  provider       = "sb-prisma"
-}
-
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["dataProxy"]
 }
 
 datasource db {

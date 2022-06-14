@@ -70,13 +70,15 @@ export const productsFromDB = async (
       take: 100,
       skip: (page - 1) * 100,
       where: {
-        OR: filter?.keyword
-          ? [
-              { maker: filter.keyword },
-              { series: filter.keyword },
-              { casts: { has: filter.keyword } }
-            ]
-          : [],
+        ...(filter?.keyword
+          ? {
+              OR: [
+                { maker: filter.keyword },
+                { series: filter.keyword },
+                { casts: { has: filter.keyword } }
+              ]
+            }
+          : {}),
         ...(filter?.isDownloaded
           ? { isDownloaded: filter.isDownloaded === '1' }
           : {})
