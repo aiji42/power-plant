@@ -20,7 +20,7 @@ const authToken = process.env.DATA_PROXY_API_KEY || 'foo'
   app.use(errorHandler())
   app.use(authenticate(authToken))
   app.use((req, _, next) => {
-    if (req.body === 'POST') req.headers['content-type'] = 'application/json'
+    if (req.method === 'POST') req.headers['content-type'] = 'application/json'
     next()
   })
   server.applyMiddleware({
