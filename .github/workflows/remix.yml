@@ -38,6 +38,7 @@ jobs:
           echo $JOB_DEFINITION_FOR_COMPRESSION | yarn wrangler secret put JOB_DEFINITION_FOR_COMPRESSION -c wrangler.edge.toml
           echo $JOB_QUEUE | yarn wrangler secret put JOB_QUEUE -c wrangler.edge.toml
           echo $JOB_QUEUE_FOR_HIGH | yarn wrangler secret put JOB_QUEUE_FOR_HIGH -c wrangler.edge.toml
+          echo $DATABASE_URL | yarn wrangler secret put DATABASE_URL -c wrangler.edge.toml
           echo $SUPABASE_URL | yarn wrangler secret put SUPABASE_URL -c wrangler.bindee.toml
           echo $SUPABASE_API_KEY | yarn wrangler secret put SUPABASE_API_KEY -c wrangler.bindee.toml
           echo $PROVIDER_F_API_ID | yarn wrangler secret put PROVIDER_F_API_ID -c wrangler.bindee.toml
@@ -49,6 +50,7 @@ jobs:
           echo $JOB_DEFINITION_FOR_COMPRESSION | yarn wrangler secret put JOB_DEFINITION_FOR_COMPRESSION -c wrangler.bindee.toml
           echo $JOB_QUEUE | yarn wrangler secret put JOB_QUEUE -c wrangler.bindee.toml
           echo $JOB_QUEUE_FOR_HIGH | yarn wrangler secret put JOB_QUEUE_FOR_HIGH -c wrangler.bindee.toml
+          echo $DATABASE_URL | yarn wrangler secret put DATABASE_URL -c wrangler.bindee.toml
           yarn deploy:bindee
           rm -rf .cache public/build build
           yarn deploy:edge
@@ -66,3 +68,4 @@ jobs:
           JOB_DEFINITION_FOR_COMPRESSION: ${{ secrets.JOB_DEFINITION_FOR_COMPRESSION }}
           JOB_QUEUE: ${{ secrets.JOB_QUEUE }}
           JOB_QUEUE_FOR_HIGH: ${{ secrets.JOB_QUEUE_FOR_HIGH }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
