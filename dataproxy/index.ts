@@ -19,6 +19,10 @@ const authToken = process.env.DATA_PROXY_API_KEY || 'foo'
   await Promise.all([db.$connect(), server.start()])
   app.use(errorHandler())
   app.use(authenticate(authToken))
+  app.use((req, _, next) => {
+    if (req.body === 'POST') req.headers['content-type'] = 'application/json'
+    next()
+  })
   server.applyMiddleware({
     app,
     path: '/*'
