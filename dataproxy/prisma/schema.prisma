@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id           String    @id @default(uuid())
+  code         String    @unique
+  isDownloaded Boolean   @default(false)
+  isLiked      Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  title        String
+  maker        String?
+  series       String?
+  genres       String[]
+  url          String?
+  mediaUrls    String[]
+  mainImageUrl String?
+  subImageUrls String[]
+  releasedAt   DateTime?
+  length       Int?
+  isProcessing Boolean?  @default(false)
+  downloadUrl  String?
+  casts        String[]
+}
