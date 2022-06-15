@@ -19,10 +19,6 @@ const apiKey = process.env.DATA_PROXY_API_KEY || 'foo'
   await Promise.all([db.$connect(), server.start()])
   app.use(beforeMiddleware({ apiKey }))
   app.use(afterMiddleware())
-  app.use((req, _, next) => {
-    if (req.method === 'POST') req.headers['content-type'] = 'application/json'
-    next()
-  })
   server.applyMiddleware({
     app,
     path: '/*'
