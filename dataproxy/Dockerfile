@@ -8,16 +8,15 @@ WORKDIR /app
 
 FROM base as builder
 
-COPY dataproxy/tsconfig.json .
 COPY dataproxy/package.json .
 COPY dataproxy/yarn.lock .
-COPY dataproxy/prisma/schema.prisma ./prisma/schema.prisma
+COPY remix/prisma/schema.prisma ./prisma/schema.prisma
 COPY dataproxy/index.ts .
 
 RUN yarn install
 
 RUN yarn prisma generate
-RUN yarn build
+RUN yarn tsc index.ts --esModuleInterop
 
 FROM base
 
@@ -25,9 +24,8 @@ ENV PORT=8080
 
 COPY --from=builder /app/package.json .
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
 
 USER node
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["node", "dist/index.js"]
+CMD ["node", "index.js"]
